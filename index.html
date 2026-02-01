@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="so">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tufaax Restaurant - Smart Menu</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="bg-gray-100 font-sans">
+
+    <div class="bg-red-600 text-white p-6 text-center rounded-b-3xl shadow-lg">
+        <h1 class="text-3xl font-bold italic">🍎 Tufaax Restaurant</h1>
+        <p class="text-sm opacity-90 mt-2">Dhadhamin aan la ilaawi karin!</p>
+    </div>
+
+    <div class="p-4 max-w-md mx-auto">
+        
+        <h2 class="text-lg font-bold text-gray-700 mb-4 border-l-4 border-red-600 pl-2">Qadada Maanta</h2>
+        
+        <div class="space-y-4">
+            <div class="bg-white flex p-3 rounded-xl shadow-sm items-center justify-between">
+                <div class="flex items-center">
+                    <div class="w-16 h-16 bg-gray-200 rounded-lg mr-3 flex items-center justify-center text-red-500 text-2xl">🍝</div>
+                    <div>
+                        <h3 class="font-semibold">Baasto Special</h3>
+                        <p class="text-xs text-gray-500">Hilib & Khudaar</p>
+                        <p class="text-red-600 font-bold">$4.50</p>
+                    </div>
+                </div>
+                <button onclick="sendOrder('Baasto Special', '4.50')" class="bg-green-500 hover:bg-green-600 text-white p-2 rounded-full shadow">
+                    <i class="fas fa-plus"></i>
+                </button>
+            </div>
+
+            <div class="bg-white flex p-3 rounded-xl shadow-sm items-center justify-between">
+                <div class="flex items-center">
+                    <div class="w-16 h-16 bg-gray-200 rounded-lg mr-3 flex items-center justify-center text-red-500 text-2xl">🍚</div>
+                    <div>
+                        <h3 class="font-semibold">Bariis Isku-dhex</h3>
+                        <p class="text-xs text-gray-500">Hilib Ari & Basbaas</p>
+                        <p class="text-red-600 font-bold">$5.00</p>
+                    </div>
+                </div>
+                <button onclick="sendOrder('Bariis Isku-dhex', '5.00')" class="bg-green-500 hover:bg-green-600 text-white p-2 rounded-full shadow">
+                    <i class="fas fa-plus"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="text-center p-6 text-gray-400 text-xs">
+        &copy; 2026 Tufaax Restaurant | Powered by Gemini & You
+    </div>
+
+    <script>
+        function sendOrder(item, price) {
+            // HALKAAN GELI LAMBARKAAGA WHATSAPP-KA
+            const myNumber = "252617054480"; 
+            const text = `Asc Tufaax Restaurant, waxaan rabaa inaan dalbado:\n\n✅ *${item}*\n💰 Qiimaha: $${price}\n\nFadlan ii soo xaqiiji!`;
+            const encodedText = encodeURIComponent(text);
+            window.location.href = `https://wa.me/${myNumber}?text=${encodedText}`;
+        }
+    </script>
+</body>
+</html>
