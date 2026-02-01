@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tufaax - 10m Secure Menu</title>
+    <title>Tufaax - 5m Ultra Secure</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-100 font-sans">
 
     <div class="bg-red-600 text-white p-6 text-center rounded-b-3xl shadow-lg">
         <h1 class="text-3xl font-bold italic">🍎 Tufaax Restaurant</h1>
-        <p id="status-label" class="text-sm mt-2 font-bold bg-white text-red-600 inline-block px-3 py-1 rounded-full italic italic">Hubinta masaafada...</p>
+        <p id="status-label" class="text-sm mt-2 font-bold bg-white text-red-600 inline-block px-3 py-1 rounded-full italic">Xaqiijinta 5 Mitir...</p>
     </div>
 
     <div class="p-4 max-w-md mx-auto space-y-4" id="menu-area" style="display: none;">
@@ -40,18 +40,18 @@
     </div>
 
     <div id="error-area" class="p-10 text-center flex flex-col items-center justify-center h-screen" style="display: none;">
-        <div class="text-6xl mb-4">📍</div>
+        <div class="text-6xl mb-4">⚠️</div>
         <h2 class="text-2xl font-bold text-red-600">Aad ayaad u fogtahay!</h2>
-        <p class="text-gray-500 mt-2">Waa inaad u jirtaa maqaayadda wax ka yar 10 mitir si aad u dalbato.</p>
-        <button onclick="location.reload()" class="mt-5 bg-red-600 text-white px-6 py-2 rounded-full font-bold">Mar kale isku day</button>
+        <p class="text-gray-500 mt-2">Nidaamku wuxuu ogolaanayaa kaliya masaafo dhan 5 mitir. Fadlan ku soo dhowaada miiska.</p>
+        <button onclick="location.reload()" class="mt-5 bg-red-600 text-white px-6 py-2 rounded-full font-bold">Refresh Goobta</button>
     </div>
 
     <script>
         const urlParams = new URLSearchParams(window.location.search);
         const tableNum = urlParams.get('table') || "Test";
 
-        // 1. Masaafada waxaan ka dhignay 0.01 (taas oo u dhiganta 10 mitir)
-        const MAX_DISTANCE = 0.01; 
+        // 0.005 km = 5 mitir
+        const MAX_DISTANCE = 0.005; 
 
         function getDistance(lat1, lon1, lat2, lon2) {
             const R = 6371;
@@ -62,6 +62,7 @@
         }
 
         function initLocation() {
+            // EnableHighAccuracy wuxuu muhiim u yahay 5-ta mitir
             navigator.geolocation.getCurrentPosition((position) => {
                 let savedLat = localStorage.getItem('test_lat');
                 let savedLon = localStorage.getItem('test_lon');
@@ -75,21 +76,20 @@
 
                 const dist = getDistance(position.coords.latitude, position.coords.longitude, parseFloat(savedLat), parseFloat(savedLon));
 
-                // Haddii dist ka yar yahay 0.01 (10 mitir)
                 if (dist <= MAX_DISTANCE) {
                     document.getElementById('menu-area').style.display = 'block';
-                    document.getElementById('status-label').innerText = `Miiska: ${tableNum} (Aamin ah)`;
+                    document.getElementById('status-label').innerText = `Miiska: ${tableNum} (5m Verified)`;
                 } else {
                     document.getElementById('error-area').style.display = 'flex';
                 }
             }, () => {
-                alert("Fadlan ogolow GPS-ka.");
-            });
+                alert("Fadlan ogolow GPS-ka si ammaan ah.");
+            }, { enableHighAccuracy: true });
         }
 
         function sendOrder(item, price) {
-            const myNumber = "252617054480"; // Geli lambarkaaga
-            const text = `*DALAB VERIFIED (10M)* ✅\n\n📍 *Miiska:* ${tableNum}\n🍴 *Cuntada:* ${item}\n💰 *Qiimaha:* $${price}`;
+            const myNumber = "25261XXXXXXX"; // Geli lambarkaaga
+            const text = `*DALAB 5M VERIFIED* 🍎\n\n📍 *Miiska:* ${tableNum}\n🍴 *Cuntada:* ${item}\n💰 *Qiimaha:* $${price}`;
             window.location.href = `https://wa.me/${myNumber}?text=${encodeURIComponent(text)}`;
         }
 
