@@ -3,62 +3,91 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tufaax - Secure Menu</title>
+    <title>Tufaax - GPS Verified Menu</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-100 font-sans">
 
     <div class="bg-red-600 text-white p-6 text-center rounded-b-3xl shadow-lg">
         <h1 class="text-3xl font-bold italic text-white">🍎 Tufaax Restaurant</h1>
-        <p id="table-display" class="text-sm mt-2 font-bold bg-white text-red-600 inline-block px-3 py-1 rounded-full italic">Xaqiijinta Amniga...</p>
+        <p id="status-label" class="text-sm mt-2 font-bold bg-white text-red-600 inline-block px-3 py-1 rounded-full italic">Hubinta Goobta...</p>
     </div>
 
-    <div class="p-4 max-w-md mx-auto" id="main-content">
+    <div class="p-4 max-w-md mx-auto" id="menu-area" style="display: none;">
+        <h2 class="text-lg font-bold text-gray-700 mb-4 border-l-4 border-red-600 pl-2">Qadada & Dalabka</h2>
+        
+        <div class="space-y-4">
+            <div class="bg-white flex p-3 rounded-xl shadow-sm items-center justify-between border border-gray-200">
+                <div class="flex items-center">
+                    <div class="text-2xl mr-3">🍝</div>
+                    <div>
+                        <h3 class="font-semibold text-gray-800">Baasto Special</h3>
+                        <p class="text-red-600 font-bold">$4.50</p>
+                    </div>
+                </div>
+                <button onclick="sendOrder('Baasto Special', '4.50')" class="bg-green-500 text-white p-2 px-4 rounded-lg font-bold shadow-md active:scale-90 transition">Dalbo</button>
+            </div>
         </div>
+    </div>
+
+    <div id="error-area" class="p-10 text-center flex flex-col items-center justify-center h-64" style="display: none;">
+        <div class="text-5xl mb-4">📍</div>
+        <h2 class="text-xl font-bold text-red-600">Maqaayadda ma joogtid!</h2>
+        <p class="text-gray-600 mt-2">Dalabka waa in laga soo diraa gudaha maqaayadda oo kaliya.</p>
+    </div>
 
     <script>
-        // 1. Amniga: Hubi Token-ka Link-ga ku jira
+        // 1. MEESHA AY MAQAAYADDU KU TAAL (Geli Coordinate-kaaga)
+        const RESTAURANT_LAT = 2.0371; // Tusaale: Muqdisho Latitude
+        const RESTAURANT_LON = 45.3392; // Tusaale: Muqdisho Longitude
+        const MAX_DISTANCE = 0.1; // Masaafada la ogol yahay (0.1 km = 100 mitir)
+
         const urlParams = new URLSearchParams(window.location.search);
         const tableNum = urlParams.get('table') || "Guri";
-        const token = urlParams.get('t'); // Token-ka waqtiga
-        
-        // Saacadda hadda jirta (Daqiiqado ahaan)
-        const currentTime = Math.floor(Date.now() / (1000 * 60 * 5)); // Isbedela 5-tii daqiiqo kasta
-        
-        function validateScan() {
-            if (token && Math.abs(currentTime - parseInt(token)) <= 1) {
-                renderMenu();
-                document.getElementById('table-display').innerText = `Miiska: ${tableNum} (Aamin ah)`;
-            } else {
-                document.body.innerHTML = `
-                    <div class="flex flex-col items-center justify-center h-screen p-10 text-center">
-                        <h2 class="text-2xl font-bold text-red-600 mb-4 font-sans text-center">❌ Link-gu waa dhacay!</h2>
-                        <p class="text-gray-600">Fadlan mar kale scan-garee QR Code-ka rasmiga ah ee miiska saaran. Sawirrada horay loo qaaday ma shaqaynayaan.</p>
-                    </div>`;
+
+        function checkLocation() {
+            if (!navigator.geolocation) {
+                alert("Taleefankaagu ma taageero GPS-ka.");
+                return;
             }
+
+            navigator.geolocation.getCurrentPosition((position) => {
+                const userLat = position.coords.latitude;
+                const userLon = position.coords.longitude;
+                
+                const distance = getDistance(userLat, userLon, RESTAURANT_LAT, RESTAURANT_LON);
+
+                if (distance <= MAX_DISTANCE) {
+                    document.getElementById('menu-area').style.display = 'block';
+                    document.getElementById('status-label').innerText = `Miiska: ${tableNum} (Xaqiijisan)`;
+                } else {
+                    document.getElementById('error-area').style.display = 'flex';
+                    document.getElementById('status-label').innerText = "Maqaayadda ka baxsan";
+                }
+            }, () => {
+                alert("Fadlan ogolow Location-ka si aad u dalbato.");
+            });
         }
 
-        function renderMenu() {
-            const menuHTML = `
-                <div class="space-y-4">
-                    <div class="bg-white flex p-4 rounded-2xl shadow-sm items-center justify-between border-l-4 border-green-500">
-                        <div>
-                            <h3 class="font-bold">Baasto Special</h3>
-                            <p class="text-red-600 font-bold">$4.50</p>
-                        </div>
-                        <button onclick="sendOrder('Baasto Special', '4.50')" class="bg-green-500 text-white px-6 py-2 rounded-xl font-bold shadow-md">Dalbo</button>
-                    </div>
-                </div>`;
-            document.getElementById('main-content').innerHTML = menuHTML;
+        // Formula lagu xisaabiyo masaafada labo dhibic (Haul-distance)
+        function getDistance(lat1, lon1, lat2, lon2) {
+            const R = 6371; // Radius of Earth in KM
+            const dLat = (lat2 - lat1) * Math.PI / 180;
+            const dLon = (lon2 - lon1) * Math.PI / 180;
+            const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon/2) * Math.sin(dLon/2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+            return R * c;
         }
 
         function sendOrder(item, price) {
-            const myNumber = "252617054480"; // Geli lambarkaaga
-            const text = `*DALAB CUSUB (SECURE)* 🍎\n\n📍 *Miiska:* ${tableNum}\n🍴 *Cuntada:* ${item}\n💰 *Qiimaha:* $${price}`;
+            const myNumber = "25261XXXXXXX"; // Geli lambarkaaga dhabta ah
+            const text = `*DALAB VERIFIED* ✅\n\n📍 *Miiska:* ${tableNum}\n🍴 *Cuntada:* ${item}\n💰 *Qiimaha:* $${price}`;
             window.location.href = `https://wa.me/${myNumber}?text=${encodeURIComponent(text)}`;
         }
 
-        validateScan();
+        // Bilow hubinta marka bogga la furo
+        checkLocation();
     </script>
 </body>
 </html>
