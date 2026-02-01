@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tufaax Restaurant - Menu</title>
+    <title>Tufaax Restaurant - Smart Menu</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-50 font-sans text-gray-900">
 
     <header class="bg-red-600 text-white p-10 rounded-b-[3rem] shadow-xl text-center">
-        <h1 class="text-4xl font-black italic">🍎 TUFAAX</h1>
+        <h1 class="text-4xl font-black italic text-white">🍎 TUFAAX</h1>
         <div id="table-status" class="mt-3 bg-white text-red-600 inline-block px-6 py-1 rounded-full font-bold shadow-sm">
             Aqoonsanaya Miiska...
         </div>
@@ -47,20 +47,23 @@
     </div>
 
     <script>
-        // 1. Helitaanka Miiska link-ga ka yimid
         const urlParams = new URLSearchParams(window.location.search);
         const tableNum = urlParams.get('table') || "Guri";
         document.getElementById('table-status').innerText = `Miiska: ${tableNum}`;
 
         async function submitOrder(food) {
+            // Link-ga hoose waa kan dalabka u diraya Google Form-ka si "Silent" ah
             const formURL = "https://docs.google.com/forms/d/e/1FAIpQLSflaFJMc7A9v4ZAbyJmEXL96UU9ngzEwsNgqKnRvVR6avbv8A/formResponse";
             
             const formData = new FormData();
-            formData.append("entry.926164446", food);      // Dalabka ID-gaaga
-            formData.append("entry.1864224881", tableNum);  // Miiska ID-gaaga
+            formData.append("entry.926164446", food);      
+            formData.append("entry.1864224881", tableNum);  
 
             try {
-                await fetch(formURL, { method: "POST", mode: "no-cors", body: formData });
+                // Habkan 'no-cors' wuxuu ka dhigayaa in xogta la diro WhatsApp-na uusan furmin
+                fetch(formURL, { method: "POST", mode: "no-cors", body: formData });
+                
+                // Soo bandhig farriinta guusha halkii WhatsApp la furi lahaa
                 document.getElementById('msg').style.display = 'flex';
             } catch (e) {
                 alert("Khalad ayaa dhacay, fadlan mar kale isku day.");
