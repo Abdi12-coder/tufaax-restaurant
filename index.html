@@ -3,23 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tufaax - Fast Live Menu</title>
+    <title>Tufaax - Ultimate Smooth Menu</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-100 font-sans">
+<body class="bg-gray-100 font-sans overflow-x-hidden">
 
-    <div class="bg-red-600 text-white p-6 text-center rounded-b-3xl shadow-lg sticky top-0 z-50">
-        <h1 class="text-3xl font-bold italic">🍎 Tufaax Restaurant</h1>
-        <div id="indicator" class="mt-2 inline-flex items-center bg-white px-3 py-1 rounded-full">
-            <span id="dot" class="w-3 h-3 bg-gray-400 rounded-full mr-2"></span>
-            <span id="status-label" class="text-xs font-bold text-gray-700">Hubinta...</span>
+    <div class="bg-red-600 text-white p-5 text-center rounded-b-3xl shadow-lg sticky top-0 z-50">
+        <h1 class="text-2xl font-bold italic">🍎 Tufaax Restaurant</h1>
+        <div id="indicator" class="mt-2 inline-flex items-center bg-white/20 px-3 py-1 rounded-full border border-white/30">
+            <span id="dot" class="w-2 h-2 bg-yellow-400 rounded-full mr-2"></span>
+            <span id="status-label" class="text-[10px] font-bold text-white uppercase italic">Eegaya Goobta...</span>
         </div>
     </div>
 
     <div id="menu-area" class="p-4 max-w-md mx-auto space-y-4" style="display: none;">
-        <h2 class="text-lg font-bold text-gray-700 border-l-4 border-red-600 pl-2 mb-4">Qadada Maanta</h2>
+        <div class="flex items-center justify-between mb-2">
+            <h2 class="text-lg font-bold text-gray-700 border-l-4 border-red-600 pl-2">Qadada Maanta</h2>
+            <button onclick="forceReset()" class="text-[10px] bg-gray-200 text-gray-600 px-2 py-1 rounded-md font-bold uppercase tracking-tighter shadow-sm">🔄 Reset Goobta</button>
+        </div>
         
-        <div class="bg-white flex p-4 rounded-2xl shadow-sm items-center justify-between border-l-4 border-green-500 animate-in fade-in duration-500">
+        <div class="bg-white flex p-4 rounded-2xl shadow-sm items-center justify-between border border-gray-100 transition-all">
             <div class="flex items-center">
                 <div class="text-2xl mr-3">🍝</div>
                 <div>
@@ -27,19 +30,24 @@
                     <p class="text-red-600 font-black">$4.50</p>
                 </div>
             </div>
-            <button onclick="sendOrder('Baasto Special', '4.50')" class="bg-green-500 text-white px-5 py-2 rounded-xl font-bold">Dalbo</button>
+            <button onclick="sendOrder('Baasto Special', '4.50')" class="bg-green-500 text-white px-5 py-2 rounded-xl font-bold active:scale-90 transition">Dalbo</button>
         </div>
     </div>
 
     <div id="error-area" class="p-10 text-center flex flex-col items-center justify-center h-[60vh]">
-        <div class="text-6xl mb-4 opacity-50">📍</div>
-        <h2 class="text-xl font-bold text-red-600 uppercase tracking-wider">Lama Aqoonsan</h2>
-        <p class="text-gray-500 mt-2 text-sm italic">Fadlan u dhowaada miiska si uu menu-gu u furmo...</p>
+        <div class="text-6xl mb-4 grayscale opacity-40">📍</div>
+        <h2 class="text-xl font-bold text-gray-400 uppercase italic">Lama Aqoonsan</h2>
+        <p class="text-gray-400 mt-2 text-xs italic mb-6">Fadlan u dhowaada miiska...</p>
+        
+        <button onclick="forceReset()" class="bg-red-600 text-white px-6 py-3 rounded-full font-bold shadow-lg active:scale-95 transition flex items-center">
+            <span class="mr-2">🔄</span> CUSBOONAYSI GOOBTA
+        </button>
     </div>
 
     <script>
-        const MAX_DISTANCE = 0.01; // 10 Mitir
-        let watchID = null;
+        const OPEN_DISTANCE = 0.012; // 12m
+        const CLOSE_DISTANCE = 0.015; // 15m
+        let isMenuOpen = false;
 
         function getDistance(lat1, lon1, lat2, lon2) {
             const R = 6371;
@@ -49,57 +57,61 @@
             return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
         }
 
-        function startFastTracking() {
-            const options = {
-                enableHighAccuracy: true, // Isticmaal awoodda ugu sarreysa
-                timeout: 5000,           // Sug 5 ilbiriqsi si aad u hesho signal
-                maximumAge: 0            // Ha isticmaalin xog hore, mar walba mid cusub raba
-            };
+        // Shaqada tirtiraysa xogta hore oo dib u bilaabaysa GPS-ka
+        function forceReset() {
+            localStorage.removeItem('test_lat');
+            localStorage.removeItem('test_lon');
+            window.location.reload();
+        }
 
-            watchID = navigator.geolocation.watchPosition((position) => {
-                let savedLat = localStorage.getItem('test_lat');
-                let savedLon = localStorage.getItem('test_lon');
+        function updateUI(dist) {
+            const menuArea = document.getElementById('menu-area');
+            const errorArea = document.getElementById('error-area');
+            const statusLabel = document.getElementById('status-label');
+            const dot = document.getElementById('dot');
 
-                if (!savedLat) {
-                    localStorage.setItem('test_lat', position.coords.latitude);
-                    localStorage.setItem('test_lon', position.coords.longitude);
-                    savedLat = position.coords.latitude;
-                    savedLon = position.coords.longitude;
+            if (!isMenuOpen && dist <= OPEN_DISTANCE) {
+                isMenuOpen = true;
+                menuArea.style.display = 'block';
+                errorArea.style.display = 'none';
+                statusLabel.innerText = "WAAD JOOGTAA ✅";
+                dot.className = "w-2 h-2 bg-green-400 rounded-full mr-2 shadow-[0_0_5px_green]";
+            } else if (isMenuOpen && dist > CLOSE_DISTANCE) {
+                isMenuOpen = false;
+                menuArea.style.display = 'none';
+                errorArea.style.display = 'flex';
+                statusLabel.innerText = "KA BAXSAN ❌";
+                dot.className = "w-2 h-2 bg-red-500 rounded-full mr-2";
+            }
+        }
+
+        function startTracking() {
+            if (!navigator.geolocation) return;
+
+            const options = { enableHighAccuracy: true, maximumAge: 0, timeout: 5000 };
+
+            // 1. Live Tracking
+            navigator.geolocation.watchPosition((pos) => {
+                let sLat = localStorage.getItem('test_lat');
+                let sLon = localStorage.getItem('test_lon');
+
+                if (!sLat) {
+                    localStorage.setItem('test_lat', pos.coords.latitude);
+                    localStorage.setItem('test_lon', pos.coords.longitude);
+                    sLat = pos.coords.latitude; sLon = pos.coords.longitude;
                 }
 
-                const dist = getDistance(position.coords.latitude, position.coords.longitude, parseFloat(savedLat), parseFloat(savedLon));
-
-                const menuArea = document.getElementById('menu-area');
-                const errorArea = document.getElementById('error-area');
-                const statusLabel = document.getElementById('status-label');
-                const dot = document.getElementById('dot');
-
-                if (dist <= MAX_DISTANCE) {
-                    if(menuArea.style.display === 'none') {
-                        menuArea.style.display = 'block';
-                        errorArea.style.display = 'none';
-                        statusLabel.innerText = "Miiska: Test (Verified)";
-                        dot.className = "w-3 h-3 bg-green-500 rounded-full mr-2 shadow-[0_0_8px_green]";
-                    }
-                } else {
-                    if(errorArea.style.display === 'none') {
-                        menuArea.style.display = 'none';
-                        errorArea.style.display = 'flex';
-                        statusLabel.innerText = "Aad baad u fogtahay";
-                        dot.className = "w-3 h-3 bg-red-600 rounded-full mr-2";
-                    }
-                }
-            }, (err) => {
-                console.warn("GPS Signal daciif ah...");
-            }, options);
+                const d = getDistance(pos.coords.latitude, pos.coords.longitude, parseFloat(sLat), parseFloat(sLon));
+                updateUI(d);
+            }, null, options);
         }
 
         function sendOrder(item, price) {
-            const myNumber = "252617054480";
+            const myNumber = "25261XXXXXXX";
             window.location.href = `https://wa.me/${myNumber}?text=${encodeURIComponent("*DALAB:* " + item)}`;
         }
 
-        startFastTracking();
+        startTracking();
     </script>
 </body>
 </html>
