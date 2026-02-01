@@ -3,50 +3,56 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tufaax - 10m Secure Menu</title>
+    <title>Tufaax - Live GPS Menu</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-100 font-sans">
+<body class="bg-gray-100 font-sans overflow-x-hidden">
 
-    <div class="bg-red-600 text-white p-6 text-center rounded-b-3xl shadow-lg">
+    <div class="bg-red-600 text-white p-6 text-center rounded-b-3xl shadow-lg sticky top-0 z-50">
         <h1 class="text-3xl font-bold italic">🍎 Tufaax Restaurant</h1>
-        <p id="status-label" class="text-sm mt-2 font-bold bg-white text-red-600 inline-block px-3 py-1 rounded-full italic">Hubinta Goobta (10m)...</p>
+        <div id="indicator" class="mt-2 inline-flex items-center bg-white px-3 py-1 rounded-full shadow-inner">
+            <span id="dot" class="w-3 h-3 bg-yellow-400 rounded-full mr-2 animate-pulse"></span>
+            <span id="status-label" class="text-xs font-bold text-gray-700">Hubinta masaafada...</span>
+        </div>
     </div>
 
-    <div class="p-4 max-w-md mx-auto space-y-4" id="menu-area" style="display: none;">
-        <h2 class="text-lg font-bold text-gray-700 mb-2 border-l-4 border-red-600 pl-2">Qadada Maanta</h2>
+    <div class="p-4 max-w-md mx-auto space-y-4 mb-10" id="menu-area" style="display: none;">
+        <div class="flex items-center justify-between border-b pb-2 mb-4">
+            <h2 class="text-lg font-bold text-gray-700 border-l-4 border-red-600 pl-2">Qadada Maanta</h2>
+            <span class="text-[10px] bg-green-100 text-green-700 px-2 py-1 rounded-lg font-bold">LIVE: GOOBTA WAALAYOO</span>
+        </div>
 
-        <div class="bg-white flex p-4 rounded-2xl shadow-sm items-center justify-between border border-gray-100">
+        <div class="bg-white flex p-4 rounded-2xl shadow-sm items-center justify-between border-l-4 border-green-500">
             <div class="flex items-center">
-                <div class="w-12 h-12 bg-red-100 rounded-xl flex items-center justify-center text-2xl mr-3">🍝</div>
+                <div class="text-2xl mr-3">🍝</div>
                 <div>
                     <h3 class="font-bold text-gray-800">Baasto Special</h3>
                     <p class="text-red-600 font-black">$4.50</p>
                 </div>
             </div>
-            <button onclick="sendOrder('Baasto Special', '4.50')" class="bg-green-500 text-white px-5 py-2 rounded-xl font-bold shadow-md active:scale-95 transition text-sm">Dalbo</button>
+            <button onclick="sendOrder('Baasto Special', '4.50')" class="bg-green-500 text-white px-5 py-2 rounded-xl font-bold shadow-md active:scale-95 transition">Dalbo</button>
         </div>
 
-        <div class="bg-white flex p-4 rounded-2xl shadow-sm items-center justify-between border border-gray-100">
+        <div class="bg-white flex p-4 rounded-2xl shadow-sm items-center justify-between border-l-4 border-green-500">
             <div class="flex items-center">
-                <div class="w-12 h-12 bg-red-100 rounded-xl flex items-center justify-center text-2xl mr-3">🍚</div>
+                <div class="text-2xl mr-3">🍚</div>
                 <div>
                     <h3 class="font-bold text-gray-800">Bariis Isku-dhex</h3>
                     <p class="text-red-600 font-black">$5.00</p>
                 </div>
             </div>
-            <button onclick="sendOrder('Bariis Isku-dhex', '5.00')" class="bg-green-500 text-white px-5 py-2 rounded-xl font-bold shadow-md active:scale-95 transition text-sm">Dalbo</button>
+            <button onclick="sendOrder('Bariis Isku-dhex', '5.00')" class="bg-green-500 text-white px-5 py-2 rounded-xl font-bold shadow-md active:scale-95 transition">Dalbo</button>
         </div>
     </div>
 
-    <div id="error-area" class="p-10 text-center flex flex-col items-center justify-center h-[60vh]" style="display: none;">
-        <div class="text-6xl mb-4">📍</div>
-        <h2 class="text-2xl font-bold text-red-600">Waad ka fogaatay!</h2>
-        <p class="text-gray-500 mt-2 text-sm">Nidaamku wuxuu ogaaday inaad ka baxday masaafadii 10m ahayd.</p>
-        
-        <button onclick="resetLocation()" class="mt-6 bg-red-600 text-white px-8 py-3 rounded-full font-bold shadow-lg hover:bg-red-700 transition">
-            🔄 Cusboonaysii Goobta
-        </button>
+    <div id="error-area" class="p-10 text-center flex flex-col items-center justify-center h-[60vh]">
+        <div class="relative">
+            <div class="text-6xl mb-4 animate-bounce">📍</div>
+            <div class="absolute -top-1 -right-1 w-6 h-6 bg-red-600 text-white rounded-full text-[10px] flex items-center justify-center font-bold border-2 border-white">!</div>
+        </div>
+        <h2 class="text-2xl font-bold text-red-600">Lama Aqoonsan!</h2>
+        <p class="text-gray-500 mt-2 text-sm leading-relaxed">Nidaamku wuxuu xannibay Menu-ga. <br> Fadlan u dhowaada miiska (10m) si uu isaga furo.</p>
+        <p class="mt-4 text-[10px] text-gray-400 uppercase tracking-widest">Wuxuu is furayaa si automatic ah...</p>
     </div>
 
     <script>
@@ -62,12 +68,17 @@
             return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
         }
 
-        function initLocation() {
-            navigator.geolocation.getCurrentPosition((position) => {
+        function startLiveTracking() {
+            if (!navigator.geolocation) {
+                alert("GPS-ku ma shaqeynayo!");
+                return;
+            }
+
+            // watchPosition wuxuu hubinayaa goobta ilbiriqsi kasta
+            navigator.geolocation.watchPosition((position) => {
                 let savedLat = localStorage.getItem('test_lat');
                 let savedLon = localStorage.getItem('test_lon');
 
-                // Haddii ay tahay markii ugu horeysay, keydi meesha uu hadda joogo
                 if (!savedLat) {
                     localStorage.setItem('test_lat', position.coords.latitude);
                     localStorage.setItem('test_lon', position.coords.longitude);
@@ -77,35 +88,38 @@
 
                 const dist = getDistance(position.coords.latitude, position.coords.longitude, parseFloat(savedLat), parseFloat(savedLon));
 
-                // Haddii uu 10m u jiro
+                const menuArea = document.getElementById('menu-area');
+                const errorArea = document.getElementById('error-area');
+                const statusLabel = document.getElementById('status-label');
+                const dot = document.getElementById('dot');
+
                 if (dist <= MAX_DISTANCE) {
-                    document.getElementById('menu-area').style.display = 'block';
-                    document.getElementById('error-area').style.display = 'none';
-                    document.getElementById('status-label').innerText = `Miiska: ${tableNum} (Goobtu waa Sax)`;
+                    menuArea.style.display = 'block';
+                    errorArea.style.display = 'none';
+                    statusLabel.innerText = `Miiska: ${tableNum} (Xaqiijisan)`;
+                    dot.className = "w-3 h-3 bg-green-500 rounded-full mr-2";
                 } else {
-                    document.getElementById('menu-area').style.display = 'none';
-                    document.getElementById('error-area').style.display = 'flex';
-                    document.getElementById('status-label').innerText = "Maqaayadda ka baxsan";
+                    menuArea.style.display = 'none';
+                    errorArea.style.display = 'flex';
+                    statusLabel.innerText = "Maqaayadda ka baxsan";
+                    dot.className = "w-3 h-3 bg-red-600 rounded-full mr-2";
                 }
             }, (err) => {
-                alert("Fadlan ogolow Location-ka Browser-kaaga.");
-            }, { enableHighAccuracy: true });
-        }
-
-        // Shaqada badhanka Refresh
-        function resetLocation() {
-            localStorage.removeItem('test_lat');
-            localStorage.removeItem('test_lon');
-            location.reload();
+                console.error("GPS Error:", err);
+            }, { 
+                enableHighAccuracy: true, 
+                maximumAge: 0 
+            });
         }
 
         function sendOrder(item, price) {
-            const myNumber = "252617054480"; // <--- GELI LAMBARKAAGA
-            const text = `*DALAB VERIFIED (10M)* 🍎\n\n📍 *Miiska:* ${tableNum}\n🍴 *Cuntada:* ${item}\n💰 *Qiimaha:* $${price}`;
+            const myNumber = "252617054480"; // Geli lambarkaaga
+            const text = `*DALAB LIVE VERIFIED* ✅\n\n📍 *Miiska:* ${tableNum}\n🍴 *Cuntada:* ${item}\n💰 *Qiimaha:* $${price}`;
             window.location.href = `https://wa.me/${myNumber}?text=${encodeURIComponent(text)}`;
         }
 
-        initLocation();
+        // Bilow Tracking-ka
+        startLiveTracking();
     </script>
 </body>
 </html>
