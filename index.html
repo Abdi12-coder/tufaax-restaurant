@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tufaax - Tijaabada Location-ka</title>
+    <title>Tufaax - Secure Menu</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-100 font-sans">
@@ -13,81 +13,89 @@
         <p id="status-label" class="text-sm mt-2 font-bold bg-white text-red-600 inline-block px-3 py-1 rounded-full italic">Xaqiijinta Goobta...</p>
     </div>
 
-    <div id="loading" class="p-10 text-center">
-        <p class="text-gray-500 italic">Fadlan sug, GPS-ka ayaa la eegayaa...</p>
-    </div>
+    <div class="p-4 max-w-md mx-auto space-y-4" id="menu-area" style="display: none;">
+        <h2 class="text-lg font-bold text-gray-700 mb-2 border-l-4 border-red-600 pl-2">Qadada Maanta</h2>
 
-    <div class="p-4 max-w-md mx-auto" id="menu-area" style="display: none;">
-        <h2 class="text-lg font-bold text-gray-700 mb-4 border-l-4 border-red-600 pl-2">Qadada Tijaabada</h2>
-        <div class="bg-white p-4 rounded-xl shadow-sm border border-green-200">
-            <h3 class="font-bold text-lg text-green-700">✅ Goobtu waa sax!</h3>
-            <p class="text-gray-600 text-sm mb-4">Maadaama aad joogto goobtii tijaabada, waad dalban kartaa.</p>
-            <button onclick="sendOrder('Baasto Special', '4.50')" class="w-full bg-green-500 text-white py-3 rounded-xl font-bold">Dalbo WhatsApp</button>
+        <div class="bg-white flex p-4 rounded-2xl shadow-sm items-center justify-between border border-gray-100">
+            <div class="flex items-center">
+                <div class="w-12 h-12 bg-red-100 rounded-xl flex items-center justify-center text-2xl mr-3">🍝</div>
+                <div>
+                    <h3 class="font-bold text-gray-800">Baasto Special</h3>
+                    <p class="text-red-600 font-black">$4.50</p>
+                </div>
+            </div>
+            <button onclick="sendOrder('Baasto Special', '4.50')" class="bg-green-500 text-white px-5 py-2 rounded-xl font-bold shadow-md active:scale-95 transition">Dalbo</button>
+        </div>
+
+        <div class="bg-white flex p-4 rounded-2xl shadow-sm items-center justify-between border border-gray-100">
+            <div class="flex items-center">
+                <div class="w-12 h-12 bg-red-100 rounded-xl flex items-center justify-center text-2xl mr-3">🍚</div>
+                <div>
+                    <h3 class="font-bold text-gray-800">Bariis Isku-dhex</h3>
+                    <p class="text-red-600 font-black">$5.00</p>
+                </div>
+            </div>
+            <button onclick="sendOrder('Bariis Isku-dhex', '5.00')" class="bg-green-500 text-white px-5 py-2 rounded-xl font-bold shadow-md active:scale-95 transition">Dalbo</button>
         </div>
     </div>
 
-    <div id="error-area" class="p-10 text-center flex flex-col items-center justify-center h-64" style="display: none;">
-        <div class="text-5xl mb-4">🚫</div>
-        <h2 class="text-xl font-bold text-red-600">Amni Darro!</h2>
-        <p class="text-gray-600 mt-2">Waxaad ka fogaatay goobtii loogu talagalay tijaabada.</p>
+    <div id="error-area" class="p-10 text-center flex flex-col items-center justify-center h-screen" style="display: none;">
+        <div class="text-6xl mb-4">📍</div>
+        <h2 class="text-2xl font-bold text-red-600">Maqaayadda Ma Joogtid!</h2>
+        <p class="text-gray-500 mt-2">Nidaamka GPS-ku wuxuu ogaaday inaad ka fog tahay goobta. Fadlan scan-garee QR-ka miiska saaran.</p>
     </div>
 
     <script>
         const urlParams = new URLSearchParams(window.location.search);
         const tableNum = urlParams.get('table') || "Test";
 
-        // Habka xisaabinta masaafada
         function getDistance(lat1, lon1, lat2, lon2) {
-            const R = 6371; // Earth Radius
+            const R = 6371;
             const dLat = (lat2 - lat1) * Math.PI / 180;
             const dLon = (lon2 - lon1) * Math.PI / 180;
-            const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
-                      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon/2) * Math.sin(dLon/2);
+            const a = Math.sin(dLat/2) * Math.sin(dLat/2) + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon/2) * Math.sin(dLon/2);
             return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
         }
 
-        function initTest() {
+        function initLocation() {
             if (!navigator.geolocation) {
-                alert("GPS-ka lagama helin taleefankan.");
+                alert("GPS-ka lagama helin.");
                 return;
             }
 
             navigator.geolocation.getCurrentPosition((position) => {
-                // 1. Meesha aad hadda joogto u deji inay tahay maqaayadda (Local Storage)
                 let savedLat = localStorage.getItem('test_lat');
                 let savedLon = localStorage.getItem('test_lon');
 
+                // Marka ugu horeysa meesha aad joogto ayuu qaadanayaa
                 if (!savedLat) {
                     localStorage.setItem('test_lat', position.coords.latitude);
                     localStorage.setItem('test_lon', position.coords.longitude);
                     savedLat = position.coords.latitude;
                     savedLon = position.coords.longitude;
-                    alert("Tijaabo: Gurigaaga ayaa loo dejiyay 'Maqaayadda'.");
                 }
 
-                const distance = getDistance(position.coords.latitude, position.coords.longitude, parseFloat(savedLat), parseFloat(savedLon));
+                const dist = getDistance(position.coords.latitude, position.coords.longitude, parseFloat(savedLat), parseFloat(savedLon));
 
-                document.getElementById('loading').style.display = 'none';
-
-                // Haddii aad u jirto wax ka yar 200 mitir meeshaas
-                if (distance <= 0.2) {
+                // 0.2 KM = 200 Meters (Tijaabada waa ku filan tahay)
+                if (dist <= 0.2) {
                     document.getElementById('menu-area').style.display = 'block';
-                    document.getElementById('status-label').innerText = `Miiska: ${tableNum} (Local Test)`;
+                    document.getElementById('status-label').innerText = `Miiska: ${tableNum} (Goobtu waa Sax)`;
                 } else {
                     document.getElementById('error-area').style.display = 'flex';
                 }
-            }, (err) => {
-                alert("Fadlan ogolow Location-ka si tijaabadu u shaqeyso.");
+            }, () => {
+                alert("Fadlan ogolow Location-ka.");
             });
         }
 
         function sendOrder(item, price) {
-            const myNumber = "25261XXXXXXX"; // Geli lambarkaaga
-            const text = `*DALAB TIJAABO* ✅\n\n📍 *Miiska:* ${tableNum}\n🍴 *Cuntada:* ${item}\n💰 *Qiimaha:* $${price}`;
+            const myNumber = "25261XXXXXXX"; // <--- GELI LAMBARKAAGA
+            const text = `*DALAB CUSUB* 🍎\n\n📍 *Miiska:* ${tableNum}\n🍴 *Cuntada:* ${item}\n💰 *Qiimaha:* $${price}\n✅ _Verified by GPS_`;
             window.location.href = `https://wa.me/${myNumber}?text=${encodeURIComponent(text)}`;
         }
 
-        initTest();
+        initLocation();
     </script>
 </body>
 </html>
