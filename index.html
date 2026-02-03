@@ -69,8 +69,8 @@
     </div>
 
     <script>
-        // HUBI IN URL-KAN UU YAHAY KII U DAMBEEYAY EE AAD DEPLOY-GARAYSAY
-        const GOOGLE_URL = "https://script.google.com/macros/s/AKfycbzjN6OZ7n075iJowEE7EYYS6qo-_C4_biFLNwlG8gy78Qkl9V_DmPLB52Arfuwi4WND/exec";
+        // HUBI IN URL-KAN UU YAHAY KII U DAMBEEYAY
+        const GOOGLE_URL = "https://script.google.com/macros/s/AKfycbxrh4VynwabwU2d0shKq0957fIIsL5m0h8lrLua3qwSI9YO0_cm2cQQ640tzgwAKuqL/exec";
 
         const urlParams = new URLSearchParams(window.location.search);
         const tableNum = urlParams.get('table') || "Guri";
@@ -84,7 +84,7 @@
                 const res = await fetch(GOOGLE_URL);
                 const data = await res.json();
                 
-                // Kaliya cusboonaysii haddii xogta isbeddeshay si looga fogaado "Flickering"
+                // Hubi duplicates iyo xogta haddii ay isbeddeshay
                 if (JSON.stringify(data) !== JSON.stringify(menuData)) {
                     menuData = data;
                     document.getElementById('loading-state').style.display = 'none';
@@ -104,13 +104,16 @@
 
             container.innerHTML = items.map(item => {
                 const count = cart.filter(c => c.id === item.id).length;
+                // Xallinta $NaN: hubi in qiimuhu yahay lambar
+                const displayPrice = parseFloat(item.price || 0).toFixed(2);
+                
                 return `
                 <div class="bg-white rounded-3xl overflow-hidden shadow-sm border food-card">
                     <img src="${item.img}" class="w-full h-32 object-cover bg-gray-200" onerror="this.src='https://via.placeholder.com/150'">
                     <div class="p-3 flex flex-col flex-1">
                         <h3 class="font-bold text-gray-800 text-[13px] truncate">${item.name}</h3>
                         <div class="mt-auto pt-2 flex flex-col gap-2">
-                            <span class="text-red-600 font-black text-sm">$${parseFloat(item.price).toFixed(2)}</span>
+                            <span class="text-red-600 font-black text-sm">$${displayPrice}</span>
                             <div class="flex items-center justify-between bg-gray-50 rounded-xl p-1">
                                 <button onclick="removeFromCart('${item.id}')" class="w-7 h-7 rounded-lg bg-white shadow-sm flex items-center justify-center text-gray-400 hover:text-red-600"><i class="fas fa-minus text-[10px]"></i></button>
                                 <span class="font-bold text-xs">${count}</span>
@@ -125,7 +128,9 @@
         function addToCart(id) {
             const item = menuData.find(m => m.id == id);
             if(item) {
-                cart.push({ id: item.id, name: item.name, price: parseFloat(item.price) });
+                // Xallinta $NaN: parseFloat halkan
+                const itemPrice = parseFloat(item.price) || 0;
+                cart.push({ id: item.id, name: item.name, price: itemPrice });
                 updateUI();
             }
         }
@@ -138,15 +143,18 @@
 
         function updateUI() {
             document.getElementById('cart-count').innerText = cart.length;
-            const total = cart.reduce((sum, i) => sum + i.price, 0);
+            
+            // Xallinta $NaN: Hubi in wadarta guud ay had iyo jeer tahay lambar
+            const total = cart.reduce((sum, i) => sum + (parseFloat(i.price) || 0), 0);
             document.getElementById('total-price').innerText = `$${total.toFixed(2)}`;
+            
             document.getElementById('checkout-bar').classList.toggle('hidden', cart.length === 0);
             
             const q = document.getElementById('search-input').value.toLowerCase();
             const activeBtn = document.querySelector('.category-btn.active');
             const cat = activeBtn ? activeBtn.innerText : 'Dhammaan';
             
-            // FILTER: Kaliya tus cuntooyinka ah 'visible'
+            // FILTER: Kaliya tus cuntooyinka aan ahayn 'hidden'
             let filtered = menuData.filter(i => i.status !== 'hidden');
             
             if(cat !== 'Dhammaan') filtered = filtered.filter(i => i.category === cat);
@@ -164,14 +172,13 @@
         function checkoutWhatsApp() {
             let summary = cart.reduce((acc, i) => { acc[i.name] = (acc[i.name] || 0) + 1; return acc; }, {});
             let list = Object.entries(summary).map(([n, q]) => `• ${q}x ${n}`).join('\n');
-            let total = cart.reduce((s, i) => s + i.price, 0);
+            const total = cart.reduce((sum, i) => sum + (parseFloat(i.price) || 0), 0);
+            
             let msg = `*DALAB CUSUB* 🍎\n*Goobta:* ${tableNum !== "Guri" ? 'Miiska ' + tableNum : 'Guri'}\n\n${list}\n\n💰 *Total:* $${total.toFixed(2)}`;
             window.location.href = `https://wa.me/252617054480?text=${encodeURIComponent(msg)}`;
         }
 
-        // Bilow loading-ka
         loadMenu();
-        // Hubi isbeddelada 10-kii ilbiriqsi kasta
         setInterval(loadMenu, 10000);
     </script>
 </body>
