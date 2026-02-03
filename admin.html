@@ -26,17 +26,29 @@
             <div class="space-y-3">
                 <input id="foodId" type="hidden"> 
                 <input id="foodStatus" type="hidden" value="visible">
-                <input id="foodName" type="text" placeholder="Magaca Cuntada" class="w-full p-4 bg-gray-50 rounded-2xl border-none outline-none focus:ring-2 focus:ring-green-400">
+                
+                <input id="foodName" type="text" placeholder="Magaca Cuntada" class="w-full p-4 bg-gray-50 rounded-2xl border-none outline-none focus:ring-2 focus:ring-green-400 transition-all">
+                
                 <div class="grid grid-cols-2 gap-3">
-                    <input id="foodPrice" type="number" step="0.01" placeholder="Qiimaha $" class="p-4 bg-gray-50 rounded-2xl border-none outline-none focus:ring-2 focus:ring-green-400">
+                    <input id="foodPrice" type="number" step="0.01" placeholder="Qiimaha $" class="p-4 bg-gray-50 rounded-2xl border-none outline-none focus:ring-2 focus:ring-green-400 transition-all">
                     <select id="foodCat" class="p-4 bg-gray-50 rounded-2xl border-none outline-none focus:ring-2 focus:ring-green-400">
-                        <option>Quraac</option><option>Qado</option><option>Casho</option><option>Cabitaan</option><option>Macmacaan</option>
+                        <option>Quraac</option>
+                        <option>Qado</option>
+                        <option>Casho</option>
+                        <option>Cabitaan</option>
+                        <option>Macmacaan</option>
                     </select>
                 </div>
-                <input id="foodImg" type="text" placeholder="Link-ga Sawirka (URL)" class="w-full p-4 bg-gray-50 rounded-2xl border-none outline-none focus:ring-2 focus:ring-green-400">
-                <div class="flex gap-2">
-                    <button id="saveBtn" onclick="saveFood()" class="flex-1 bg-green-500 text-white p-5 rounded-2xl font-bold shadow-lg">KEYDI XOGTA</button>
-                    <button id="cancelBtn" onclick="resetForm()" class="hidden bg-gray-200 text-gray-600 px-6 rounded-2xl font-bold">Xir</button>
+                
+                <input id="foodImg" type="text" placeholder="Link-ga Sawirka (URL)" class="w-full p-4 bg-gray-50 rounded-2xl border-none outline-none focus:ring-2 focus:ring-green-400 transition-all">
+                
+                <div class="flex gap-2 pt-2">
+                    <button id="saveBtn" onclick="saveFood()" class="flex-1 bg-green-500 hover:bg-green-600 text-white p-5 rounded-2xl font-bold shadow-lg transition-all active:scale-95">
+                        KEYDI XOGTA
+                    </button>
+                    <button id="cancelBtn" onclick="resetForm()" class="hidden bg-gray-200 text-gray-600 px-6 rounded-2xl font-bold hover:bg-gray-300 transition-all">
+                        Xir
+                    </button>
                 </div>
             </div>
         </div>
@@ -44,64 +56,67 @@
         <div class="bg-white p-6 rounded-[2rem] shadow-sm border border-gray-100">
             <h2 class="font-bold text-gray-800 mb-4 flex justify-between items-center">
                 <span>Cuntooyinka Hadda Jira</span>
-                <span id="item-count" class="text-xs bg-gray-100 px-2 py-1 rounded-full text-gray-500">0</span>
+                <span id="item-count" class="text-xs bg-gray-100 px-2 py-1 rounded-full text-gray-500">0 Items</span>
             </h2>
             <div id="admin-list" class="space-y-3">
-                <p class="text-center py-5 text-gray-400 italic">Xogta waa la soo ridaybaa...</p>
+                <div class="text-center py-10">
+                    <i class="fas fa-spinner fa-spin text-gray-300 text-2xl mb-2"></i>
+                    <p class="text-gray-400 italic text-sm">Xogta waa la soo ridaybaa...</p>
+                </div>
             </div>
         </div>
     </div>
 
     <script>
-        // URL-KAAGA APPS SCRIPT
+        // HALKAN GELI URL-KA CUSUB EE APPS SCRIPT
         const GOOGLE_URL = "https://script.google.com/macros/s/AKfycbweI7__fuqNsLOtYaS0bbAAv1fAVMwepjwz7wjf61btvLWbn9SFI1Y71j1CX5qRPA_6/exec";
         let menu = [];
 
         async function loadAdminMenu() {
             try {
                 const res = await fetch(GOOGLE_URL);
-                const rawData = await res.json();
-                
-                // Halkan waxaan ku hagaajinaynaa inuu aqriyo xogta xataa hadii xarafka loo weyneeyay Sheet-ka
-                menu = rawData.map(item => {
-                    let normalized = {};
-                    for (let key in item) {
-                        normalized[key.toLowerCase()] = item[key];
-                    }
-                    return normalized;
-                }).filter(item => item.id);
-
-                document.getElementById('item-count').innerText = menu.length;
+                const data = await res.json();
+                // Kaliya soo bandhig haddii uu jiro ID iyo Name
+                menu = data.filter(item => item.id && item.name);
+                document.getElementById('item-count').innerText = `${menu.length} Items`;
                 renderAdminList();
             } catch (e) { 
-                document.getElementById('admin-list').innerHTML = "<p class='text-red-500 text-center'>Xogta waa la waayay.</p>";
+                document.getElementById('admin-list').innerHTML = `
+                    <div class="text-center py-5">
+                        <i class="fas fa-exclamation-triangle text-red-400 mb-2"></i>
+                        <p class='text-red-500 text-sm'>Xogta waa laga waayay Cloud-ka. Hubi URL-ka Apps Script-ka.</p>
+                    </div>`;
             }
         }
 
         function renderAdminList() {
             const list = document.getElementById('admin-list');
+            if (menu.length === 0) {
+                list.innerHTML = "<p class='text-center py-5 text-gray-400'>Menu-gu waa faaruq. Ku dar cunto cusub.</p>";
+                return;
+            }
+
             list.innerHTML = menu.map((item) => `
-                <div class="flex items-center justify-between p-3 ${item.status === 'hidden' ? 'bg-red-50 opacity-60' : 'bg-gray-50'} rounded-2xl border">
+                <div class="flex items-center justify-between p-3 ${item.status === 'hidden' ? 'bg-red-50 opacity-70' : 'bg-gray-50'} rounded-2xl border border-gray-100 transition-all hover:shadow-md">
                     <div class="flex items-center gap-3 flex-1 cursor-pointer" onclick="prepareEdit('${item.id}')">
-                        <img src="${item.img}" class="w-12 h-12 rounded-xl object-cover" onerror="this.src='https://via.placeholder.com/150'">
+                        <img src="${item.img}" class="w-12 h-12 rounded-xl object-cover shadow-sm bg-gray-200" onerror="this.src='https://via.placeholder.com/150'">
                         <div>
-                            <p class="font-bold text-sm">${item.name || 'Magac la'aan'}</p>
-                            <p class="text-xs text-green-600">$${parseFloat(item.price || 0).toFixed(2)}</p>
+                            <p class="font-bold text-sm text-gray-800">${item.name}</p>
+                            <p class="text-xs text-green-600 font-medium">$${parseFloat(item.price || 0).toFixed(2)}</p>
                         </div>
                     </div>
                     <div class="flex gap-2">
-                        <button onclick="toggleVisibility('${item.id}')" class="p-2 text-[10px] font-bold border rounded-xl bg-white">
-                            ${item.status === 'hidden' ? 'SHOW' : 'HIDE'}
+                        <button onclick="toggleVisibility('${item.id}')" class="p-2 px-3 text-[10px] font-black border rounded-xl bg-white shadow-sm hover:bg-gray-100 transition-all">
+                            ${item.status === 'hidden' ? '<i class="fas fa-eye text-blue-500"></i>' : '<i class="fas fa-eye-slash text-gray-400"></i>'}
                         </button>
-                        <button onclick="deleteFood('${item.id}')" class="p-2 text-red-500">
-                            <i class="fas fa-trash-alt"></i>
+                        <button onclick="deleteFood('${item.id}')" class="p-2 px-3 text-red-500 hover:bg-red-100 rounded-xl transition-all">
+                            <i class="fas fa-trash-alt text-xs"></i>
                         </button>
                     </div>
                 </div>
             `).join('');
         }
 
-        // --- Functions-ka kale (prepareEdit, saveFood, etc.) halkoodii ha ahaadeen ---
         function prepareEdit(id) {
             const item = menu.find(i => i.id == id);
             if(!item) return;
@@ -111,44 +126,66 @@
             document.getElementById('foodCat').value = item.category;
             document.getElementById('foodImg').value = item.img;
             document.getElementById('foodStatus').value = item.status;
-            document.getElementById('form-title').innerText = "Wax ka beddel: " + item.name;
+            
+            document.getElementById('form-title').innerHTML = `<i class="fas fa-edit text-orange-500"></i> Wax ka beddel: ${item.name}`;
+            document.getElementById('saveBtn').innerText = "CUSBOONAYSI XOGTA";
+            document.getElementById('saveBtn').classList.replace('bg-green-500', 'bg-orange-500');
             document.getElementById('cancelBtn').classList.remove('hidden');
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
         async function saveFood() {
+            const idInput = document.getElementById('foodId').value;
             const saveBtn = document.getElementById('saveBtn');
+            
             const data = {
                 action: "update",
-                id: document.getElementById('foodId').value || "ID-" + Date.now(),
-                name: document.getElementById('foodName').value,
-                price: document.getElementById('foodPrice').value,
+                id: idInput || "ID-" + Math.floor(Math.random() * 1000000),
+                name: document.getElementById('foodName').value.trim(),
+                price: parseFloat(document.getElementById('foodPrice').value) || 0,
                 category: document.getElementById('foodCat').value,
-                img: document.getElementById('foodImg').value,
+                img: document.getElementById('foodImg').value.trim() || "https://via.placeholder.com/150",
                 status: document.getElementById('foodStatus').value
             };
             
-            saveBtn.innerText = "KEYDINTA...";
-            await fetch(GOOGLE_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(data) });
-            
-            setTimeout(() => {
+            if(!data.name || data.price <= 0) return alert("Fadlan magaca iyo qiimaha si sax ah u geli!");
+
+            saveBtn.disabled = true;
+            saveBtn.innerText = "HAYE... KEYDINTA WAA SOO SOCOTAA";
+
+            // Local Update (Isla markiiba hortaada ka muuji)
+            if(idInput) {
+                const idx = menu.findIndex(i => i.id == idInput);
+                menu[idx] = data;
+            } else {
+                menu.unshift(data);
+            }
+            renderAdminList();
+
+            try {
+                await fetch(GOOGLE_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(data) });
                 resetForm();
-                loadAdminMenu();
-                saveBtn.innerText = "KEYDI XOGTA";
-            }, 1000);
+                setTimeout(loadAdminMenu, 1500);
+            } catch (err) {
+                alert("Cillad ayaa dhacday markii Cloud-ka loo dirayay!");
+            } finally {
+                saveBtn.disabled = false;
+            }
         }
 
         async function deleteFood(id) {
-            if(!confirm("Ma hubtaa?")) return;
+            if(!confirm("Ma hubtaa inaad gebi ahaanba tirtirto cuntadan?")) return;
+            menu = menu.filter(i => i.id != id);
+            renderAdminList();
             await fetch(GOOGLE_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ action: "delete", id: String(id) }) });
-            loadAdminMenu();
         }
 
         async function toggleVisibility(id) {
             const item = menu.find(i => i.id == id);
+            if(!item) return;
             item.status = item.status === 'hidden' ? 'visible' : 'hidden';
+            renderAdminList();
             await fetch(GOOGLE_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ ...item, action: "update" }) });
-            loadAdminMenu();
         }
 
         function resetForm() {
@@ -156,8 +193,11 @@
             document.getElementById('foodName').value = "";
             document.getElementById('foodPrice').value = "";
             document.getElementById('foodImg').value = "";
+            document.getElementById('foodStatus').value = "visible";
+            document.getElementById('form-title').innerHTML = `<i class="fas fa-plus-circle text-green-500"></i> Ku dar Cunto Cusub`;
+            document.getElementById('saveBtn').innerText = "KEYDI XOGTA";
+            document.getElementById('saveBtn').classList.replace('bg-orange-500', 'bg-green-500');
             document.getElementById('cancelBtn').classList.add('hidden');
-            document.getElementById('form-title').innerText = "Ku dar Cunto Cusub";
         }
 
         loadAdminMenu();
