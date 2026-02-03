@@ -12,17 +12,19 @@
         <header class="bg-gray-800 text-white p-6 rounded-3xl shadow-xl flex justify-between items-center">
             <div>
                 <h1 class="text-xl font-black italic">🍎 TUFAAX ADMIN</h1>
-                <p class="text-[10px] text-gray-400">Cuntada aad halkan ku darto si toos ah ayay u baxaysaa</p>
+                <p class="text-[10px] text-gray-400">Wax ka beddel ama qari cuntooyinka halkan</p>
             </div>
             <a href="index.html" class="bg-gray-700 px-4 py-2 rounded-xl text-xs">Arag Menu-ga</a>
         </header>
 
         <div class="bg-white p-6 rounded-[2rem] shadow-sm border border-gray-100 space-y-4">
-            <h2 class="font-bold text-gray-800 flex items-center gap-2">
-                <i class="fas fa-plus-circle text-green-500"></i> Ku dar Cunto
+            <h2 id="form-title" class="font-bold text-gray-800 flex items-center gap-2">
+                <i class="fas fa-plus-circle text-green-500"></i> Ku dar Cunto Cusub
             </h2>
             <div class="space-y-3">
-                <input id="foodName" type="text" placeholder="Magaca Cuntada" class="w-full p-4 bg-gray-50 rounded-2xl border-none outline-none transition focus:ring-2 focus:ring-green-400">
+                <input id="foodId" type="hidden"> <input id="foodStatus" type="hidden" value="visible">
+                
+                <input id="foodName" type="text" placeholder="Magaca Cuntada" class="w-full p-4 bg-gray-50 rounded-2xl border-none outline-none focus:ring-2 focus:ring-green-400">
                 <div class="grid grid-cols-2 gap-3">
                     <input id="foodPrice" type="number" placeholder="Qiimaha $" class="p-4 bg-gray-50 rounded-2xl border-none outline-none focus:ring-2 focus:ring-green-400">
                     <select id="foodCat" class="p-4 bg-gray-50 rounded-2xl border-none outline-none focus:ring-2 focus:ring-green-400">
@@ -30,18 +32,22 @@
                     </select>
                 </div>
                 <input id="foodImg" type="text" placeholder="Link-ga Sawirka (URL)" class="w-full p-4 bg-gray-50 rounded-2xl border-none outline-none focus:ring-2 focus:ring-green-400">
-                <button id="saveBtn" onclick="saveFood()" class="w-full bg-green-500 text-white p-5 rounded-2xl font-bold shadow-lg flex justify-center items-center gap-2">
-                    <span id="btnText">KEYDI CUNTADA</span>
-                </button>
+                
+                <div class="flex gap-2">
+                    <button id="saveBtn" onclick="saveFood()" class="flex-1 bg-green-500 text-white p-5 rounded-2xl font-bold shadow-lg">
+                        <span id="btnText">KEYDI XOGTA</span>
+                    </button>
+                    <button id="cancelBtn" onclick="resetForm()" class="hidden bg-gray-200 text-gray-600 px-6 rounded-2xl font-bold">Xir</button>
+                </div>
             </div>
         </div>
 
         <div class="bg-white p-6 rounded-[2rem] shadow-sm border border-gray-100">
             <h2 class="font-bold text-gray-800 mb-4 flex items-center gap-2">
-                <i class="fas fa-list text-blue-500"></i> Cuntooyinka Hadda Jira
+                <i class="fas fa-tasks text-blue-500"></i> Maamul Menu-ga
             </h2>
-            <div id="admin-list" class="space-y-3 text-center text-gray-400 py-5">
-                <i class="fas fa-spinner fa-spin"></i> Sooma ridayo...
+            <div id="admin-list" class="space-y-3">
+                <p class="text-center py-5 text-gray-400 italic">Soo ridayo...</p>
             </div>
         </div>
     </div>
@@ -54,69 +60,101 @@
             try {
                 const res = await fetch(GOOGLE_URL);
                 const data = await res.json();
-                if (JSON.stringify(data) !== JSON.stringify(menu)) {
-                    menu = data;
-                    renderAdminList();
-                }
-            } catch (e) { console.error("Error loading menu"); }
+                menu = data;
+                renderAdminList();
+            } catch (e) { console.error("Error fetching data"); }
         }
 
         function renderAdminList() {
             const list = document.getElementById('admin-list');
             if (menu.length === 0) {
-                list.innerHTML = `<p class="text-sm italic py-10">Menu-gu waa maran yahay.</p>`;
+                list.innerHTML = `<p class="text-sm italic text-center py-10">Ma jirto cunto la keydiyay.</p>`;
                 return;
             }
             list.innerHTML = menu.map((item) => `
-                <div class="flex items-center justify-between p-3 bg-gray-50 rounded-2xl border border-gray-100">
-                    <div class="flex items-center gap-3">
-                        <img src="${item.img}" class="w-14 h-14 rounded-xl object-cover" onerror="this.src='https://via.placeholder.com/150'">
+                <div class="flex items-center justify-between p-3 ${item.status === 'hidden' ? 'bg-red-50 opacity-60' : 'bg-gray-50'} rounded-2xl border border-gray-100">
+                    <div class="flex items-center gap-3 cursor-pointer" onclick="prepareEdit('${item.id}')">
+                        <img src="${item.img}" class="w-12 h-12 rounded-xl object-cover" onerror="this.src='https://via.placeholder.com/150'">
                         <div class="text-left">
-                            <p class="font-bold text-gray-800">${item.name}</p>
+                            <p class="font-bold text-gray-800 text-sm">${item.name} ${item.status === 'hidden' ? '🚫' : ''}</p>
                             <p class="text-xs font-bold text-green-600">$${parseFloat(item.price).toFixed(2)}</p>
                         </div>
                     </div>
-                    <span class="text-[10px] bg-gray-200 px-2 py-1 rounded-lg text-gray-500">${item.category}</span>
+                    <button onclick="toggleVisibility('${item.id}')" class="px-4 py-2 rounded-xl text-[10px] font-bold shadow-sm transition ${item.status === 'hidden' ? 'bg-gray-800 text-white' : 'bg-white border text-gray-600'}">
+                        ${item.status === 'hidden' ? 'SHOW' : 'HIDE'}
+                    </button>
                 </div>
             `).join('');
         }
 
+        function prepareEdit(id) {
+            const item = menu.find(i => i.id == id);
+            if(!item) return;
+
+            document.getElementById('foodId').value = item.id;
+            document.getElementById('foodName').value = item.name;
+            document.getElementById('foodPrice').value = item.price;
+            document.getElementById('foodCat').value = item.category;
+            document.getElementById('foodImg').value = item.img;
+            document.getElementById('foodStatus').value = item.status || 'visible';
+
+            document.getElementById('form-title').innerHTML = `<i class="fas fa-edit text-orange-500"></i> Wax ka beddel: ${item.name}`;
+            document.getElementById('btnText').innerText = "CUSBOONAYSIYI";
+            document.getElementById('cancelBtn').classList.remove('hidden');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function resetForm() {
+            document.getElementById('foodId').value = "";
+            document.getElementById('foodName').value = "";
+            document.getElementById('foodPrice').value = "";
+            document.getElementById('foodImg').value = "";
+            document.getElementById('foodStatus').value = "visible";
+            document.getElementById('form-title').innerHTML = `<i class="fas fa-plus-circle text-green-500"></i> Ku dar Cunto Cusub`;
+            document.getElementById('btnText').innerText = "KEYDI XOGTA";
+            document.getElementById('cancelBtn').classList.add('hidden');
+        }
+
         async function saveFood() {
+            const id = document.getElementById('foodId').value || Date.now();
             const name = document.getElementById('foodName').value;
             const price = document.getElementById('foodPrice').value;
             const cat = document.getElementById('foodCat').value;
             const img = document.getElementById('foodImg').value || "https://via.placeholder.com/150";
+            const status = document.getElementById('foodStatus').value;
 
             if(!name || !price) return alert("Fadlan magaca iyo qiimaha geli!");
 
             const btn = document.getElementById('saveBtn');
             btn.disabled = true;
-            document.getElementById('btnText').innerText = "KAYDINTA WAA SOO SOCOTAA...";
+            document.getElementById('btnText').innerText = "SHAQADAA SOO SOCOTA...";
 
-            const data = { id: Date.now(), name, price: parseFloat(price), category: cat, img };
+            const data = { id, name, price: parseFloat(price), category: cat, img, status };
 
             try {
-                await fetch(GOOGLE_URL, {
-                    method: 'POST',
-                    mode: 'no-cors',
-                    body: JSON.stringify(data)
-                });
-                alert("Waa lagu daray!");
-                document.getElementById('foodName').value = "";
-                document.getElementById('foodPrice').value = "";
-                document.getElementById('foodImg').value = "";
+                await fetch(GOOGLE_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(data) });
+                alert("Waa lagu guuleystay!");
+                resetForm();
                 loadAdminMenu(); 
-            } catch (e) {
-                alert("Khalad ayaa dhacay!");
-            } finally {
-                btn.disabled = false;
-                document.getElementById('btnText').innerText = "KEYDI CUNTADA";
-            }
+            } catch (e) { alert("Khalad ayaa dhacay!"); }
+            finally { btn.disabled = false; }
         }
 
-        // Automatic Refresh: 5 ilbiriqsi kasta iska hubi xogta
+        async function toggleVisibility(id) {
+            const item = menu.find(i => i.id == id);
+            if(!item) return;
+            const newStatus = item.status === 'hidden' ? 'visible' : 'hidden';
+            
+            // Si dhakhso ah u cusboonaysii UI-ka
+            item.status = newStatus;
+            renderAdminList();
+
+            const data = { ...item, status: newStatus };
+            await fetch(GOOGLE_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(data) });
+        }
+
         loadAdminMenu();
-        setInterval(loadAdminMenu, 5000);
+        setInterval(loadAdminMenu, 10000); // 10 ilbiriqsi kasta
     </script>
 </body>
 </html>
