@@ -3,33 +3,52 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin - Tufaax Restaurant</title>
+    <title>Admin Panel - Tufaax</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
-<body class="bg-gray-100 p-4">
+<body class="bg-slate-50 p-4 pb-20">
     <div class="max-w-xl mx-auto space-y-6">
-        <header class="bg-red-600 text-white p-6 rounded-3xl shadow-lg flex justify-between items-center">
-            <h1 class="text-xl font-bold">🍎 Cashier Panel</h1>
-            <a href="index.html" class="text-xs bg-red-800 px-3 py-1 rounded-full text-white">View Menu</a>
+        <header class="bg-gray-800 text-white p-6 rounded-3xl shadow-xl flex justify-between items-center">
+            <div>
+                <h1 class="text-xl font-black italic">🍎 TUFAAX ADMIN</h1>
+                <p class="text-[10px] text-gray-400">Maamul Menu-ga maqaayadda</p>
+            </div>
+            <a href="index.html" class="bg-gray-700 px-4 py-2 rounded-xl text-xs hover:bg-gray-600">Arag Menu-ga</a>
         </header>
 
-        <div class="bg-white p-6 rounded-3xl shadow-sm space-y-4">
-            <h2 class="font-bold text-gray-700">Ku dar Cunto Cusub</h2>
-            <input id="foodName" type="text" placeholder="Magaca Cuntada" class="w-full p-3 border rounded-xl outline-none">
-            <div class="grid grid-cols-2 gap-3">
-                <input id="foodPrice" type="number" placeholder="Qiimaha $" class="p-3 border rounded-xl outline-none">
-                <select id="foodCat" class="p-3 border rounded-xl outline-none">
-                    <option>Quraac</option><option>Qado</option><option>Casho</option><option>Cabitaan</option>
-                </select>
+        <div class="bg-white p-6 rounded-[2rem] shadow-sm border border-gray-100 space-y-4">
+            <h2 class="font-bold text-gray-800 flex items-center gap-2">
+                <i class="fas fa-plus-circle text-green-500"></i> Ku dar Cunto
+            </h2>
+            <div class="space-y-3">
+                <input id="foodName" type="text" placeholder="Magaca Cuntada" class="w-full p-4 bg-gray-50 rounded-2xl border-none focus:ring-2 focus:ring-green-400 outline-none transition">
+                
+                <div class="grid grid-cols-2 gap-3">
+                    <input id="foodPrice" type="number" placeholder="Qiimaha $" class="p-4 bg-gray-50 rounded-2xl border-none focus:ring-2 focus:ring-green-400 outline-none transition">
+                    <select id="foodCat" class="p-4 bg-gray-50 rounded-2xl border-none focus:ring-2 focus:ring-green-400 outline-none transition">
+                        <option>Quraac</option>
+                        <option>Qado</option>
+                        <option>Casho</option>
+                        <option>Cabitaan</option>
+                        <option>Macmacaan</option>
+                    </select>
+                </div>
+                
+                <input id="foodImg" type="text" placeholder="Link-ga Sawirka (URL)" class="w-full p-4 bg-gray-50 rounded-2xl border-none focus:ring-2 focus:ring-green-400 outline-none transition">
+                
+                <button onclick="saveFood()" class="w-full bg-green-500 text-white p-5 rounded-2xl font-bold shadow-lg shadow-green-100 hover:bg-green-600 active:scale-95 transition">
+                    KEYDI CUNTADA CUSUB
+                </button>
             </div>
-            <input id="foodImg" type="text" placeholder="Link-ga Sawirka (URL)" class="w-full p-3 border rounded-xl outline-none">
-            <button onclick="saveFood()" class="w-full bg-green-500 text-white p-4 rounded-xl font-bold shadow-lg">KEYDI CUNTADA</button>
         </div>
 
-        <div class="bg-white p-6 rounded-3xl shadow-sm">
-            <h2 class="font-bold text-gray-700 mb-4 border-b pb-2">Cuntooyinka yaala (Tirtir kuwa dhamaaday)</h2>
-            <div id="admin-list" class="space-y-3"></div>
+        <div class="bg-white p-6 rounded-[2rem] shadow-sm border border-gray-100">
+            <h2 class="font-bold text-gray-800 mb-4 flex items-center gap-2">
+                <i class="fas fa-list text-blue-500"></i> Cuntooyinka Hadda Jira
+            </h2>
+            <div id="admin-list" class="space-y-3">
+                </div>
         </div>
     </div>
 
@@ -38,17 +57,21 @@
 
         function renderAdminList() {
             const list = document.getElementById('admin-list');
+            if (menu.length === 0) {
+                list.innerHTML = `<p class="text-center text-gray-400 py-10 text-sm italic">Menu-gu waa maran yahay...</p>`;
+                return;
+            }
             list.innerHTML = menu.map((item, index) => `
-                <div class="flex items-center justify-between p-3 bg-gray-50 rounded-xl border border-gray-100">
+                <div class="flex items-center justify-between p-3 bg-gray-50 rounded-2xl border border-gray-100 group">
                     <div class="flex items-center gap-3">
-                        <img src="${item.img}" class="w-12 h-12 rounded-lg object-cover">
+                        <img src="${item.img}" class="w-14 h-14 rounded-xl object-cover shadow-sm">
                         <div>
-                            <p class="font-bold text-sm text-gray-800">${item.name}</p>
-                            <p class="text-[10px] text-red-500 font-bold">$${item.price.toFixed(2)}</p>
+                            <p class="font-bold text-gray-800">${item.name}</p>
+                            <p class="text-xs font-bold text-green-600">$${parseFloat(item.price).toFixed(2)} <span class="text-gray-300 ml-2 font-normal">| ${item.category}</span></p>
                         </div>
                     </div>
-                    <button onclick="deleteFood(${index})" class="bg-red-100 text-red-600 p-2 rounded-lg hover:bg-red-200">
-                        <i class="fas fa-trash"></i>
+                    <button onclick="deleteFood(${index})" class="w-10 h-10 flex items-center justify-center text-red-400 hover:bg-red-50 rounded-xl transition">
+                        <i class="fas fa-trash-alt"></i>
                     </button>
                 </div>
             `).join('');
@@ -58,25 +81,30 @@
             const name = document.getElementById('foodName').value;
             const price = parseFloat(document.getElementById('foodPrice').value);
             const cat = document.getElementById('foodCat').value;
-            const img = document.getElementById('foodImg').value || "https://via.placeholder.com/150?text=Cunto";
+            const img = document.getElementById('foodImg').value || "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400";
 
             if(name && price) {
-                menu.push({ id: Date.now(), name, price, category: cat, desc: "Cunto macaan", img });
+                menu.push({ id: Date.now(), name, price, category: cat, img });
                 localStorage.setItem('tufaax_menu', JSON.stringify(menu));
                 renderAdminList();
+                
+                // Clear inputs
                 document.getElementById('foodName').value = '';
                 document.getElementById('foodPrice').value = '';
-                alert("Waa lagu daray!");
+                document.getElementById('foodImg').value = '';
+            } else {
+                alert("Fadlan buuxi magaca iyo qiimaha!");
             }
         }
 
         function deleteFood(index) {
-            if(confirm("Ma hubtaa inaad tirtirto?")) {
+            if(confirm("Ma hubtaa inaad tirtirto cuntadan?")) {
                 menu.splice(index, 1);
                 localStorage.setItem('tufaax_menu', JSON.stringify(menu));
                 renderAdminList();
             }
         }
+
         renderAdminList();
     </script>
 </body>
