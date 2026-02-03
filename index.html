@@ -12,7 +12,6 @@
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         .category-btn.active { background-color: #dc2626; color: white; border-color: #dc2626; }
-        /* Grid styling fix */
         .food-card { display: flex; flex-direction: column; height: 100%; }
     </style>
 </head>
@@ -54,7 +53,7 @@
             </div>
     </main>
 
-    <div id="checkout-bar" class="fixed bottom-0 left-0 right-0 p-5 bg-white border-t shadow-[0_-10px_25px_rgba(0,0,0,0.1)] hidden z-50 rounded-t-3xl animate-bounce-in">
+    <div id="checkout-bar" class="fixed bottom-0 left-0 right-0 p-5 bg-white border-t shadow-[0_-10px_25px_rgba(0,0,0,0.1)] hidden z-50 rounded-t-3xl">
         <div class="max-w-4xl mx-auto flex justify-between items-center">
             <div>
                 <p class="text-gray-400 text-[10px] font-bold uppercase">Warta Dalabka</p>
@@ -68,15 +67,15 @@
 
     <script>
         const menuData = [
-            { id: 13, name: "Canjeero & Malab", price: 3.00, category: "Quraac", desc: "Canjeero jilicsan iyo malab dabiici ah.", img: "https://images.unsplash.com/photo-1590103512342-999335805973?w=400" },
-            { id: 14, name: "Rooti & Ukun", price: 4.00, category: "Quraac", desc: "Rooti kulul iyo ukun la shiilay.", img: "https://images.unsplash.com/photo-1525351484163-7529414344d8?w=400" },
-            { id: 1, name: "Bariis & Hilib Ari", price: 8.00, category: "Qado", desc: "Bariis basmati iyo hilib ari cusub.", img: "https://images.unsplash.com/photo-1589302168068-964664d93dc0?w=400" },
-            { id: 3, name: "Bariis & Digaag", price: 7.00, category: "Qado", desc: "Bariis caraf leh iyo digaag duban.", img: "https://images.unsplash.com/photo-1633945274405-b6c8069047b0?w=400" },
-            { id: 6, name: "Hilib Ari Shiilan", price: 9.00, category: "Casho", desc: "Hilib ari si fiican u shiilan iyo rooti.", img: "https://images.unsplash.com/photo-1603360946369-dc9bb6258143?w=400" },
-            { id: 9, name: "Kalluun Shiilan", price: 8.00, category: "Qado", desc: "Kalluun cusub iyo bariis ama chips.", img: "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?w=400" },
-            { id: 17, name: "Shaah Somali", price: 1.50, category: "Cabitaan", desc: "Shaah caano leh oo xawaash leh.", img: "https://images.unsplash.com/photo-1594631252845-29fc4586d517?w=400" },
-            { id: 19, name: "Caano Geel", price: 2.00, category: "Cabitaan", desc: "Caano geel oo dabiici ah.", img: "https://images.unsplash.com/photo-1528750955925-cd325b9a1eb4?w=400" },
-            { id: 22, name: "Timir", price: 2.00, category: "Macmacaan", desc: "Timir tayo sare leh.", img: "https://images.unsplash.com/photo-1569470451072-68314f596acc?w=400" }
+            { id: 13, name: "Canjeero & Malab", price: 3.00, category: "Quraac", desc: "Canjeero jilicsan iyo malab dabiici ah.", img: "https://images.unsplash.com/photo-1598214886806-c87b84b7078b?auto=format&fit=crop&w=400" },
+            { id: 14, name: "Rooti & Ukun", price: 4.00, category: "Quraac", desc: "Rooti kulul iyo ukun la shiilay.", img: "https://images.unsplash.com/photo-1525351484163-7529414344d8?auto=format&fit=crop&w=400" },
+            { id: 1, name: "Bariis & Hilib Ari", price: 8.00, category: "Qado", desc: "Bariis basmati iyo hilib ari cusub.", img: "https://images.unsplash.com/photo-1589302168068-964664d93dc0?auto=format&fit=crop&w=400" },
+            { id: 3, name: "Bariis & Digaag", price: 7.00, category: "Qado", desc: "Bariis caraf leh iyo digaag duban.", img: "https://images.unsplash.com/photo-1633945274405-b6c8069047b0?auto=format&fit=crop&w=400" },
+            { id: 6, name: "Hilib Ari Shiilan", price: 9.00, category: "Casho", desc: "Hilib ari si fiican u shiilan iyo rooti.", img: "https://images.unsplash.com/photo-1603360946369-dc9bb6258143?auto=format&fit=crop&w=400" },
+            { id: 9, name: "Kalluun Shiilan", price: 8.00, category: "Qado", desc: "Kalluun cusub iyo bariis ama chips.", img: "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?auto=format&fit=crop&w=400" },
+            { id: 17, name: "Shaah Somali", price: 1.50, category: "Cabitaan", desc: "Shaah caano leh oo xawaash leh.", img: "https://images.pexels.com/photos/1417945/pexels-photo-1417945.jpeg?auto=compress&cs=tinysrgb&w=400" },
+            { id: 19, name: "Caano Geel", price: 2.00, category: "Cabitaan", desc: "Caano geel oo dabiici ah.", img: "https://images.unsplash.com/photo-1550583724-125581f77833?auto=format&fit=crop&w=400" },
+            { id: 22, name: "Timir", price: 2.00, category: "Macmacaan", desc: "Timir tayo sare leh.", img: "https://images.unsplash.com/photo-1569470451072-68314f596acc?auto=format&fit=crop&w=400" }
         ];
 
         let cart = [];
@@ -87,7 +86,7 @@
                 const count = cart.filter(c => c.name === item.name).length;
                 return `
                 <div class="bg-white rounded-3xl overflow-hidden shadow-sm border border-gray-100 food-card transition active:scale-[0.98]">
-                    <img src="${item.img}" class="w-full h-32 object-cover">
+                    <img src="${item.img}" class="w-full h-32 object-cover bg-gray-200">
                     <div class="p-3 flex flex-col flex-1">
                         <h3 class="font-bold text-gray-800 text-[13px] truncate">${item.name}</h3>
                         <p class="text-gray-400 text-[10px] leading-tight my-1 line-clamp-2">${item.desc}</p>
@@ -123,29 +122,22 @@
             document.getElementById('cart-count').innerText = cart.length;
             const total = cart.reduce((sum, item) => sum + item.price, 0);
             document.getElementById('total-price').innerText = `$${total.toFixed(2)}`;
-            
             const checkoutBar = document.getElementById('checkout-bar');
             cart.length > 0 ? checkoutBar.classList.remove('hidden') : checkoutBar.classList.add('hidden');
-            
-            // Re-render only when needed to show updated counts
             const q = document.getElementById('search-input').value.toLowerCase();
             const currentCat = document.querySelector('.category-btn.active').innerText;
-            
             let filtered = menuData;
             if(currentCat !== 'Dhammaan') filtered = menuData.filter(i => i.category === currentCat);
             if(q) filtered = filtered.filter(i => i.name.toLowerCase().includes(q));
-            
             renderMenu(filtered);
         }
 
         function filterMenu() { updateUI(); }
-
         function filterCategory(cat, btn) {
             document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
             updateUI();
         }
-
         function checkoutWhatsApp() {
             const phone = "252617054480"; 
             let summary = cart.reduce((acc, i) => { acc[i.name] = (acc[i.name] || 0) + 1; return acc; }, {});
@@ -154,7 +146,6 @@
             let msg = `*DALAB CUSUB* 🍎\n\n${list}\n\n💰 *Total:* $${total.toFixed(2)}`;
             window.location.href = `https://wa.me/${phone}?text=${encodeURIComponent(msg)}`;
         }
-
         renderMenu(menuData);
     </script>
 </body>
