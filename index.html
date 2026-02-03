@@ -11,83 +11,117 @@
         .sticky-header { position: sticky; top: 0; z-index: 50; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .category-btn.active { background-color: #dc2626; color: white; shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); }
     </style>
 </head>
-<body class="bg-gray-100 font-sans pb-32">
+<body class="bg-gray-50 font-sans pb-32">
 
     <header class="bg-red-600 text-white p-6 rounded-b-[2.5rem] shadow-2xl sticky-header">
-        <div class="flex justify-between items-center max-w-md mx-auto">
+        <div class="flex justify-between items-center max-w-2xl mx-auto">
             <div>
-                <h1 class="text-3xl font-black italic">🍎 TUFAAX</h1>
-                <p id="table-display" class="text-sm opacity-90 font-bold bg-red-700 px-3 py-1 rounded-full mt-1 inline-block">
-                    <i class="fas fa-chair"></i> Miiska: Guri
+                <h1 class="text-3xl font-black italic tracking-tighter">🍎 TUFAAX</h1>
+                <p id="table-display" class="text-xs opacity-90 font-bold bg-red-700 px-3 py-1 rounded-full mt-2 inline-block">
+                    <i class="fas fa-chair mr-1"></i> Dalabka Guriga
                 </p>
             </div>
-            <div class="relative bg-white p-3 rounded-full text-red-600 shadow-lg cursor-pointer hover:scale-110 transition-transform">
+            <div class="relative bg-white p-3 rounded-full text-red-600 shadow-lg cursor-pointer hover:scale-105 transition" onclick="scrollToCart()">
                 <i class="fas fa-shopping-basket text-xl"></i>
                 <span id="cart-count" class="cart-badge bg-yellow-400 text-black font-bold px-2 py-0.5 rounded-full shadow-sm">0</span>
             </div>
         </div>
     </header>
 
-    <main class="p-5 max-w-md mx-auto space-y-6">
+    <main class="p-4 max-w-2xl mx-auto space-y-6">
         
-        <div class="relative">
-            <input type="text" id="search-input" onkeyup="filterMenu()" placeholder="Raadi cuntada..." 
-                   class="w-full p-4 pl-12 rounded-2xl border-none shadow-sm focus:ring-2 focus:ring-red-500 outline-none">
-            <i class="fas fa-search absolute left-4 top-5 text-gray-400"></i>
+        <div class="relative group">
+            <input type="text" id="search-input" onkeyup="filterMenu()" placeholder="Raadi cuntada aad rabto..." 
+                   class="w-full p-4 pl-12 rounded-2xl border-none shadow-md focus:ring-2 focus:ring-red-500 outline-none transition-all">
+            <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-red-500"></i>
         </div>
 
         <div class="flex space-x-3 overflow-x-auto pb-2 no-scrollbar">
-            <button onclick="filterCategory('Dhammaan')" class="category-btn bg-red-600 text-white px-6 py-2 rounded-full font-bold shadow-md whitespace-nowrap">Dhammaan</button>
-            <button onclick="filterCategory('Qado')" class="category-btn bg-white text-gray-600 px-6 py-2 rounded-full font-bold shadow-sm whitespace-nowrap">Qado</button>
-            <button onclick="filterCategory('Cabitaan')" class="category-btn bg-white text-gray-600 px-6 py-2 rounded-full font-bold shadow-sm whitespace-nowrap">Cabitaan</button>
+            <button onclick="filterCategory('Dhammaan', this)" class="category-btn active px-6 py-2 rounded-full font-bold shadow-sm bg-white text-gray-600 whitespace-nowrap transition">Dhammaan</button>
+            <button onclick="filterCategory('Qaran', this)" class="category-btn px-6 py-2 rounded-full font-bold shadow-sm bg-white text-gray-600 whitespace-nowrap transition">Qaran</button>
+            <button onclick="filterCategory('Shiilo', this)" class="category-btn px-6 py-2 rounded-full font-bold shadow-sm bg-white text-gray-600 whitespace-nowrap transition">Shiilo</button>
+            <button onclick="filterCategory('Maraq', this)" class="category-btn px-6 py-2 rounded-full font-bold shadow-sm bg-white text-gray-600 whitespace-nowrap transition">Maraq</button>
+            <button onclick="filterCategory('Quraac', this)" class="category-btn px-6 py-2 rounded-full font-bold shadow-sm bg-white text-gray-600 whitespace-nowrap transition">Quraac</button>
+            <button onclick="filterCategory('Cabitaan', this)" class="category-btn px-6 py-2 rounded-full font-bold shadow-sm bg-white text-gray-600 whitespace-nowrap transition">Cabitaan</button>
+            <button onclick="filterCategory('Macmacaan', this)" class="category-btn px-6 py-2 rounded-full font-bold shadow-sm bg-white text-gray-600 whitespace-nowrap transition">Macmacaan</button>
         </div>
 
-        <h2 class="text-xl font-bold text-gray-800" id="category-title">Menu-ga Maanta</h2>
-
-        <div id="menu-items" class="grid gap-4">
+        <div id="menu-items" class="grid grid-cols-1 md:grid-cols-2 gap-4">
             </div>
     </main>
 
-    <div id="checkout-bar" class="fixed bottom-0 left-0 right-0 p-5 bg-white shadow-[0_-10px_20px_rgba(0,0,0,0.05)] hidden rounded-t-3xl">
-        <div class="max-w-md mx-auto flex justify-between items-center">
+    <div id="checkout-bar" class="fixed bottom-0 left-0 right-0 p-5 bg-white border-t border-gray-100 shadow-[0_-10px_25px_rgba(0,0,0,0.1)] hidden z-50 rounded-t-[2rem]">
+        <div class="max-w-2xl mx-auto flex justify-between items-center">
             <div>
-                <p class="text-gray-500 text-sm font-bold">Warta Dalabka:</p>
+                <p class="text-gray-400 text-xs font-bold uppercase tracking-wider">Warta Dalabka</p>
                 <p id="total-price" class="text-2xl font-black text-red-600">$0.00</p>
             </div>
-            <button onclick="checkoutWhatsApp()" class="bg-green-500 text-white px-8 py-4 rounded-2xl font-black shadow-lg hover:bg-green-600 active:scale-95 transition flex items-center gap-2">
-                <i class="fab fa-whatsapp text-xl"></i> Dalbo Hadda
+            <button onclick="checkoutWhatsApp()" class="bg-green-500 text-white px-8 py-4 rounded-2xl font-black shadow-lg hover:bg-green-600 active:scale-95 transition-all flex items-center gap-2">
+                <i class="fab fa-whatsapp text-xl"></i> DALBO HADDA
             </button>
         </div>
     </div>
 
     <script>
-        // 1. Data: Cuntada Menu-ga ku jirta
         const menuData = [
-            { id: 1, name: "Baasto Special", price: 4.50, desc: "Hilib, suugo, iyo khudaar", category: "Qado", img: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=200" },
-            { id: 2, name: "Bariis Isku-dhex", price: 5.00, desc: "Bariis iyo hilib geel", category: "Qado", img: "https://images.unsplash.com/photo-1512058560366-1a51042f55e7?w=200" },
-            { id: 3, name: "Casiir Qabow", price: 1.50, desc: "Canbe, Liin ama Qare", category: "Cabitaan", img: "https://images.unsplash.com/photo-1544145945-f904253d0c7b?w=200" }
+            // QAYBTA 1: CUNTOOYINKA QARANKA
+            { id: 1, name: "Bariis iyo Hilib Ari", price: 8.00, category: "Qaran", desc: "Bariis basmati, hilib ari cusub, muus iyo salad.", img: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=300" },
+            { id: 2, name: "Bariis iyo Hilib Lo’", price: 7.00, category: "Qaran", desc: "Bariis xawaash Somali ah, hilib lo’ jilicsan, muus iyo salad.", img: "https://images.unsplash.com/photo-1512058560366-1a51042f55e7?w=300" },
+            { id: 3, name: "Bariis iyo Digaag", price: 7.00, category: "Qaran", desc: "Bariis caraf leh, digaag maraq ama shiilan, muus iyo salad.", img: "https://images.unsplash.com/photo-1567622658624-738aef0d856f?w=300" },
+            { id: 4, name: "Canjeero iyo Suugo Hilib", price: 5.00, category: "Qaran", desc: "Canjeero kulul iyo suugo hilib leh dhadhan dhaqameed.", img: "https://images.unsplash.com/photo-1626074353765-517a681e40be?w=300" },
+            { id: 5, name: "Cambuulo iyo Hilib", price: 6.00, category: "Qaran", desc: "Digir cambuulo la kariyey, hilib lo’ ama ari, subag iyo basbaas.", img: "https://plus.unsplash.com/premium_photo-1664472619078-9db415ebef44?w=300" },
+            
+            // QAYBTA 2: CUNTOOYINKA LA SHIILO
+            { id: 6, name: "Hilib Ari Shiilan", price: 9.00, category: "Shiilo", desc: "Hilib ari cusub oo la shiilay, rooti/bariis iyo basbaas.", img: "https://images.unsplash.com/photo-1532635249-c77625970f20?w=300" },
+            { id: 7, name: "Hilib Lo’ Shiilan", price: 8.00, category: "Shiilo", desc: "Hilib lo’ duban, rooti ama bariis, salad dhinac ah.", img: "https://images.unsplash.com/photo-1603048297172-c92544798d5e?w=300" },
+            { id: 8, name: "Digaag Shiilan", price: 7.00, category: "Shiilo", desc: "Digaag si buuxda u duban, chips ama bariis.", img: "https://images.unsplash.com/photo-1626645738196-c2a7c8d08f58?w=300" },
+            { id: 9, name: "Kalluun Shiilan", price: 8.00, category: "Shiilo", desc: "Kalluun cusub, bariis ama chips, liin iyo salad.", img: "https://images.unsplash.com/photo-1580476262798-bddd9f4b7369?w=300" },
+
+            // QAYBTA 3: MARAQ IYO SUUGO
+            { id: 10, name: "Maraq Hilib", price: 5.00, category: "Maraq", desc: "Maraq ari ama lo’ oo kulul, rooti ama bariis.", img: "https://images.unsplash.com/photo-1547592110-823d63303867?w=300" },
+            { id: 11, name: "Suugo Hilib", price: 5.00, category: "Maraq", desc: "Suugo hilib dhaqameed, canjeero ama bariis.", img: "https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?w=300" },
+            { id: 12, name: "Suugo Digaag", price: 5.00, category: "Maraq", desc: "Suugo digaag xawaash leh, canjeero ama bariis.", img: "https://images.unsplash.com/photo-1543332164-6e82f355badc?w=300" },
+
+            // QAYBTA 4: QURAAC
+            { id: 13, name: "Canjeero iyo Malab", price: 3.00, category: "Quraac", desc: "Canjeero jilicsan oo lagu daray malab dabiici ah.", img: "https://images.unsplash.com/photo-1525351484163-7529414344d8?w=300" },
+            { id: 14, name: "Rooti iyo Ukun", price: 4.00, category: "Quraac", desc: "Rooti kulul, ukun la shiilay ama la kariyey.", img: "https://images.unsplash.com/photo-1525351484163-7529414344d8?w=300" },
+            { id: 15, name: "Sambuuse (3 xabo)", price: 3.00, category: "Quraac", desc: "Sambuuse hilib ama khudaar ka buuxo.", img: "https://images.unsplash.com/photo-1601050633722-343277543e54?w=300" },
+            { id: 16, name: "Malawax", price: 3.00, category: "Quraac", desc: "Malawax macaan, malab ama sokor leh.", img: "https://images.unsplash.com/photo-1598214886806-c87b84b7078b?w=300" },
+
+            // QAYBTA 5: CABITAAN
+            { id: 17, name: "Shaah Somali", price: 1.50, category: "Cabitaan", desc: "Shaah caano leh oo dhaqameed (Heel & Qoronful).", img: "https://images.unsplash.com/photo-1594631252845-29fc4586d517?w=300" },
+            { id: 18, name: "Qaxwo Somali", price: 2.00, category: "Cabitaan", desc: "Qaxwo caraf leh oo xawaash Somali ah.", img: "https://images.unsplash.com/photo-1559496417-e7f25cb247f3?w=300" },
+            { id: 19, name: "Caano Geel", price: 2.00, category: "Cabitaan", desc: "Caano geel cusub oo dabiici ah.", img: "https://images.unsplash.com/photo-1528750955925-cd325b9a1eb4?w=300" },
+            { id: 21, name: "Cabitaanno Qabow", price: 1.00, category: "Cabitaan", desc: "Biyo, Coca-Cola, Fanta ama Sprite.", img: "https://images.unsplash.com/photo-1544145945-f904253d0c7b?w=300" },
+
+            // QAYBTA 6: MACMACAAN
+            { id: 22, name: "Timir", price: 2.00, category: "Macmacaan", desc: "Timir tayo sare leh.", img: "https://images.unsplash.com/photo-1569470451072-68314f596acc?w=300" },
+            { id: 23, name: "Muus", price: 1.00, category: "Macmacaan", desc: "Muus bisil oo cusub.", img: "https://images.unsplash.com/photo-1603833665858-e61d17a86224?w=300" }
         ];
 
         let cart = [];
         const urlParams = new URLSearchParams(window.location.search);
         const tableNum = urlParams.get('table') || "Guri";
-        document.getElementById('table-display').innerHTML = `<i class="fas fa-chair"></i> Miiska: ${tableNum}`;
+        document.getElementById('table-display').innerHTML = `<i class="fas fa-chair mr-1"></i> Miiska: ${tableNum}`;
 
-        // 2. Function lagu soo bandhigo menu-ga
         function renderMenu(items) {
-            const menuContainer = document.getElementById('menu-items');
-            menuContainer.innerHTML = items.map(item => `
-                <div class="bg-white rounded-3xl p-3 shadow-sm flex items-center border border-gray-50 group transition hover:shadow-md animate-in fade-in duration-500">
-                    <img src="${item.img}" class="w-24 h-24 rounded-2xl object-cover shadow-sm">
+            const container = document.getElementById('menu-items');
+            container.innerHTML = items.map(item => `
+                <div class="bg-white rounded-3xl p-3 shadow-sm flex items-center border border-gray-50 transition hover:shadow-lg animate-in fade-in zoom-in duration-300">
+                    <img src="${item.img}" class="w-24 h-24 rounded-2xl object-cover shadow-sm bg-gray-100">
                     <div class="ml-4 flex-1">
-                        <h3 class="font-bold text-lg text-gray-800">${item.name}</h3>
-                        <p class="text-gray-400 text-xs mb-2">${item.desc}</p>
-                        <div class="flex justify-between items-center">
-                            <span class="text-red-600 font-black text-xl">$${item.price.toFixed(2)}</span>
-                            <button onclick="addToCart('${item.name}', ${item.price})" class="bg-red-100 text-red-600 p-2 rounded-lg hover:bg-red-600 hover:text-white transition">
-                                <i class="fas fa-plus"></i>
+                        <div class="flex justify-between items-start">
+                            <h3 class="font-bold text-gray-800 text-sm md:text-base">${item.name}</h3>
+                            <span class="bg-red-50 text-red-600 text-[10px] font-black px-2 py-0.5 rounded-full">${item.category}</span>
+                        </div>
+                        <p class="text-gray-400 text-[11px] leading-tight my-1">${item.desc}</p>
+                        <div class="flex justify-between items-center mt-2">
+                            <span class="text-red-600 font-black text-lg">$${item.price.toFixed(2)}</span>
+                            <button onclick="addToCart('${item.name}', ${item.price})" class="bg-red-600 text-white w-8 h-8 rounded-full shadow-md active:scale-90 transition flex items-center justify-center">
+                                <i class="fas fa-plus text-xs"></i>
                             </button>
                         </div>
                     </div>
@@ -95,79 +129,59 @@
             `).join('');
         }
 
-        // 3. Search & Filter Functions
         function filterMenu() {
-            const searchTerm = document.getElementById('search-input').value.toLowerCase();
-            const filtered = menuData.filter(item => item.name.toLowerCase().includes(searchTerm));
+            const q = document.getElementById('search-input').value.toLowerCase();
+            const filtered = menuData.filter(i => i.name.toLowerCase().includes(q) || i.category.toLowerCase().includes(q));
             renderMenu(filtered);
         }
 
-        function filterCategory(cat) {
-            // Update buttons style
-            document.querySelectorAll('.category-btn').forEach(btn => {
-                btn.classList.remove('bg-red-600', 'text-white');
-                btn.classList.add('bg-white', 'text-gray-600');
-            });
-            event.target.classList.add('bg-red-600', 'text-white');
-
+        function filterCategory(cat, btn) {
+            document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            
             if (cat === 'Dhammaan') {
                 renderMenu(menuData);
             } else {
-                const filtered = menuData.filter(item => item.category === cat);
-                renderMenu(filtered);
+                renderMenu(menuData.filter(i => i.category === cat));
             }
         }
 
-        // 4. Cart Logic
         function addToCart(name, price) {
             cart.push({ name, price });
-            updateUI();
-            
-            // Notification yar oo ah in wax lagu daray
-            const btn = event.currentTarget;
-            btn.innerHTML = '<i class="fas fa-check"></i>';
-            setTimeout(() => btn.innerHTML = '<i class="fas fa-plus"></i>', 800);
-        }
-
-        function updateUI() {
             document.getElementById('cart-count').innerText = cart.length;
-            const total = cart.reduce((sum, item) => sum + item.price, 0);
+            const total = cart.reduce((s, i) => s + i.price, 0);
             document.getElementById('total-price').innerText = `$${total.toFixed(2)}`;
+            document.getElementById('checkout-bar').classList.remove('hidden');
             
-            if (cart.length > 0) {
-                document.getElementById('checkout-bar').classList.remove('hidden');
-            }
+            // Success Effect
+            const btn = event.currentTarget;
+            btn.classList.replace('bg-red-600', 'bg-green-500');
+            btn.innerHTML = '<i class="fas fa-check"></i>';
+            setTimeout(() => {
+                btn.classList.replace('bg-green-500', 'bg-red-600');
+                btn.innerHTML = '<i class="fas fa-plus"></i>';
+            }, 800);
         }
 
-        // 5. WhatsApp Integration
         function checkoutWhatsApp() {
-            const myNumber = "252617054480"; // <--- HALKAN LAMBARKAAGA DHIG
+            const phone = "252617054480"; // <--- BADAL LAMBARKAAGA
+            let summary = cart.reduce((acc, i) => { acc[i.name] = (acc[i.name] || 0) + 1; return acc; }, {});
+            let list = Object.entries(summary).map(([n, q]) => `• ${q}x ${n}`).join('\n');
+            let total = cart.reduce((s, i) => s + i.price, 0);
             
-            let itemSummary = cart.reduce((acc, item) => {
-                acc[item.name] = (acc[item.name] || 0) + 1;
-                return acc;
-            }, {});
+            let msg = `*DALAB CUSUB - TUFAAX* 🍎\n\n` +
+                      `📍 *Miiska:* ${tableNum}\n` +
+                      `--------------------------\n` +
+                      `${list}\n` +
+                      `--------------------------\n` +
+                      `💰 *TOTAL:* $${total.toFixed(2)}\n\n` +
+                      `_Fadlan si degdeg ah ii diyaariya!_`;
 
-            let foodList = "";
-            for (const [name, qty] of Object.entries(itemSummary)) {
-                foodList += `• ${qty}x ${name}\n`;
-            }
-
-            const total = cart.reduce((sum, item) => sum + item.price, 0);
-            const message = `*DALAB CUSUB* 🍎\n\n` +
-                            `📍 *Miiska:* ${tableNum}\n` +
-                            `--------------------------\n` +
-                            `${foodList}` +
-                            `--------------------------\n` +
-                            `💰 *Warta:* $${total.toFixed(2)}\n\n` +
-                            `_Fadlan si degdeg ah ii diyaariya!_`;
-
-            window.location.href = `https://wa.me/${myNumber}?text=${encodeURIComponent(message)}`;
+            window.location.href = `https://wa.me/${phone}?text=${encodeURIComponent(msg)}`;
         }
 
-        // Marka horeba menu-ga soo bandhig
+        // Initial Load
         renderMenu(menuData);
     </script>
 </body>
 </html>
-
