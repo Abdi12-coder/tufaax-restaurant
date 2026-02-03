@@ -9,7 +9,6 @@
     <style>
         .cart-badge { position: absolute; top: -5px; right: -5px; font-size: 10px; }
         .category-btn.active { background-color: #dc2626; color: white; }
-        /* Smooth loading effect */
         .fade-in { animation: fadeIn 0.5s ease-in; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     </style>
@@ -57,24 +56,16 @@
 
     <script>
         const GOOGLE_URL = "https://script.google.com/macros/s/AKfycbzN7tYUEMrPtYhRXZwt0z5--8vUKL1Gl35Ixa8WWzesIbReJUa2f9aZWjZF7Gu3iQYH/exec";
-        
-        // CACHE SYSTEM: Ku bilow xogtii hore ee birawsarka ku jirtay
         let menuData = JSON.parse(localStorage.getItem('tufaax_cache')) || [];
         let cart = [];
 
         async function loadMenu() {
-            // Haddii xog hore ay jirto, isla markiiba tus macaamiisha
-            if(menuData.length > 0) {
-                document.getElementById('loading-state').style.display = 'none';
-                updateUI();
-            }
-
             try {
                 const res = await fetch(GOOGLE_URL);
                 const data = await res.json();
                 const filtered = data.filter(item => String(item.id) && item.status !== 'hidden');
                 
-                // Kaliya haddii xogta cusub ay ka duwan tahay tan hore, badal UI-ga
+                // Silent Update: Kaliya haddii xogtu isbedesho ayuu UI-ga bedelayaa
                 if(JSON.stringify(filtered) !== JSON.stringify(menuData)) {
                     menuData = filtered;
                     localStorage.setItem('tufaax_cache', JSON.stringify(menuData));
@@ -82,7 +73,7 @@
                 }
                 document.getElementById('loading-state').style.display = 'none';
             } catch (e) {
-                console.log("Xiriirka Google waa gaabis, laakiin cache ayaa shaqaynaya.");
+                console.log("Searching for updates...");
             }
         }
 
@@ -97,7 +88,7 @@
             container.innerHTML = filtered.map(item => {
                 const count = cart.filter(c => String(c.id) === String(item.id)).length;
                 return `
-                <div class="bg-white rounded-3xl overflow-hidden shadow-sm border p-3 flex flex-col fade-in">
+                <div class="bg-white rounded-3xl overflow-hidden shadow-sm border p-3 flex flex-col transition-all duration-300">
                     <img src="${item.img}" class="w-full h-32 object-cover rounded-2xl mb-3" onerror="this.src='https://via.placeholder.com/150'">
                     <h3 class="font-bold text-gray-800 text-sm truncate">${item.name}</h3>
                     <div class="mt-auto flex justify-between items-center pt-2">
@@ -140,7 +131,7 @@
         }
 
         function checkoutWhatsApp() {
-            const phone = "25261XXXXXXX"; // Geli lambarkaaga saxda ah
+            const phone = "25261XXXXXXX"; 
             let msg = "🛒 *DALAB CUSUB (TUFAAX)*%0A%0A";
             const itemsGrouped = cart.reduce((acc, item) => {
                 acc[item.name] = (acc[item.name] || 0) + 1;
@@ -156,8 +147,14 @@
             window.open(`https://wa.me/${phone}?text=${msg}`);
         }
 
-        // Silent refresh: 20-kii ilbiriqsiba iskiis u cusboonaysii gadaal
-        setInterval(loadMenu, 20000);
+        // 1-ilbiriqsiba iskiis u cusboonaysii gadaal (macmiilku ma dareemayo)
+        setInterval(loadMenu, 1000);
+        
+        // Initial load
+        if(menuData.length > 0) {
+            document.getElementById('loading-state').style.display = 'none';
+            updateUI();
+        }
         loadMenu();
     </script>
 </body>
