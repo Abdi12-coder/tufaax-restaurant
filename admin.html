@@ -11,6 +11,7 @@
         .spinner { animation: spin 1s linear infinite; }
         @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
         #custom-popup { display: none; }
+        .sold-out { filter: grayscale(1); opacity: 0.6; }
     </style>
 </head>
 <body class="bg-slate-50 p-4 pb-20">
@@ -30,6 +31,21 @@
     </div>
 
     <div class="max-w-xl mx-auto space-y-6">
+        <div class="grid grid-cols-3 gap-3">
+            <div class="bg-white p-4 rounded-3xl border shadow-sm text-center">
+                <p class="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Dhammaan</p>
+                <p id="stat-total" class="text-xl font-black text-gray-800">0</p>
+            </div>
+            <div class="bg-white p-4 rounded-3xl border shadow-sm text-center border-red-100">
+                <p class="text-[10px] text-red-400 font-bold uppercase tracking-wider">Hidden</p>
+                <p id="stat-hidden" class="text-xl font-black text-red-500">0</p>
+            </div>
+            <div class="bg-white p-4 rounded-3xl border shadow-sm text-center border-orange-100">
+                <p class="text-[10px] text-orange-400 font-bold uppercase tracking-wider">Sold Out</p>
+                <p id="stat-soldout" class="text-xl font-black text-orange-500">0</p>
+            </div>
+        </div>
+
         <header class="bg-gray-800 text-white p-6 rounded-[2rem] shadow-xl flex justify-between items-center">
             <div>
                 <h1 class="text-xl font-black italic">🍎 TUFAAX ADMIN</h1>
@@ -45,6 +61,10 @@
                 <i class="fas fa-plus-circle text-green-500"></i> Ku dar Cunto Cusub
             </h2>
             <div class="space-y-3">
+                <div id="img-preview-box" class="hidden w-full h-32 rounded-2xl overflow-hidden border bg-gray-50 mb-2">
+                    <img id="img-preview" src="" class="w-full h-full object-cover">
+                </div>
+                
                 <input id="foodId" type="hidden"> 
                 <input id="foodStatus" type="hidden" value="visible">
                 <input id="foodName" type="text" placeholder="Magaca Cuntada" class="w-full p-4 bg-gray-50 rounded-2xl border-none outline-none focus:ring-2 focus:ring-green-400 transition-all">
@@ -54,7 +74,7 @@
                         <option>Quraac</option><option>Qado</option><option>Casho</option><option>Cabitaan</option><option>Macmacaan</option>
                     </select>
                 </div>
-                <input id="foodImg" type="text" placeholder="Link-ga Sawirka (URL)" class="w-full p-4 bg-gray-50 rounded-2xl border-none outline-none focus:ring-2 focus:ring-green-400 transition-all">
+                <input id="foodImg" type="text" oninput="previewImage(this.value)" placeholder="Link-ga Sawirka (URL)" class="w-full p-4 bg-gray-50 rounded-2xl border-none outline-none focus:ring-2 focus:ring-green-400 transition-all">
                 <div class="flex gap-2">
                     <button id="saveBtn" onclick="saveFood()" class="flex-1 bg-green-500 text-white p-5 rounded-2xl font-bold shadow-lg active:scale-95 transition">KEYDI XOGTA</button>
                     <button id="cancelBtn" onclick="resetForm()" class="hidden bg-gray-200 text-gray-600 px-6 rounded-2xl font-bold active:scale-95 transition">Xir</button>
@@ -64,48 +84,68 @@
 
         <div class="bg-white p-6 rounded-[2rem] shadow-sm border border-gray-100">
             <h2 class="font-bold text-gray-800 mb-4 flex justify-between items-center">
-                <span>Cuntooyinka Hadda Jira</span>
-                <span id="item-count" class="text-xs bg-gray-100 px-3 py-1 rounded-full text-gray-500 font-bold">0</span>
+                <span>Cuntooyinka Jira</span>
+                <input type="text" id="adminSearch" oninput="renderAdminList()" placeholder="Raadi..." class="text-xs border p-2 rounded-xl w-32 outline-none focus:ring-1 focus:ring-green-400">
             </h2>
-            <div id="admin-list" class="space-y-3">
-                <p class="text-center py-5 text-gray-400 italic">Xogta waa la soo ridaybaa...</p>
-            </div>
+            <div id="admin-list" class="space-y-3"></div>
         </div>
     </div>
 
     <script>
         const GOOGLE_URL = "https://script.google.com/macros/s/AKfycbzN7tYUEMrPtYhRXZwt0z5--8vUKL1Gl35Ixa8WWzesIbReJUa2f9aZWjZF7Gu3iQYH/exec";
         let menu = [];
+        const clickSound = new Audio('https://www.soundjay.com/buttons/button-16.mp3');
 
-        async function loadAdminMenu(isSilent = false) {
+        function playSound() { clickSound.play().catch(()=>{}); }
+
+        async function loadAdminMenu() {
             try {
                 const res = await fetch(GOOGLE_URL);
                 const newData = await res.json();
-                
                 if (JSON.stringify(menu) !== JSON.stringify(newData)) {
                     menu = newData;
-                    document.getElementById('item-count').innerText = menu.length;
+                    updateStats();
                     renderAdminList();
                 }
-            } catch (e) { 
-                console.error("Sync error");
-            }
+            } catch (e) { console.error("Sync error"); }
+        }
+
+        function updateStats() {
+            document.getElementById('stat-total').innerText = menu.length;
+            document.getElementById('stat-hidden').innerText = menu.filter(i => i.status === 'hidden').length;
+            document.getElementById('stat-soldout').innerText = menu.filter(i => i.status === 'soldout').length;
+        }
+
+        function previewImage(url) {
+            const box = document.getElementById('img-preview-box');
+            const img = document.getElementById('img-preview');
+            if(url.length > 5) {
+                box.classList.remove('hidden');
+                img.src = url;
+            } else { box.classList.add('hidden'); }
         }
 
         function renderAdminList() {
+            const searchTerm = document.getElementById('adminSearch').value.toLowerCase();
             const list = document.getElementById('admin-list');
-            list.innerHTML = menu.map((item) => `
-                <div id="row-${item.id}" class="flex items-center justify-between p-3 ${item.status === 'hidden' ? 'bg-red-50 opacity-60' : 'bg-gray-50'} rounded-2xl border transition-all duration-300">
+            
+            const filtered = menu.filter(i => i.name.toLowerCase().includes(searchTerm));
+
+            list.innerHTML = filtered.map((item) => `
+                <div id="row-${item.id}" class="flex items-center justify-between p-3 ${item.status === 'hidden' ? 'bg-red-50 opacity-60' : item.status === 'soldout' ? 'bg-orange-50' : 'bg-gray-50'} rounded-2xl border transition-all duration-300">
                     <div class="flex items-center gap-3 flex-1 cursor-pointer" onclick="prepareEdit('${item.id}')">
-                        <img src="${item.img}" class="w-12 h-12 rounded-xl object-cover shadow-sm" onerror="this.src='https://via.placeholder.com/150'">
+                        <img src="${item.img}" class="w-12 h-12 rounded-xl object-cover shadow-sm ${item.status === 'soldout' ? 'grayscale' : ''}" onerror="this.src='https://via.placeholder.com/150'">
                         <div>
                             <p class="font-bold text-sm text-gray-800">${item.name || 'Bilaa Magac'}</p>
                             <p class="text-xs text-green-600 font-bold">$${parseFloat(item.price || 0).toFixed(2)}</p>
                         </div>
                     </div>
                     <div class="flex gap-2">
-                        <button onclick="triggerPopup('status', '${item.id}')" class="px-3 py-2 text-[10px] font-black border rounded-xl bg-white shadow-sm active:scale-90 transition">
+                        <button onclick="triggerPopup('status', '${item.id}')" class="px-2 py-2 text-[8px] font-black border rounded-xl bg-white shadow-sm active:scale-90 transition">
                             ${item.status === 'hidden' ? 'SHOW' : 'HIDE'}
+                        </button>
+                        <button onclick="triggerPopup('soldout', '${item.id}')" class="px-2 py-2 text-[8px] font-black border rounded-xl ${item.status === 'soldout' ? 'bg-orange-500 text-white' : 'bg-white text-orange-500'} shadow-sm active:scale-90 transition">
+                            STOCK
                         </button>
                         <button onclick="triggerPopup('delete', '${item.id}')" class="p-2 text-red-500 active:scale-90 transition">
                             <i class="fas fa-trash-alt"></i>
@@ -116,6 +156,7 @@
         }
 
         function triggerPopup(type, id) {
+            playSound();
             const popup = document.getElementById('custom-popup');
             const confirmBtn = document.getElementById('popup-confirm-btn');
             const title = document.getElementById('popup-title');
@@ -129,40 +170,52 @@
                 title.innerText = "Ma hubtaa?";
                 msg.innerText = "Cuntadan si joogto ah ayaa looga tirtirayaa Menu-ga.";
                 confirmBtn.innerText = "Haa, Tirtir";
-                confirmBtn.className = "flex-1 bg-red-500 p-4 rounded-2xl font-bold text-white shadow-lg active:scale-95 transition";
+                confirmBtn.className = "flex-1 bg-red-500 p-4 rounded-2xl font-bold text-white shadow-lg";
                 icon.className = "fas fa-trash-alt text-3xl";
                 iconBox.className = "w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-5 bg-red-50 text-red-500 shadow-inner";
                 confirmBtn.onclick = () => { deleteFood(id); closePopup(); };
+            } else if(type === 'soldout') {
+                title.innerText = "Bedel Stock-ga?";
+                msg.innerText = "Ma huba inay cuntadan tahay mid dhammaatay (Sold Out)?";
+                confirmBtn.innerText = "Haa, Bedel";
+                confirmBtn.className = "flex-1 bg-orange-500 p-4 rounded-2xl font-bold text-white shadow-lg";
+                icon.className = "fas fa-store-slash text-3xl";
+                iconBox.className = "w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-5 bg-orange-50 text-orange-500 shadow-inner";
+                confirmBtn.onclick = () => { toggleStatus(id, 'soldout'); closePopup(); };
             } else {
-                title.innerText = "Badal Muuqaalka?";
+                title.innerText = "Bedel Muuqaalka?";
                 msg.innerText = "Ma hubtaa inaad bedesho sida ay cuntadan macaamiisha ugu muuqato?";
                 confirmBtn.innerText = "Haa, Bedel";
-                confirmBtn.className = "flex-1 bg-blue-600 p-4 rounded-2xl font-bold text-white shadow-lg active:scale-95 transition";
+                confirmBtn.className = "flex-1 bg-blue-600 p-4 rounded-2xl font-bold text-white shadow-lg";
                 icon.className = "fas fa-eye text-3xl";
                 iconBox.className = "w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-5 bg-blue-50 text-blue-600 shadow-inner";
-                confirmBtn.onclick = () => { toggleVisibility(id); closePopup(); };
+                confirmBtn.onclick = () => { toggleStatus(id, 'visible'); closePopup(); };
             }
         }
 
-        function closePopup() {
-            document.getElementById('custom-popup').style.display = 'none';
-        }
+        function closePopup() { document.getElementById('custom-popup').style.display = 'none'; }
 
         async function deleteFood(id) {
             document.getElementById(`row-${id}`).classList.add('processing');
             await fetch(GOOGLE_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ action: "delete", id: String(id) }) });
-            setTimeout(() => loadAdminMenu(true), 1500);
+            setTimeout(loadAdminMenu, 1500);
         }
 
-        async function toggleVisibility(id) {
+        async function toggleStatus(id, target) {
             document.getElementById(`row-${id}`).classList.add('processing');
             const item = menu.find(i => String(i.id) === String(id));
-            const newStatus = item.status === 'hidden' ? 'visible' : 'hidden';
+            let newStatus;
+            if(target === 'soldout') {
+                newStatus = item.status === 'soldout' ? 'visible' : 'soldout';
+            } else {
+                newStatus = item.status === 'hidden' ? 'visible' : 'hidden';
+            }
             await fetch(GOOGLE_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ ...item, action: "update", status: newStatus }) });
-            setTimeout(() => loadAdminMenu(true), 1500);
+            setTimeout(loadAdminMenu, 1500);
         }
 
         function prepareEdit(id) {
+            playSound();
             const item = menu.find(i => String(i.id) === String(id));
             if(!item) return;
             document.getElementById('foodId').value = item.id;
@@ -170,6 +223,7 @@
             document.getElementById('foodPrice').value = item.price;
             document.getElementById('foodCat').value = item.category;
             document.getElementById('foodImg').value = item.img;
+            previewImage(item.img);
             document.getElementById('foodStatus').value = item.status || "visible";
             document.getElementById('form-title').innerHTML = `<i class="fas fa-edit text-orange-400"></i> Bedel: ${item.name}`;
             document.getElementById('cancelBtn').classList.remove('hidden');
@@ -177,6 +231,7 @@
         }
 
         async function saveFood() {
+            playSound();
             const btn = document.getElementById('saveBtn');
             const data = {
                 action: "update",
@@ -188,17 +243,10 @@
                 status: document.getElementById('foodStatus').value
             };
             if(!data.name || !data.price) return;
-            
             btn.innerText = "KEYDINTA...";
             btn.classList.add('processing');
             await fetch(GOOGLE_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(data) });
-            
-            setTimeout(() => {
-                resetForm();
-                loadAdminMenu(true);
-                btn.innerText = "KEYDI XOGTA";
-                btn.classList.remove('processing');
-            }, 1000);
+            setTimeout(() => { resetForm(); loadAdminMenu(); btn.innerText = "KEYDI XOGTA"; btn.classList.remove('processing'); }, 1000);
         }
 
         function resetForm() {
@@ -206,13 +254,13 @@
             document.getElementById('foodName').value = "";
             document.getElementById('foodPrice').value = "";
             document.getElementById('foodImg').value = "";
+            document.getElementById('img-preview-box').classList.add('hidden');
             document.getElementById('foodStatus').value = "visible";
             document.getElementById('cancelBtn').classList.add('hidden');
             document.getElementById('form-title').innerHTML = `<i class="fas fa-plus-circle text-green-500"></i> Ku dar Cunto Cusub`;
         }
 
-        // Automatic Silent Refresh 1sec
-        setInterval(() => loadAdminMenu(true), 1000);
+        setInterval(loadAdminMenu, 1000);
         loadAdminMenu();
     </script>
 </body>
