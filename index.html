@@ -3,15 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tufaax Restaurant - Menu</title>
+    <title>Tufaax Restaurant</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <style>
-        .category-btn.active { background-color: #dc2626; color: white; border-color: #dc2626; }
-    </style>
 </head>
 <body class="bg-gray-50 pb-32">
-
     <header class="bg-red-600 text-white p-6 rounded-b-[2.5rem] sticky top-0 z-50 shadow-lg">
         <div class="flex justify-between items-center max-w-4xl mx-auto">
             <h1 class="text-3xl font-black italic">🍎 TUFAAX</h1>
@@ -25,62 +21,53 @@
     <main class="p-4 max-w-4xl mx-auto space-y-6">
         <div class="relative">
             <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
-            <input type="text" id="searchInput" oninput="updateUI()" placeholder="Raadi cuntada aad rabto..." class="w-full p-4 pl-12 bg-white rounded-2xl border-none shadow-sm outline-none focus:ring-2 focus:ring-red-400">
+            <input type="text" id="searchInput" oninput="updateUI()" placeholder="Raadi cuntada..." class="w-full p-4 pl-12 bg-white rounded-2xl border-none shadow-sm outline-none focus:ring-2 focus:ring-red-400">
         </div>
 
-        <div class="flex space-x-3 overflow-x-auto pb-2" id="category-list">
-            <button onclick="filterCategory('Dhammaan', this)" class="category-btn active px-6 py-2 rounded-full font-bold bg-white border whitespace-nowrap">Dhammaan</button>
-            <button onclick="filterCategory('Quraac', this)" class="category-btn px-6 py-2 rounded-full font-bold bg-white border whitespace-nowrap">Quraac</button>
-            <button onclick="filterCategory('Qado', this)" class="category-btn px-6 py-2 rounded-full font-bold bg-white border whitespace-nowrap">Qado</button>
-            <button onclick="filterCategory('Casho', this)" class="category-btn px-6 py-2 rounded-full font-bold bg-white border whitespace-nowrap">Casho</button>
+        <div id="category-list" class="flex space-x-3 overflow-x-auto pb-2">
+            <button onclick="filterCategory('Dhammaan', this)" class="category-btn active bg-red-600 text-white px-6 py-2 rounded-full font-bold border whitespace-nowrap">Dhammaan</button>
+            <button onclick="filterCategory('Quraac', this)" class="category-btn bg-white px-6 py-2 rounded-full font-bold border whitespace-nowrap">Quraac</button>
+            <button onclick="filterCategory('Qado', this)" class="category-btn bg-white px-6 py-2 rounded-full font-bold border whitespace-nowrap">Qado</button>
+            <button onclick="filterCategory('Casho', this)" class="category-btn bg-white px-6 py-2 rounded-full font-bold border whitespace-nowrap">Casho</button>
         </div>
 
-        <div id="loading-state" class="text-center py-20 text-gray-500">
+        <div id="loading-state" class="text-center py-20 text-gray-400">
             <i class="fas fa-spinner fa-spin text-3xl mb-2"></i>
-            <p>Menu-ga waa la cusboonaysiinayaa...</p>
+            <p>Menu-ga waa la soo rarayaa...</p>
         </div>
         <div id="menu-items" class="grid grid-cols-2 md:grid-cols-3 gap-4"></div>
     </main>
 
     <script>
-        const GOOGLE_URL = "https://script.google.com/macros/s/AKfycbzTAnR4eeg4k0hnuZgn4u-TuLOCKL43QHvD3BqlND6wg3fFNN9AMJX97FqaiUKNvxk-/exec";
+        const GOOGLE_URL = "https://script.google.com/macros/s/AKfycbxTAnR4eeg4k0hnuZgn4u-TuLOCKL43QHvD3BqlND6wg3fFNN9AMJX97FqaiUKNvxk-/exec";
         let menuData = [];
         let cart = [];
         let currentCat = 'Dhammaan';
 
-        async function loadMenu() {
+        async function loadMenu(isSilent = false) {
+            if (!isSilent) document.getElementById('loading-state').style.display = 'block';
             try {
                 const res = await fetch(GOOGLE_URL);
-                const rawData = await res.json();
+                const data = await res.json();
                 
-                // Normalization: Hubi in xogta ay u akhrinto xaraf yar (status, id, etc)
-                menuData = rawData.map(item => {
-                    let cleanItem = {};
-                    for (let key in item) {
-                        cleanItem[key.toLowerCase()] = item[key];
-                    }
-                    return cleanItem;
-                }).filter(item => item.id && item.status !== 'hidden');
+                menuData = data.filter(item => item && (item.id || item.ID)).map(item => {
+                    let clean = {};
+                    for (let key in item) clean[key.toLowerCase()] = item[key];
+                    return clean;
+                }).filter(i => i.status !== 'hidden');
 
                 document.getElementById('loading-state').style.display = 'none';
                 updateUI();
-            } catch (e) {
-                document.getElementById('loading-state').innerHTML = "Cillad ayaa dhacday. Fadlan dib u tijaabi.";
-            }
+            } catch (e) { console.log("Refresh error"); }
         }
 
         function updateUI() {
             const container = document.getElementById('menu-items');
-            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-            
+            const search = document.getElementById('searchInput').value.toLowerCase();
             let filtered = menuData;
-            if (currentCat !== 'Dhammaan') filtered = filtered.filter(i => i.category === currentCat);
-            if (searchTerm) filtered = filtered.filter(i => i.name.toLowerCase().includes(searchTerm));
 
-            if (filtered.length === 0) {
-                container.innerHTML = "<p class='col-span-full text-center py-10 text-gray-400'>Cunto laguma helin raadintaada.</p>";
-                return;
-            }
+            if (currentCat !== 'Dhammaan') filtered = filtered.filter(i => i.category === currentCat);
+            if (search) filtered = filtered.filter(i => i.name.toLowerCase().includes(search));
 
             container.innerHTML = filtered.map(item => {
                 const count = cart.filter(c => c.id === item.id).length;
@@ -91,14 +78,13 @@
                     <div class="mt-auto flex justify-between items-center pt-2">
                         <span class="text-red-600 font-bold">$${parseFloat(item.price || 0).toFixed(2)}</span>
                         <div class="flex items-center gap-2">
-                            <button onclick="changeCart('${item.id}', -1)" class="w-8 h-8 bg-gray-100 rounded-xl font-bold">-</button>
+                            <button onclick="changeCart('${item.id}', -1)" class="w-7 h-7 bg-gray-100 rounded-lg font-bold">-</button>
                             <span class="text-xs font-black">${count}</span>
-                            <button onclick="changeCart('${item.id}', 1)" class="w-8 h-8 bg-red-600 text-white rounded-xl font-bold">+</button>
+                            <button onclick="changeCart('${item.id}', 1)" class="w-7 h-7 bg-red-600 text-white rounded-lg font-bold">+</button>
                         </div>
                     </div>
                 </div>`;
             }).join('');
-            
             document.getElementById('cart-count').innerText = cart.length;
         }
 
@@ -114,15 +100,18 @@
         }
 
         function filterCategory(cat, btn) {
-            document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
+            document.querySelectorAll('.category-btn').forEach(b => {
+                b.classList.replace('bg-red-600', 'bg-white');
+                b.classList.replace('text-white', 'text-black');
+            });
+            btn.classList.replace('bg-white', 'bg-red-600');
+            btn.classList.add('text-white');
             currentCat = cat;
             updateUI();
         }
 
-        // Automatic Refresh: 60-kii ilbiriqsi walba xogta iskeed ha u cusboonaysiiso
         loadMenu();
-        setInterval(loadMenu, 60000);
+        setInterval(() => loadMenu(true), 15000); // Is-cusboonaysiin aamusan 15-kii ilbiriqsiba
     </script>
 </body>
 </html>
