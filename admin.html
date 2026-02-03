@@ -12,9 +12,9 @@
         <header class="bg-gray-800 text-white p-6 rounded-3xl shadow-xl flex justify-between items-center">
             <div>
                 <h1 class="text-xl font-black italic">🍎 TUFAAX ADMIN</h1>
-                <p class="text-[10px] text-gray-400">Maamul Menu-ga maqaayadda</p>
+                <p class="text-[10px] text-gray-400">Cuntada aad halkan ku darto Mobile kasta ayay ka muuqanaysaa</p>
             </div>
-            <a href="index.html" class="bg-gray-700 px-4 py-2 rounded-xl text-xs hover:bg-gray-600">Arag Menu-ga</a>
+            <a href="index.html" class="bg-gray-700 px-4 py-2 rounded-xl text-xs">Arag Menu-ga</a>
         </header>
 
         <div class="bg-white p-6 rounded-[2rem] shadow-sm border border-gray-100 space-y-4">
@@ -22,23 +22,16 @@
                 <i class="fas fa-plus-circle text-green-500"></i> Ku dar Cunto
             </h2>
             <div class="space-y-3">
-                <input id="foodName" type="text" placeholder="Magaca Cuntada" class="w-full p-4 bg-gray-50 rounded-2xl border-none focus:ring-2 focus:ring-green-400 outline-none transition">
-                
+                <input id="foodName" type="text" placeholder="Magaca Cuntada" class="w-full p-4 bg-gray-50 rounded-2xl border-none outline-none transition focus:ring-2 focus:ring-green-400">
                 <div class="grid grid-cols-2 gap-3">
-                    <input id="foodPrice" type="number" placeholder="Qiimaha $" class="p-4 bg-gray-50 rounded-2xl border-none focus:ring-2 focus:ring-green-400 outline-none transition">
-                    <select id="foodCat" class="p-4 bg-gray-50 rounded-2xl border-none focus:ring-2 focus:ring-green-400 outline-none transition">
-                        <option>Quraac</option>
-                        <option>Qado</option>
-                        <option>Casho</option>
-                        <option>Cabitaan</option>
-                        <option>Macmacaan</option>
+                    <input id="foodPrice" type="number" placeholder="Qiimaha $" class="p-4 bg-gray-50 rounded-2xl border-none outline-none focus:ring-2 focus:ring-green-400">
+                    <select id="foodCat" class="p-4 bg-gray-50 rounded-2xl border-none outline-none focus:ring-2 focus:ring-green-400">
+                        <option>Quraac</option><option>Qado</option><option>Casho</option><option>Cabitaan</option><option>Macmacaan</option>
                     </select>
                 </div>
-                
-                <input id="foodImg" type="text" placeholder="Link-ga Sawirka (URL)" class="w-full p-4 bg-gray-50 rounded-2xl border-none focus:ring-2 focus:ring-green-400 outline-none transition">
-                
-                <button onclick="saveFood()" class="w-full bg-green-500 text-white p-5 rounded-2xl font-bold shadow-lg shadow-green-100 hover:bg-green-600 active:scale-95 transition">
-                    KEYDI CUNTADA CUSUB
+                <input id="foodImg" type="text" placeholder="Link-ga Sawirka (URL)" class="w-full p-4 bg-gray-50 rounded-2xl border-none outline-none focus:ring-2 focus:ring-green-400">
+                <button id="saveBtn" onclick="saveFood()" class="w-full bg-green-500 text-white p-5 rounded-2xl font-bold shadow-lg flex justify-center items-center gap-2">
+                    <span id="btnText">KEYDI CUNTADA</span>
                 </button>
             </div>
         </div>
@@ -47,65 +40,68 @@
             <h2 class="font-bold text-gray-800 mb-4 flex items-center gap-2">
                 <i class="fas fa-list text-blue-500"></i> Cuntooyinka Hadda Jira
             </h2>
-            <div id="admin-list" class="space-y-3">
-                </div>
+            <div id="admin-list" class="space-y-3 text-center text-gray-400 py-5">
+                <i class="fas fa-spinner fa-spin"></i> Sooma ridayo...
+            </div>
         </div>
     </div>
 
     <script>
-        let menu = JSON.parse(localStorage.getItem('tufaax_menu')) || [];
+        const GOOGLE_URL = "HALKAN_GELI_LINK_GA_AAD_SOO_COPY_GAREEYSAY";
+        let menu = [];
+
+        async function loadAdminMenu() {
+            try {
+                const res = await fetch(GOOGLE_URL);
+                menu = await res.json();
+                renderAdminList();
+            } catch (e) { document.getElementById('admin-list').innerHTML = "Dhib ayaa ka jirtay akhrinta Google Sheets."; }
+        }
 
         function renderAdminList() {
             const list = document.getElementById('admin-list');
             if (menu.length === 0) {
-                list.innerHTML = `<p class="text-center text-gray-400 py-10 text-sm italic">Menu-gu waa maran yahay...</p>`;
+                list.innerHTML = `<p class="text-sm italic py-10">Menu-gu waa maran yahay.</p>`;
                 return;
             }
             list.innerHTML = menu.map((item, index) => `
                 <div class="flex items-center justify-between p-3 bg-gray-50 rounded-2xl border border-gray-100 group">
                     <div class="flex items-center gap-3">
-                        <img src="${item.img}" class="w-14 h-14 rounded-xl object-cover shadow-sm">
+                        <img src="${item.img}" class="w-14 h-14 rounded-xl object-cover">
                         <div>
                             <p class="font-bold text-gray-800">${item.name}</p>
-                            <p class="text-xs font-bold text-green-600">$${parseFloat(item.price).toFixed(2)} <span class="text-gray-300 ml-2 font-normal">| ${item.category}</span></p>
+                            <p class="text-xs font-bold text-green-600">$${parseFloat(item.price).toFixed(2)}</p>
                         </div>
                     </div>
-                    <button onclick="deleteFood(${index})" class="w-10 h-10 flex items-center justify-center text-red-400 hover:bg-red-50 rounded-xl transition">
-                        <i class="fas fa-trash-alt"></i>
-                    </button>
                 </div>
             `).join('');
         }
 
-        function saveFood() {
+        async function saveFood() {
             const name = document.getElementById('foodName').value;
-            const price = parseFloat(document.getElementById('foodPrice').value);
+            const price = document.getElementById('foodPrice').value;
             const cat = document.getElementById('foodCat').value;
-            const img = document.getElementById('foodImg').value || "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400";
+            const img = document.getElementById('foodImg').value || "https://via.placeholder.com/150";
 
-            if(name && price) {
-                menu.push({ id: Date.now(), name, price, category: cat, img });
-                localStorage.setItem('tufaax_menu', JSON.stringify(menu));
-                renderAdminList();
-                
-                // Clear inputs
-                document.getElementById('foodName').value = '';
-                document.getElementById('foodPrice').value = '';
-                document.getElementById('foodImg').value = '';
-            } else {
-                alert("Fadlan buuxi magaca iyo qiimaha!");
-            }
+            if(!name || !price) return alert("Buuxi xogta!");
+
+            const btn = document.getElementById('saveBtn');
+            btn.disabled = true;
+            document.getElementById('btnText').innerText = "KAYDINTA WAA SOO SOCOTAA...";
+
+            const data = { id: Date.now(), name, price, category: cat, img };
+
+            await fetch(GOOGLE_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                body: JSON.stringify(data)
+            });
+
+            alert("Waa lagu daray Google Sheets! Sug 3 ilbiriqsi ka dibna Mobile-ka eeg.");
+            location.reload();
         }
 
-        function deleteFood(index) {
-            if(confirm("Ma hubtaa inaad tirtirto cuntadan?")) {
-                menu.splice(index, 1);
-                localStorage.setItem('tufaax_menu', JSON.stringify(menu));
-                renderAdminList();
-            }
-        }
-
-        renderAdminList();
+        loadAdminMenu();
     </script>
 </body>
 </html>
