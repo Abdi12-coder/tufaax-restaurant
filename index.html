@@ -47,6 +47,10 @@
             <button onclick="filterCategory('Cabitaan', this)" class="category-btn px-6 py-2 rounded-full font-bold shadow-sm bg-white text-gray-600 border border-gray-100 whitespace-nowrap transition">Cabitaan</button>
         </div>
 
+        <div id="loading-state" class="text-center py-10 text-gray-400">
+            <i class="fas fa-spinner fa-spin text-3xl mb-2"></i>
+            <p>Menu-ga ayaa la soo rarayaa...</p>
+        </div>
         <div id="menu-items" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"></div>
     </main>
 
@@ -62,13 +66,26 @@
     </div>
 
     <script>
-        // Detection for Table Number
+        // --- GOOGLE CONFIG ---
+        const GOOGLE_URL = "HALKAN_GELI_LINK_GA_AAD_SOO_COPY_GAREEYSAY";
+
         const urlParams = new URLSearchParams(window.location.search);
         const tableNum = urlParams.get('table') || "Guri";
         document.getElementById('table-no').innerText = tableNum !== "Guri" ? `Miiska ${tableNum}` : "Guri";
 
         let cart = [];
-        let menuData = JSON.parse(localStorage.getItem('tufaax_menu')) || [];
+        let menuData = [];
+
+        async function loadMenu() {
+            try {
+                const res = await fetch(GOOGLE_URL);
+                menuData = await res.json();
+                document.getElementById('loading-state').style.display = 'none';
+                updateUI();
+            } catch (e) {
+                console.error("Dhib ayaa ka jirtay soo rarista menu-ga");
+            }
+        }
 
         function renderMenu(items) {
             const container = document.getElementById('menu-items');
@@ -76,7 +93,7 @@
                 const count = cart.filter(c => c.name === item.name).length;
                 return `
                 <div class="bg-white rounded-3xl overflow-hidden shadow-sm border food-card transition">
-                    <img src="${item.img}" class="w-full h-32 object-cover bg-gray-200">
+                    <img src="${item.img}" class="w-full h-32 object-cover bg-gray-200" onerror="this.src='https://via.placeholder.com/150'">
                     <div class="p-3 flex flex-col flex-1">
                         <h3 class="font-bold text-gray-800 text-[13px] truncate">${item.name}</h3>
                         <div class="mt-auto pt-2 flex flex-col gap-2">
@@ -100,7 +117,6 @@
         }
 
         function updateUI() {
-            menuData = JSON.parse(localStorage.getItem('tufaax_menu')) || [];
             document.getElementById('cart-count').innerText = cart.length;
             const total = cart.reduce((sum, i) => sum + i.price, 0);
             document.getElementById('total-price').innerText = `$${total.toFixed(2)}`;
@@ -128,8 +144,7 @@
             window.location.href = `https://wa.me/252617054480?text=${encodeURIComponent(msg)}`;
         }
 
-        updateUI();
-        window.addEventListener('storage', updateUI);
+        loadMenu(); // Start fetching
     </script>
 </body>
 </html>
