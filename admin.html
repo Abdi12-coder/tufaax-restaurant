@@ -53,24 +53,13 @@
     </div>
 
     <script>
-        // URL-KAAGA APPS SCRIPT
-        const GOOGLE_URL = "https://script.google.com/macros/s/AKfycbweI7__fuqNsLOtYaS0bbAAv1fAVMwepjwz7wjf61btvLWbn9SFI1Y71j1CX5qRPA_6/exec";
+        const GOOGLE_URL = "https://script.google.com/macros/s/AKfycbzN7tYUEMrPtYhRXZwt0z5--8vUKL1Gl35Ixa8WWzesIbReJUa2f9aZWjZF7Gu3iQYH/exec";
         let menu = [];
 
         async function loadAdminMenu() {
             try {
                 const res = await fetch(GOOGLE_URL);
-                const rawData = await res.json();
-                
-                // Halkan waxaan ku hagaajinaynaa inuu aqriyo xogta xataa hadii xarafka loo weyneeyay Sheet-ka
-                menu = rawData.map(item => {
-                    let normalized = {};
-                    for (let key in item) {
-                        normalized[key.toLowerCase()] = item[key];
-                    }
-                    return normalized;
-                }).filter(item => item.id);
-
+                menu = await res.json();
                 document.getElementById('item-count').innerText = menu.length;
                 renderAdminList();
             } catch (e) { 
@@ -85,7 +74,7 @@
                     <div class="flex items-center gap-3 flex-1 cursor-pointer" onclick="prepareEdit('${item.id}')">
                         <img src="${item.img}" class="w-12 h-12 rounded-xl object-cover" onerror="this.src='https://via.placeholder.com/150'">
                         <div>
-                            <p class="font-bold text-sm">${item.name || 'Magac la'aan'}</p>
+                            <p class="font-bold text-sm">${item.name || 'Magac la\'aan'}</p>
                             <p class="text-xs text-green-600">$${parseFloat(item.price || 0).toFixed(2)}</p>
                         </div>
                     </div>
@@ -101,23 +90,22 @@
             `).join('');
         }
 
-        // --- Functions-ka kale (prepareEdit, saveFood, etc.) halkoodii ha ahaadeen ---
         function prepareEdit(id) {
-            const item = menu.find(i => i.id == id);
+            const item = menu.find(i => String(i.id) === String(id));
             if(!item) return;
             document.getElementById('foodId').value = item.id;
             document.getElementById('foodName').value = item.name;
             document.getElementById('foodPrice').value = item.price;
             document.getElementById('foodCat').value = item.category;
             document.getElementById('foodImg').value = item.img;
-            document.getElementById('foodStatus').value = item.status;
-            document.getElementById('form-title').innerText = "Wax ka beddel: " + item.name;
+            document.getElementById('foodStatus').value = item.status || "visible";
+            document.getElementById('form-title').innerText = "Bedel: " + item.name;
             document.getElementById('cancelBtn').classList.remove('hidden');
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
         async function saveFood() {
-            const saveBtn = document.getElementById('saveBtn');
+            const btn = document.getElementById('saveBtn');
             const data = {
                 action: "update",
                 id: document.getElementById('foodId').value || "ID-" + Date.now(),
@@ -127,28 +115,33 @@
                 img: document.getElementById('foodImg').value,
                 status: document.getElementById('foodStatus').value
             };
+            if(!data.name || !data.price) return alert("Fadlan buuxi magaca iyo qiimaha");
             
-            saveBtn.innerText = "KEYDINTA...";
+            btn.innerText = "KEYDINTA...";
+            btn.disabled = true;
+
             await fetch(GOOGLE_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(data) });
             
             setTimeout(() => {
                 resetForm();
                 loadAdminMenu();
-                saveBtn.innerText = "KEYDI XOGTA";
-            }, 1000);
+                btn.innerText = "KEYDI XOGTA";
+                btn.disabled = false;
+            }, 1500);
         }
 
         async function deleteFood(id) {
             if(!confirm("Ma hubtaa?")) return;
             await fetch(GOOGLE_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ action: "delete", id: String(id) }) });
-            loadAdminMenu();
+            setTimeout(loadAdminMenu, 1000);
         }
 
         async function toggleVisibility(id) {
-            const item = menu.find(i => i.id == id);
-            item.status = item.status === 'hidden' ? 'visible' : 'hidden';
-            await fetch(GOOGLE_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ ...item, action: "update" }) });
-            loadAdminMenu();
+            const item = menu.find(i => String(i.id) === String(id));
+            const newStatus = item.status === 'hidden' ? 'visible' : 'hidden';
+            const updatedItem = { ...item, action: "update", status: newStatus };
+            await fetch(GOOGLE_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(updatedItem) });
+            setTimeout(loadAdminMenu, 1000);
         }
 
         function resetForm() {
@@ -156,6 +149,7 @@
             document.getElementById('foodName').value = "";
             document.getElementById('foodPrice').value = "";
             document.getElementById('foodImg').value = "";
+            document.getElementById('foodStatus').value = "visible";
             document.getElementById('cancelBtn').classList.add('hidden');
             document.getElementById('form-title').innerText = "Ku dar Cunto Cusub";
         }
