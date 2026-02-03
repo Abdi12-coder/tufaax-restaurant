@@ -51,8 +51,7 @@
     </div>
 
     <script>
-        // HALKAN GELI URL-KA CUSUB EE APPS SCRIPT
-        const GOOGLE_URL = "https://script.google.com/macros/s/AKfycbzZPWtj8QEWtmUdtdiAC8PJ5bngZZqEuqUT65vK63g3an9z6wu5uJibg7YmNaktFmAx/exec";
+        const GOOGLE_URL = "https://script.google.com/macros/s/AKfycbxrh4VynwabwU2d0shKq0957fIIsL5m0h8lrLua3qwSI9YO0_cm2cQQ640tzgwAKuqL/exec";
         let menu = [];
 
         async function loadAdminMenu() {
@@ -71,7 +70,7 @@
                         <img src="${item.img}" class="w-12 h-12 rounded-xl object-cover" onerror="this.src='https://via.placeholder.com/150'">
                         <div>
                             <p class="font-bold text-sm">${item.name}</p>
-                            <p class="text-xs text-green-600">$${parseFloat(item.price).toFixed(2)}</p>
+                            <p class="text-xs text-green-600">$${parseFloat(item.price || 0).toFixed(2)}</p>
                         </div>
                     </div>
                     <div class="flex gap-2">
@@ -101,38 +100,54 @@
         }
 
         async function saveFood() {
-            const id = document.getElementById('foodId').value || "ID-" + Date.now();
+            const idInput = document.getElementById('foodId').value;
             const data = {
                 action: "update",
-                id: id,
+                id: idInput || "ID-" + Date.now(),
                 name: document.getElementById('foodName').value,
-                price: document.getElementById('foodPrice').value,
+                price: parseFloat(document.getElementById('foodPrice').value) || 0,
                 category: document.getElementById('foodCat').value,
                 img: document.getElementById('foodImg').value,
                 status: document.getElementById('foodStatus').value
             };
             
-            if(!data.name || !data.price) return alert("Fadlan buuxi!");
+            if(!data.name || data.price <= 0) return alert("Fadlan magaca iyo qiimaha sax!");
             
-            await fetch(GOOGLE_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(data) });
-            alert("Waa lagu guuleystay!");
+            // Update Local durbadiiba si uusan duplicate u noqon
+            if(idInput) {
+                const idx = menu.findIndex(i => i.id == idInput);
+                menu[idx] = data;
+            } else {
+                menu.push(data);
+            }
+            renderAdminList();
             resetForm();
-            loadAdminMenu();
+
+            await fetch(GOOGLE_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(data) });
+            loadAdminMenu(); // Refresh xogta saxda ah
         }
 
         async function deleteFood(id) {
             if(!confirm("Ma hubtaa inaad tirtirto?")) return;
-            const data = { action: "delete", id: id };
+            
+            // Ka saar hortaada isla markiiba (Local Update)
+            menu = menu.filter(i => i.id != id);
+            renderAdminList();
+
+            const data = { action: "delete", id: String(id) };
             await fetch(GOOGLE_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(data) });
-            loadAdminMenu();
         }
 
         async function toggleVisibility(id) {
             const item = menu.find(i => i.id == id);
+            if(!item) return;
+
             const newStatus = item.status === 'hidden' ? 'visible' : 'hidden';
+            item.status = newStatus; // Local update
+            renderAdminList();
+
             const data = { ...item, action: "update", status: newStatus };
             await fetch(GOOGLE_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(data) });
-            loadAdminMenu();
         }
 
         function resetForm() {
