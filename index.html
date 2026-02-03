@@ -49,8 +49,9 @@
 
         <div id="loading-state" class="text-center py-10 text-gray-400">
             <i class="fas fa-spinner fa-spin text-3xl mb-2"></i>
-            <p>Menu-ga ayaa la soo rarayaa...</p>
+            <p>Menu-ga ayaa laga soo raryaa Cloud-ka...</p>
         </div>
+
         <div id="menu-items" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"></div>
     </main>
 
@@ -67,23 +68,26 @@
 
     <script>
         // --- GOOGLE CONFIG ---
-        const GOOGLE_URL = "HALKAN_GELI_LINK_GA_AAD_SOO_COPY_GAREEYSAY";
+        const GOOGLE_URL = "https://script.google.com/macros/s/AKfycbzZPWtj8QEWtmUdtdiAC8PJ5bngZZqEuqUT65vK63g3an9z6wu5uJibg7YmNaktFmAx/exec";
 
         const urlParams = new URLSearchParams(window.location.search);
         const tableNum = urlParams.get('table') || "Guri";
         document.getElementById('table-no').innerText = tableNum !== "Guri" ? `Miiska ${tableNum}` : "Guri";
 
         let cart = [];
-        let menuData = [];
+        let menuData = []; // Menu-ga halkan ayuu ku soo dhacayaa markuu Google ka yimaado
 
+        // --- SHAQADA SOO RARISTA XOGTA ---
         async function loadMenu() {
             try {
                 const res = await fetch(GOOGLE_URL);
-                menuData = await res.json();
+                const data = await res.json();
+                menuData = data; 
                 document.getElementById('loading-state').style.display = 'none';
                 updateUI();
             } catch (e) {
-                console.error("Dhib ayaa ka jirtay soo rarista menu-ga");
+                console.error("Dhib ayaa ka jirtay soo rarista menu-ga:", e);
+                document.getElementById('loading-state').innerHTML = "Dhib ayaa ka jirta soo rarista menu-ga. Hubi internet-ka.";
             }
         }
 
@@ -110,6 +114,7 @@
         }
 
         function addToCart(name, price) { cart.push({ name, price }); updateUI(); }
+        
         function removeFromCart(name) { 
             const idx = cart.findLastIndex(i => i.name === name);
             if (idx > -1) cart.splice(idx, 1);
@@ -124,9 +129,11 @@
             
             const q = document.getElementById('search-input').value.toLowerCase();
             const cat = document.querySelector('.category-btn.active').innerText;
+            
             let filtered = menuData;
             if(cat !== 'Dhammaan') filtered = filtered.filter(i => i.category === cat);
             if(q) filtered = filtered.filter(i => i.name.toLowerCase().includes(q));
+            
             renderMenu(filtered);
         }
 
@@ -144,7 +151,8 @@
             window.location.href = `https://wa.me/252617054480?text=${encodeURIComponent(msg)}`;
         }
 
-        loadMenu(); // Start fetching
+        // --- MARKII BOGGA LA FURO ---
+        window.onload = loadMenu;
     </script>
 </body>
 </html>
