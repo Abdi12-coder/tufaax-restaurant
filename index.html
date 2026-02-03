@@ -3,115 +3,141 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tufaax - Ultimate Smooth Menu</title>
+    <title>Tufaax Restaurant - Smart Menu</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .cart-badge { position: absolute; top: -5px; right: -5px; font-size: 10px; }
+        .sticky-header { position: sticky; top: 0; z-index: 50; }
+    </style>
 </head>
-<body class="bg-gray-100 font-sans overflow-x-hidden">
+<body class="bg-gray-100 font-sans pb-24">
 
-    <div class="bg-red-600 text-white p-5 text-center rounded-b-3xl shadow-lg sticky top-0 z-50">
-        <h1 class="text-2xl font-bold italic">🍎 Tufaax Restaurant</h1>
-        <div id="indicator" class="mt-2 inline-flex items-center bg-white/20 px-3 py-1 rounded-full border border-white/30">
-            <span id="dot" class="w-2 h-2 bg-yellow-400 rounded-full mr-2"></span>
-            <span id="status-label" class="text-[10px] font-bold text-white uppercase italic">Eegaya Goobta...</span>
+    <header class="bg-red-600 text-white p-6 rounded-b-[2.5rem] shadow-2xl sticky-header">
+        <div class="flex justify-between items-center max-w-md mx-auto">
+            <div>
+                <h1 class="text-3xl font-black italic">🍎 TUFAAX</h1>
+                <p id="table-display" class="text-sm opacity-90 font-bold bg-red-700 px-3 py-1 rounded-full mt-1 inline-block">
+                    <i class="fas fa-chair"></i> Aqoonsanaya...
+                </p>
+            </div>
+            <div class="relative bg-white p-3 rounded-full text-red-600 shadow-lg cursor-pointer" onclick="toggleCart()">
+                <i class="fas fa-shopping-basket text-xl"></i>
+                <span id="cart-count" class="cart-badge bg-yellow-400 text-black font-bold px-2 py-0.5 rounded-full shadow-sm">0</span>
+            </div>
         </div>
-    </div>
+    </header>
 
-    <div id="menu-area" class="p-4 max-w-md mx-auto space-y-4" style="display: none;">
-        <div class="flex items-center justify-between mb-2">
-            <h2 class="text-lg font-bold text-gray-700 border-l-4 border-red-600 pl-2">Qadada Maanta</h2>
-            <button onclick="forceReset()" class="text-[10px] bg-gray-200 text-gray-600 px-2 py-1 rounded-md font-bold uppercase tracking-tighter shadow-sm">🔄 Reset Goobta</button>
-        </div>
+    <main class="p-5 max-w-md mx-auto space-y-6">
         
-        <div class="bg-white flex p-4 rounded-2xl shadow-sm items-center justify-between border border-gray-100 transition-all">
-            <div class="flex items-center">
-                <div class="text-2xl mr-3">🍝</div>
-                <div>
-                    <h3 class="font-bold text-gray-800">Baasto Special</h3>
-                    <p class="text-red-600 font-black">$4.50</p>
+        <div class="relative">
+            <input type="text" placeholder="Raadi cuntada..." class="w-full p-4 pl-12 rounded-2xl border-none shadow-sm focus:ring-2 focus:ring-red-500 outline-none">
+            <i class="fas fa-search absolute left-4 top-4.5 text-gray-400 mt-0.5"></i>
+        </div>
+
+        <div class="flex space-x-3 overflow-x-auto pb-2 no-scrollbar">
+            <button class="bg-red-600 text-white px-6 py-2 rounded-full font-bold shadow-md">Dhammaan</button>
+            <button class="bg-white text-gray-600 px-6 py-2 rounded-full font-bold shadow-sm">Qado</button>
+            <button class="bg-white text-gray-600 px-6 py-2 rounded-full font-bold shadow-sm">Cabitaan</button>
+        </div>
+
+        <h2 class="text-xl font-bold text-gray-800">Menu-ga Maanta</h2>
+
+        <div id="menu-items" class="grid gap-4">
+            <div class="bg-white rounded-3xl p-3 shadow-sm flex items-center border border-gray-50 group transition hover:shadow-md">
+                <img src="https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=200" class="w-24 h-24 rounded-2xl object-cover shadow-sm">
+                <div class="ml-4 flex-1">
+                    <h3 class="font-bold text-lg text-gray-800">Baasto Special</h3>
+                    <p class="text-gray-400 text-xs mb-2">Hilib, suugo, iyo khudaar</p>
+                    <div class="flex justify-between items-center">
+                        <span class="text-red-600 font-black text-xl">$4.50</span>
+                        <button onclick="addToCart('Baasto Special', 4.50)" class="bg-red-100 text-red-600 p-2 rounded-lg hover:bg-red-600 hover:text-white transition">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                    </div>
                 </div>
             </div>
-            <button onclick="sendOrder('Baasto Special', '4.50')" class="bg-green-500 text-white px-5 py-2 rounded-xl font-bold active:scale-90 transition">Dalbo</button>
-        </div>
-    </div>
 
-    <div id="error-area" class="p-10 text-center flex flex-col items-center justify-center h-[60vh]">
-        <div class="text-6xl mb-4 grayscale opacity-40">📍</div>
-        <h2 class="text-xl font-bold text-gray-400 uppercase italic">Lama Aqoonsan</h2>
-        <p class="text-gray-400 mt-2 text-xs italic mb-6">Fadlan u dhowaada miiska...</p>
-        
-        <button onclick="forceReset()" class="bg-red-600 text-white px-6 py-3 rounded-full font-bold shadow-lg active:scale-95 transition flex items-center">
-            <span class="mr-2">🔄</span> CUSBOONAYSI GOOBTA
-        </button>
+            <div class="bg-white rounded-3xl p-3 shadow-sm flex items-center border border-gray-50 group transition hover:shadow-md">
+                <img src="https://images.unsplash.com/photo-1512058560366-1a51042f55e7?w=200" class="w-24 h-24 rounded-2xl object-cover shadow-sm">
+                <div class="ml-4 flex-1">
+                    <h3 class="font-bold text-lg text-gray-800">Bariis Isku-dhex</h3>
+                    <p class="text-gray-400 text-xs mb-2">Bariis iyo hilib geel</p>
+                    <div class="flex justify-between items-center">
+                        <span class="text-red-600 font-black text-xl">$5.00</span>
+                        <button onclick="addToCart('Bariis Isku-dhex', 5.00)" class="bg-red-100 text-red-600 p-2 rounded-lg hover:bg-red-600 hover:text-white transition">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div id="checkout-bar" class="fixed bottom-0 left-0 right-0 p-5 bg-white shadow-[0_-10px_20px_rgba(0,0,0,0.05)] hidden">
+        <div class="max-w-md mx-auto flex justify-between items-center">
+            <div>
+                <p class="text-gray-500 text-sm">Warta Dalabka:</p>
+                <p id="total-price" class="text-2xl font-black text-red-600">$0.00</p>
+            </div>
+            <button onclick="checkoutWhatsApp()" class="bg-green-500 text-white px-8 py-4 rounded-2xl font-black shadow-lg hover:bg-green-600 active:scale-95 transition flex items-center gap-2">
+                <i class="fab fa-whatsapp text-xl"></i> Dalbo Hadda
+            </button>
+        </div>
     </div>
 
     <script>
-        const OPEN_DISTANCE = 0.012; // 12m
-        const CLOSE_DISTANCE = 0.015; // 15m
-        let isMenuOpen = false;
+        // Data & State
+        let cart = [];
+        const urlParams = new URLSearchParams(window.location.search);
+        const tableNum = urlParams.get('table') || "Guri";
+        document.getElementById('table-display').innerHTML = `<i class="fas fa-chair"></i> Miiska: ${tableNum}`;
 
-        function getDistance(lat1, lon1, lat2, lon2) {
-            const R = 6371;
-            const dLat = (lat2 - lat1) * Math.PI / 180;
-            const dLon = (lon2 - lon1) * Math.PI / 180;
-            const a = Math.sin(dLat/2) * Math.sin(dLat/2) + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon/2) * Math.sin(dLon/2);
-            return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+        // Add to Cart Function
+        function addToCart(name, price) {
+            cart.push({ name, price });
+            updateUI();
         }
 
-        // Shaqada tirtiraysa xogta hore oo dib u bilaabaysa GPS-ka
-        function forceReset() {
-            localStorage.removeItem('test_lat');
-            localStorage.removeItem('test_lon');
-            window.location.reload();
-        }
-
-        function updateUI(dist) {
-            const menuArea = document.getElementById('menu-area');
-            const errorArea = document.getElementById('error-area');
-            const statusLabel = document.getElementById('status-label');
-            const dot = document.getElementById('dot');
-
-            if (!isMenuOpen && dist <= OPEN_DISTANCE) {
-                isMenuOpen = true;
-                menuArea.style.display = 'block';
-                errorArea.style.display = 'none';
-                statusLabel.innerText = "WAAD JOOGTAA ✅";
-                dot.className = "w-2 h-2 bg-green-400 rounded-full mr-2 shadow-[0_0_5px_green]";
-            } else if (isMenuOpen && dist > CLOSE_DISTANCE) {
-                isMenuOpen = false;
-                menuArea.style.display = 'none';
-                errorArea.style.display = 'flex';
-                statusLabel.innerText = "KA BAXSAN ❌";
-                dot.className = "w-2 h-2 bg-red-500 rounded-full mr-2";
+        // Update UI Elements
+        function updateUI() {
+            document.getElementById('cart-count').innerText = cart.length;
+            const total = cart.reduce((sum, item) => sum + item.price, 0);
+            document.getElementById('total-price').innerText = `$${total.toFixed(2)}`;
+            
+            const checkoutBar = document.getElementById('checkout-bar');
+            if (cart.length > 0) {
+                checkoutBar.classList.remove('hidden');
             }
         }
 
-        function startTracking() {
-            if (!navigator.geolocation) return;
+        // Checkout & WhatsApp Message
+        function checkoutWhatsApp() {
+            const myNumber = "252612345678"; // <--- HALKAN LAMBARKAAGA DHIG
+            
+            let itemSummary = cart.reduce((acc, item) => {
+                acc[item.name] = (acc[item.name] || 0) + 1;
+                return acc;
+            }, {});
 
-            const options = { enableHighAccuracy: true, maximumAge: 0, timeout: 5000 };
+            let foodList = "";
+            for (const [name, qty] of Object.entries(itemSummary)) {
+                foodList += `• ${qty}x ${name}\n`;
+            }
 
-            // 1. Live Tracking
-            navigator.geolocation.watchPosition((pos) => {
-                let sLat = localStorage.getItem('test_lat');
-                let sLon = localStorage.getItem('test_lon');
+            const total = cart.reduce((sum, item) => sum + item.price, 0);
+            
+            const message = `*DALAB CUSUB* 🍎\n\n` +
+                            `📍 *Miiska:* ${tableNum}\n` +
+                            `--------------------------\n` +
+                            `${foodList}` +
+                            `--------------------------\n` +
+                            `💰 *Warta:* $${total.toFixed(2)}\n\n` +
+                            `_Fadlan si degdeg ah ii diyaariya!_`;
 
-                if (!sLat) {
-                    localStorage.setItem('test_lat', pos.coords.latitude);
-                    localStorage.setItem('test_lon', pos.coords.longitude);
-                    sLat = pos.coords.latitude; sLon = pos.coords.longitude;
-                }
-
-                const d = getDistance(pos.coords.latitude, pos.coords.longitude, parseFloat(sLat), parseFloat(sLon));
-                updateUI(d);
-            }, null, options);
+            const encodedMessage = encodeURIComponent(message);
+            window.location.href = `https://wa.me/${myNumber}?text=${encodedMessage}`;
         }
-
-        function sendOrder(item, price) {
-            const myNumber = "25261XXXXXXX";
-            window.location.href = `https://wa.me/${myNumber}?text=${encodeURIComponent("*DALAB:* " + item)}`;
-        }
-
-        startTracking();
     </script>
 </body>
 </html>
