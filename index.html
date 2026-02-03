@@ -3,116 +3,204 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tufaax Restaurant</title>
+    <title>Admin Panel - Tufaax</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
-<body class="bg-gray-50 pb-32">
-    <header class="bg-red-600 text-white p-6 rounded-b-[2.5rem] sticky top-0 z-50 shadow-lg">
-        <div class="flex justify-between items-center max-w-4xl mx-auto">
-            <h1 class="text-3xl font-black italic">🍎 TUFAAX</h1>
-            <div class="relative bg-white p-3 rounded-full text-red-600 shadow-lg">
-                <i class="fas fa-shopping-basket text-xl"></i>
-                <span id="cart-count" class="absolute -top-1 -right-1 bg-yellow-400 text-black font-bold px-2 py-0.5 rounded-full text-[10px]">0</span>
+<body class="bg-slate-50 p-4 pb-20">
+    <div class="max-w-xl mx-auto space-y-6">
+        <header class="bg-gray-800 text-white p-6 rounded-3xl shadow-xl flex justify-between items-center">
+            <div>
+                <h1 class="text-xl font-black italic">🍎 TUFAAX ADMIN</h1>
+                <p class="text-[10px] text-gray-400">Maamul menu-ga si sax ah</p>
+            </div>
+            <button onclick="loadAdminMenu()" class="bg-gray-700 hover:bg-gray-600 transition p-2 rounded-full w-10 h-10 flex items-center justify-center">
+                <i class="fas fa-sync-alt"></i>
+            </button>
+        </header>
+
+        <div class="bg-white p-6 rounded-[2rem] shadow-sm border border-gray-100 space-y-4">
+            <h2 id="form-title" class="font-bold text-gray-800 flex items-center gap-2">
+                <i class="fas fa-plus-circle text-green-500"></i> Ku dar Cunto Cusub
+            </h2>
+            <div class="space-y-3">
+                <input id="foodId" type="hidden"> 
+                <input id="foodStatus" type="hidden" value="visible">
+                
+                <input id="foodName" type="text" placeholder="Magaca Cuntada" class="w-full p-4 bg-gray-50 rounded-2xl border-none outline-none focus:ring-2 focus:ring-green-400 transition-all">
+                
+                <div class="grid grid-cols-2 gap-3">
+                    <input id="foodPrice" type="number" step="0.01" placeholder="Qiimaha $" class="p-4 bg-gray-50 rounded-2xl border-none outline-none focus:ring-2 focus:ring-green-400 transition-all">
+                    <select id="foodCat" class="p-4 bg-gray-50 rounded-2xl border-none outline-none focus:ring-2 focus:ring-green-400">
+                        <option>Quraac</option>
+                        <option>Qado</option>
+                        <option>Casho</option>
+                        <option>Cabitaan</option>
+                        <option>Macmacaan</option>
+                    </select>
+                </div>
+                
+                <input id="foodImg" type="text" placeholder="Link-ga Sawirka (URL)" class="w-full p-4 bg-gray-50 rounded-2xl border-none outline-none focus:ring-2 focus:ring-green-400 transition-all">
+                
+                <div class="flex gap-2 pt-2">
+                    <button id="saveBtn" onclick="saveFood()" class="flex-1 bg-green-500 hover:bg-green-600 text-white p-5 rounded-2xl font-bold shadow-lg transition-all active:scale-95">
+                        KEYDI XOGTA
+                    </button>
+                    <button id="cancelBtn" onclick="resetForm()" class="hidden bg-gray-200 text-gray-600 px-6 rounded-2xl font-bold hover:bg-gray-300 transition-all">
+                        Xir
+                    </button>
+                </div>
             </div>
         </div>
-    </header>
 
-    <main class="p-4 max-w-4xl mx-auto space-y-6">
-        <div class="relative">
-            <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
-            <input type="text" id="searchInput" oninput="updateUI()" placeholder="Raadi cuntada..." class="w-full p-4 pl-12 bg-white rounded-2xl border-none shadow-sm outline-none focus:ring-2 focus:ring-red-400">
+        <div class="bg-white p-6 rounded-[2rem] shadow-sm border border-gray-100">
+            <h2 class="font-bold text-gray-800 mb-4 flex justify-between items-center">
+                <span>Cuntooyinka Hadda Jira</span>
+                <span id="item-count" class="text-xs bg-gray-100 px-2 py-1 rounded-full text-gray-500">0 Items</span>
+            </h2>
+            <div id="admin-list" class="space-y-3">
+                <div class="text-center py-10">
+                    <i class="fas fa-spinner fa-spin text-gray-300 text-2xl mb-2"></i>
+                    <p class="text-gray-400 italic text-sm">Xogta waa la soo ridaybaa...</p>
+                </div>
+            </div>
         </div>
-
-        <div id="category-list" class="flex space-x-3 overflow-x-auto pb-2">
-            <button onclick="filterCategory('Dhammaan', this)" class="category-btn active bg-red-600 text-white px-6 py-2 rounded-full font-bold border whitespace-nowrap">Dhammaan</button>
-            <button onclick="filterCategory('Quraac', this)" class="category-btn bg-white px-6 py-2 rounded-full font-bold border whitespace-nowrap">Quraac</button>
-            <button onclick="filterCategory('Qado', this)" class="category-btn bg-white px-6 py-2 rounded-full font-bold border whitespace-nowrap">Qado</button>
-            <button onclick="filterCategory('Casho', this)" class="category-btn bg-white px-6 py-2 rounded-full font-bold border whitespace-nowrap">Casho</button>
-        </div>
-
-        <div id="loading-state" class="text-center py-20 text-gray-400">
-            <i class="fas fa-spinner fa-spin text-3xl mb-2"></i>
-            <p>Menu-ga waa la soo rarayaa...</p>
-        </div>
-        <div id="menu-items" class="grid grid-cols-2 md:grid-cols-3 gap-4"></div>
-    </main>
+    </div>
 
     <script>
-        const GOOGLE_URL = "https://script.google.com/macros/s/AKfycbzNmboqYQCwz0KU6nJIMGTuPzb7JWQDicacSVKItIVhkUEHqO5nQmy5yfwBDke1ckHv/exec";
-        let menuData = [];
-        let cart = [];
-        let currentCat = 'Dhammaan';
+        // HALKAN GELI URL-KA CUSUB EE APPS SCRIPT
+        const GOOGLE_URL = "https://script.google.com/macros/s/AKfycbweI7__fuqNsLOtYaS0bbAAv1fAVMwepjwz7wjf61btvLWbn9SFI1Y71j1CX5qRPA_6/exec";
+        let menu = [];
 
-        async function loadMenu(isSilent = false) {
-            if (!isSilent) document.getElementById('loading-state').style.display = 'block';
+        async function loadAdminMenu() {
             try {
                 const res = await fetch(GOOGLE_URL);
                 const data = await res.json();
-                
-                menuData = data.filter(item => item && (item.id || item.ID)).map(item => {
-                    let clean = {};
-                    for (let key in item) clean[key.toLowerCase()] = item[key];
-                    return clean;
-                }).filter(i => i.status !== 'hidden');
-
-                document.getElementById('loading-state').style.display = 'none';
-                updateUI();
-            } catch (e) { console.log("Refresh error"); }
+                // Kaliya soo bandhig haddii uu jiro ID iyo Name
+                menu = data.filter(item => item.id && item.name);
+                document.getElementById('item-count').innerText = `${menu.length} Items`;
+                renderAdminList();
+            } catch (e) { 
+                document.getElementById('admin-list').innerHTML = `
+                    <div class="text-center py-5">
+                        <i class="fas fa-exclamation-triangle text-red-400 mb-2"></i>
+                        <p class='text-red-500 text-sm'>Xogta waa laga waayay Cloud-ka. Hubi URL-ka Apps Script-ka.</p>
+                    </div>`;
+            }
         }
 
-        function updateUI() {
-            const container = document.getElementById('menu-items');
-            const search = document.getElementById('searchInput').value.toLowerCase();
-            let filtered = menuData;
+        function renderAdminList() {
+            const list = document.getElementById('admin-list');
+            if (menu.length === 0) {
+                list.innerHTML = "<p class='text-center py-5 text-gray-400'>Menu-gu waa faaruq. Ku dar cunto cusub.</p>";
+                return;
+            }
 
-            if (currentCat !== 'Dhammaan') filtered = filtered.filter(i => i.category === currentCat);
-            if (search) filtered = filtered.filter(i => i.name.toLowerCase().includes(search));
-
-            container.innerHTML = filtered.map(item => {
-                const count = cart.filter(c => c.id === item.id).length;
-                return `
-                <div class="bg-white rounded-3xl overflow-hidden shadow-sm border p-3 flex flex-col transition-all active:scale-95">
-                    <img src="${item.img}" class="w-full h-32 object-cover rounded-2xl mb-3" onerror="this.src='https://via.placeholder.com/150'">
-                    <h3 class="font-bold text-gray-800 text-sm truncate">${item.name}</h3>
-                    <div class="mt-auto flex justify-between items-center pt-2">
-                        <span class="text-red-600 font-bold">$${parseFloat(item.price || 0).toFixed(2)}</span>
-                        <div class="flex items-center gap-2">
-                            <button onclick="changeCart('${item.id}', -1)" class="w-7 h-7 bg-gray-100 rounded-lg font-bold">-</button>
-                            <span class="text-xs font-black">${count}</span>
-                            <button onclick="changeCart('${item.id}', 1)" class="w-7 h-7 bg-red-600 text-white rounded-lg font-bold">+</button>
+            list.innerHTML = menu.map((item) => `
+                <div class="flex items-center justify-between p-3 ${item.status === 'hidden' ? 'bg-red-50 opacity-70' : 'bg-gray-50'} rounded-2xl border border-gray-100 transition-all hover:shadow-md">
+                    <div class="flex items-center gap-3 flex-1 cursor-pointer" onclick="prepareEdit('${item.id}')">
+                        <img src="${item.img}" class="w-12 h-12 rounded-xl object-cover shadow-sm bg-gray-200" onerror="this.src='https://via.placeholder.com/150'">
+                        <div>
+                            <p class="font-bold text-sm text-gray-800">${item.name}</p>
+                            <p class="text-xs text-green-600 font-medium">$${parseFloat(item.price || 0).toFixed(2)}</p>
                         </div>
                     </div>
-                </div>`;
-            }).join('');
-            document.getElementById('cart-count').innerText = cart.length;
+                    <div class="flex gap-2">
+                        <button onclick="toggleVisibility('${item.id}')" class="p-2 px-3 text-[10px] font-black border rounded-xl bg-white shadow-sm hover:bg-gray-100 transition-all">
+                            ${item.status === 'hidden' ? '<i class="fas fa-eye text-blue-500"></i>' : '<i class="fas fa-eye-slash text-gray-400"></i>'}
+                        </button>
+                        <button onclick="deleteFood('${item.id}')" class="p-2 px-3 text-red-500 hover:bg-red-100 rounded-xl transition-all">
+                            <i class="fas fa-trash-alt text-xs"></i>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
         }
 
-        function changeCart(id, amt) {
-            if (amt === 1) {
-                const item = menuData.find(m => m.id == id);
-                if (item) cart.push({ ...item });
+        function prepareEdit(id) {
+            const item = menu.find(i => i.id == id);
+            if(!item) return;
+            document.getElementById('foodId').value = item.id;
+            document.getElementById('foodName').value = item.name;
+            document.getElementById('foodPrice').value = item.price;
+            document.getElementById('foodCat').value = item.category;
+            document.getElementById('foodImg').value = item.img;
+            document.getElementById('foodStatus').value = item.status;
+            
+            document.getElementById('form-title').innerHTML = `<i class="fas fa-edit text-orange-500"></i> Wax ka beddel: ${item.name}`;
+            document.getElementById('saveBtn').innerText = "CUSBOONAYSI XOGTA";
+            document.getElementById('saveBtn').classList.replace('bg-green-500', 'bg-orange-500');
+            document.getElementById('cancelBtn').classList.remove('hidden');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        async function saveFood() {
+            const idInput = document.getElementById('foodId').value;
+            const saveBtn = document.getElementById('saveBtn');
+            
+            const data = {
+                action: "update",
+                id: idInput || "ID-" + Math.floor(Math.random() * 1000000),
+                name: document.getElementById('foodName').value.trim(),
+                price: parseFloat(document.getElementById('foodPrice').value) || 0,
+                category: document.getElementById('foodCat').value,
+                img: document.getElementById('foodImg').value.trim() || "https://via.placeholder.com/150",
+                status: document.getElementById('foodStatus').value
+            };
+            
+            if(!data.name || data.price <= 0) return alert("Fadlan magaca iyo qiimaha si sax ah u geli!");
+
+            saveBtn.disabled = true;
+            saveBtn.innerText = "HAYE... KEYDINTA WAA SOO SOCOTAA";
+
+            // Local Update (Isla markiiba hortaada ka muuji)
+            if(idInput) {
+                const idx = menu.findIndex(i => i.id == idInput);
+                menu[idx] = data;
             } else {
-                const idx = cart.findLastIndex(c => c.id == id);
-                if (idx > -1) cart.splice(idx, 1);
+                menu.unshift(data);
             }
-            updateUI();
+            renderAdminList();
+
+            try {
+                await fetch(GOOGLE_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(data) });
+                resetForm();
+                setTimeout(loadAdminMenu, 1500);
+            } catch (err) {
+                alert("Cillad ayaa dhacday markii Cloud-ka loo dirayay!");
+            } finally {
+                saveBtn.disabled = false;
+            }
         }
 
-        function filterCategory(cat, btn) {
-            document.querySelectorAll('.category-btn').forEach(b => {
-                b.classList.replace('bg-red-600', 'bg-white');
-                b.classList.replace('text-white', 'text-black');
-            });
-            btn.classList.replace('bg-white', 'bg-red-600');
-            btn.classList.add('text-white');
-            currentCat = cat;
-            updateUI();
+        async function deleteFood(id) {
+            if(!confirm("Ma hubtaa inaad gebi ahaanba tirtirto cuntadan?")) return;
+            menu = menu.filter(i => i.id != id);
+            renderAdminList();
+            await fetch(GOOGLE_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ action: "delete", id: String(id) }) });
         }
 
-        loadMenu();
-        setInterval(() => loadMenu(true), 15000); // Is-cusboonaysiin aamusan 15-kii ilbiriqsiba
+        async function toggleVisibility(id) {
+            const item = menu.find(i => i.id == id);
+            if(!item) return;
+            item.status = item.status === 'hidden' ? 'visible' : 'hidden';
+            renderAdminList();
+            await fetch(GOOGLE_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ ...item, action: "update" }) });
+        }
+
+        function resetForm() {
+            document.getElementById('foodId').value = "";
+            document.getElementById('foodName').value = "";
+            document.getElementById('foodPrice').value = "";
+            document.getElementById('foodImg').value = "";
+            document.getElementById('foodStatus').value = "visible";
+            document.getElementById('form-title').innerHTML = `<i class="fas fa-plus-circle text-green-500"></i> Ku dar Cunto Cusub`;
+            document.getElementById('saveBtn').innerText = "KEYDI XOGTA";
+            document.getElementById('saveBtn').classList.replace('bg-orange-500', 'bg-green-500');
+            document.getElementById('cancelBtn').classList.add('hidden');
+        }
+
+        loadAdminMenu();
     </script>
 </body>
 </html>
-
