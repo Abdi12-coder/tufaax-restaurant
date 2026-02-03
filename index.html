@@ -3,154 +3,116 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tufaax Restaurant - Smart Menu</title>
+    <title>Tufaax Restaurant - Menu</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         .cart-badge { position: absolute; top: -5px; right: -5px; font-size: 10px; }
-        .sticky-header { position: sticky; top: 0; z-index: 50; }
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-        .category-btn.active { background-color: #dc2626; color: white; border-color: #dc2626; }
-        .food-card { display: flex; flex-direction: column; height: 100%; transition: transform 0.2s; }
+        .category-btn.active { background-color: #dc2626; color: white; }
     </style>
 </head>
-<body class="bg-gray-50 font-sans pb-32">
+<body class="bg-gray-50 pb-32">
 
-    <header class="bg-red-600 text-white p-6 rounded-b-[2.5rem] shadow-2xl sticky-header">
+    <header class="bg-red-600 text-white p-6 rounded-b-[2.5rem] sticky top-0 z-50 shadow-lg">
         <div class="flex justify-between items-center max-w-4xl mx-auto">
-            <div>
-                <h1 class="text-3xl font-black italic tracking-tighter">🍎 TUFAAX</h1>
-                <p id="table-display" class="text-xs opacity-90 font-bold bg-red-700 px-3 py-1 rounded-full mt-2 inline-block">
-                    <i class="fas fa-chair mr-1"></i> Dalabka: <span id="table-no">Guri</span>
-                </p>
-            </div>
-            <div class="relative bg-white p-3 rounded-full text-red-600 shadow-lg cursor-pointer">
+            <h1 class="text-3xl font-black italic">🍎 TUFAAX</h1>
+            <div class="relative bg-white p-3 rounded-full text-red-600 shadow-lg">
                 <i class="fas fa-shopping-basket text-xl"></i>
-                <span id="cart-count" class="cart-badge bg-yellow-400 text-black font-bold px-2 py-0.5 rounded-full shadow-sm">0</span>
+                <span id="cart-count" class="cart-badge bg-yellow-400 text-black font-bold px-2 py-0.5 rounded-full">0</span>
             </div>
         </div>
     </header>
 
     <main class="p-4 max-w-4xl mx-auto space-y-6">
-        <div class="relative">
-            <input type="text" id="search-input" onkeyup="updateUI()" placeholder="Raadi cuntada aad rabto..." 
-                   class="w-full p-4 pl-12 rounded-2xl border-none shadow-md focus:ring-2 focus:ring-red-500 outline-none">
-            <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
+        <div class="flex space-x-3 overflow-x-auto pb-2">
+            <button onclick="filterCategory('Dhammaan', this)" class="category-btn active px-6 py-2 rounded-full font-bold bg-white border whitespace-nowrap">Dhammaan</button>
+            <button onclick="filterCategory('Quraac', this)" class="category-btn px-6 py-2 rounded-full font-bold bg-white border whitespace-nowrap">Quraac</button>
+            <button onclick="filterCategory('Qado', this)" class="category-btn px-6 py-2 rounded-full font-bold bg-white border whitespace-nowrap">Qado</button>
+            <button onclick="filterCategory('Casho', this)" class="category-btn px-6 py-2 rounded-full font-bold bg-white border whitespace-nowrap">Casho</button>
+            <button onclick="filterCategory('Cabitaan', this)" class="category-btn px-6 py-2 rounded-full font-bold bg-white border whitespace-nowrap">Cabitaan</button>
         </div>
 
-        <div class="flex space-x-3 overflow-x-auto pb-2 no-scrollbar">
-            <button onclick="filterCategory('Dhammaan', this)" class="category-btn active px-6 py-2 rounded-full font-bold shadow-sm bg-white text-gray-600 border border-gray-100 whitespace-nowrap transition">Dhammaan</button>
-            <button onclick="filterCategory('Quraac', this)" class="category-btn px-6 py-2 rounded-full font-bold shadow-sm bg-white text-gray-600 border border-gray-100 whitespace-nowrap transition">Quraac</button>
-            <button onclick="filterCategory('Qado', this)" class="category-btn px-6 py-2 rounded-full font-bold shadow-sm bg-white text-gray-600 border border-gray-100 whitespace-nowrap transition">Qado</button>
-            <button onclick="filterCategory('Casho', this)" class="category-btn px-6 py-2 rounded-full font-bold shadow-sm bg-white text-gray-600 border border-gray-100 whitespace-nowrap transition">Casho</button>
-            <button onclick="filterCategory('Cabitaan', this)" class="category-btn px-6 py-2 rounded-full font-bold shadow-sm bg-white text-gray-600 border border-gray-100 whitespace-nowrap transition">Cabitaan</button>
-        </div>
-
-        <div id="loading-state" class="text-center py-10 text-gray-400">
+        <div id="loading-state" class="text-center py-20 text-gray-500">
             <i class="fas fa-spinner fa-spin text-3xl mb-2"></i>
-            <p>Menu-ga waa la cusboonaysiinayaa...</p>
+            <p>Xogta waxaa laga soo celinayaa Google Sheet...</p>
         </div>
 
-        <div id="menu-items" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"></div>
+        <div id="menu-items" class="grid grid-cols-2 md:grid-cols-3 gap-4"></div>
     </main>
 
-    <div id="checkout-bar" class="fixed bottom-0 left-0 right-0 p-5 bg-white border-t shadow-[0_-10px_25px_rgba(0,0,0,0.1)] hidden z-50 rounded-t-3xl">
+    <div id="checkout-bar" class="fixed bottom-0 left-0 right-0 p-5 bg-white border-t shadow-2xl hidden z-50 rounded-t-3xl">
         <div class="max-w-4xl mx-auto flex justify-between items-center">
             <div>
                 <p class="text-gray-400 text-xs font-bold uppercase">Wadarta Guud</p>
                 <p id="total-price" class="text-xl font-black text-red-600">$0.00</p>
             </div>
-            <button onclick="checkoutWhatsApp()" class="bg-green-500 text-white px-8 py-3 rounded-xl font-black shadow-lg flex items-center gap-2">
-                <i class="fab fa-whatsapp"></i> DALBO
+            <button onclick="checkoutWhatsApp()" class="bg-green-500 text-white px-8 py-3 rounded-xl font-bold shadow-lg">
+                <i class="fab fa-whatsapp mr-2"></i> DALBO
             </button>
         </div>
     </div>
 
     <script>
-        const GOOGLE_URL = "https://script.google.com/macros/s/AKfycbxrh4VynwabwU2d0shKq0957fIIsL5m0h8lrLua3qwSI9YO0_cm2cQQ640tzgwAKuqL/exec";
-        const urlParams = new URLSearchParams(window.location.search);
-        const tableNum = urlParams.get('table') || "Guri";
-        document.getElementById('table-no').innerText = tableNum !== "Guri" ? `Miiska ${tableNum}` : "Guri";
-
-        let cart = [];
+        // HALKAN GELI URL-KA CUSUB EE APPS SCRIPT
+        const GOOGLE_URL = "https://script.google.com/macros/s/AKfycbzTAnR4eeg4k0hnuZgn4u-TuLOCKL43QHvD3BqlND6wg3fFNN9AMJX97FqaiUKNvxk-/exec";
+        
         let menuData = [];
+        let cart = [];
 
         async function loadMenu() {
             try {
                 const res = await fetch(GOOGLE_URL);
                 const data = await res.json();
-                // Filter out duplicates and empty items
-                const uniqueData = data.filter((v,i,a)=>v.id && a.findIndex(t=>(t.id === v.id))===i);
-                
-                if (JSON.stringify(uniqueData) !== JSON.stringify(menuData)) {
-                    menuData = uniqueData;
-                    document.getElementById('loading-state').style.display = 'none';
-                    updateUI();
-                }
+                // Hubi in xogtu sax tahay oo ID leedahay
+                menuData = data.filter(item => item.id && item.status !== 'hidden');
+                document.getElementById('loading-state').style.display = 'none';
+                updateUI();
             } catch (e) {
-                console.error("Cloud connection failed");
-                document.getElementById('loading-state').innerHTML = "Cillad ayaa dhacday, fadlan dib u rido.";
+                console.error("Dhib xogta Sheet-ka");
+                document.getElementById('loading-state').innerHTML = "Dhib ayaa dhacay, fadlan Refresh dheh.";
             }
         }
 
-        function renderMenu(items) {
+        function updateUI() {
             const container = document.getElementById('menu-items');
-            if(items.length === 0) {
-                container.innerHTML = `<div class="col-span-full text-center py-10 text-gray-400 italic">Cuntadan hadda diyaar ma ahan...</div>`;
-                return;
-            }
+            const cat = document.querySelector('.category-btn.active').innerText;
+            
+            let filtered = menuData;
+            if(cat !== 'Dhammaan') filtered = menuData.filter(i => i.category === cat);
 
-            container.innerHTML = items.map(item => {
+            container.innerHTML = filtered.map(item => {
                 const count = cart.filter(c => c.id === item.id).length;
-                const price = parseFloat(item.price || 0).toFixed(2);
                 return `
-                <div class="bg-white rounded-3xl overflow-hidden shadow-sm border food-card">
-                    <img src="${item.img}" class="w-full h-32 object-cover bg-gray-200" onerror="this.src='https://via.placeholder.com/150'">
-                    <div class="p-3 flex flex-col flex-1">
-                        <h3 class="font-bold text-gray-800 text-[13px] truncate">${item.name}</h3>
-                        <div class="mt-auto pt-2 flex flex-col gap-2">
-                            <span class="text-red-600 font-black text-sm">$${price}</span>
-                            <div class="flex items-center justify-between bg-gray-50 rounded-xl p-1">
-                                <button onclick="removeFromCart('${item.id}')" class="w-7 h-7 rounded-lg bg-white shadow-sm flex items-center justify-center text-gray-400"><i class="fas fa-minus text-[10px]"></i></button>
-                                <span class="font-bold text-xs">${count}</span>
-                                <button onclick="addToCart('${item.id}')" class="w-7 h-7 rounded-lg bg-red-600 text-white shadow-sm flex items-center justify-center"><i class="fas fa-plus text-[10px]"></i></button>
-                            </div>
+                <div class="bg-white rounded-3xl overflow-hidden shadow-sm border p-3 flex flex-col">
+                    <img src="${item.img}" class="w-full h-32 object-cover rounded-2xl mb-3" onerror="this.src='https://via.placeholder.com/150'">
+                    <h3 class="font-bold text-gray-800 text-sm truncate">${item.name}</h3>
+                    <div class="mt-auto flex justify-between items-center pt-2">
+                        <span class="text-red-600 font-bold">$${parseFloat(item.price).toFixed(2)}</span>
+                        <div class="flex items-center gap-2">
+                            <button onclick="removeFromCart('${item.id}')" class="w-7 h-7 bg-gray-100 rounded-lg">-</button>
+                            <span class="text-xs font-bold">${count}</span>
+                            <button onclick="addToCart('${item.id}')" class="w-7 h-7 bg-red-600 text-white rounded-lg">+</button>
                         </div>
                     </div>
                 </div>`;
             }).join('');
-        }
 
-        function addToCart(id) {
-            const item = menuData.find(m => m.id == id);
-            if(item) {
-                cart.push({ id: item.id, name: item.name, price: parseFloat(item.price) || 0 });
-                updateUI();
-            }
-        }
-
-        function removeFromCart(id) { 
-            const idx = cart.findLastIndex(i => i.id == id);
-            if (idx > -1) cart.splice(idx, 1);
-            updateUI();
-        }
-
-        function updateUI() {
             document.getElementById('cart-count').innerText = cart.length;
             const total = cart.reduce((sum, i) => sum + i.price, 0);
             document.getElementById('total-price').innerText = `$${total.toFixed(2)}`;
             document.getElementById('checkout-bar').classList.toggle('hidden', cart.length === 0);
-            
-            const q = document.getElementById('search-input').value.toLowerCase();
-            const activeBtn = document.querySelector('.category-btn.active');
-            const cat = activeBtn ? activeBtn.innerText : 'Dhammaan';
-            
-            let filtered = menuData.filter(i => i.status !== 'hidden');
-            if(cat !== 'Dhammaan') filtered = filtered.filter(i => i.category === cat);
-            if(q) filtered = filtered.filter(i => i.name.toLowerCase().includes(q));
-            
-            renderMenu(filtered);
+        }
+
+        function addToCart(id) {
+            const item = menuData.find(m => m.id == id);
+            if(item) cart.push({ id: item.id, name: item.name, price: parseFloat(item.price) });
+            updateUI();
+        }
+
+        function removeFromCart(id) {
+            const idx = cart.findLastIndex(c => c.id == id);
+            if(idx > -1) cart.splice(idx, 1);
+            updateUI();
         }
 
         function filterCategory(cat, btn) {
@@ -159,16 +121,7 @@
             updateUI();
         }
 
-        function checkoutWhatsApp() {
-            let summary = cart.reduce((acc, i) => { acc[i.name] = (acc[i.name] || 0) + 1; return acc; }, {});
-            let list = Object.entries(summary).map(([n, q]) => `• ${q}x ${n}`).join('\n');
-            const total = cart.reduce((sum, i) => sum + i.price, 0);
-            let msg = `*DALAB CUSUB* 🍎\n*Goobta:* ${tableNum !== "Guri" ? 'Miiska ' + tableNum : 'Guri'}\n\n${list}\n\n💰 *Total:* $${total.toFixed(2)}`;
-            window.location.href = `https://wa.me/252617054480?text=${encodeURIComponent(msg)}`;
-        }
-
         loadMenu();
-        setInterval(loadMenu, 15000); // Hubi isbeddelada 15 ilbiriqsi kasta
     </script>
 </body>
 </html>
