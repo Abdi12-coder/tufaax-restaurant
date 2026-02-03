@@ -9,6 +9,9 @@
     <style>
         .cart-badge { position: absolute; top: -5px; right: -5px; font-size: 10px; }
         .category-btn.active { background-color: #dc2626; color: white; }
+        /* Smooth loading effect */
+        .fade-in { animation: fadeIn 0.5s ease-in; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     </style>
 </head>
 <body class="bg-gray-50 pb-32">
@@ -24,7 +27,7 @@
     </header>
 
     <main class="p-4 max-w-4xl mx-auto space-y-6">
-        <div class="flex space-x-3 overflow-x-auto pb-2">
+        <div class="flex space-x-3 overflow-x-auto pb-2 scrollbar-hide">
             <button onclick="filterCategory('Dhammaan', this)" class="category-btn active px-6 py-2 rounded-full font-bold bg-white border whitespace-nowrap">Dhammaan</button>
             <button onclick="filterCategory('Quraac', this)" class="category-btn px-6 py-2 rounded-full font-bold bg-white border whitespace-nowrap">Quraac</button>
             <button onclick="filterCategory('Qado', this)" class="category-btn px-6 py-2 rounded-full font-bold bg-white border whitespace-nowrap">Qado</button>
@@ -32,21 +35,21 @@
             <button onclick="filterCategory('Cabitaan', this)" class="category-btn px-6 py-2 rounded-full font-bold bg-white border whitespace-nowrap">Cabitaan</button>
         </div>
 
-        <div id="loading-state" class="text-center py-20 text-gray-500">
-            <i class="fas fa-spinner fa-spin text-3xl mb-2"></i>
-            <p>Menu-ga waa la soo ridaybaa...</p>
+        <div id="loading-state" class="text-center py-20 text-gray-400">
+            <i class="fas fa-circle-notch fa-spin text-3xl mb-2"></i>
+            <p class="text-sm">Maamulaha ayaa wax cusub ku daraya...</p>
         </div>
 
         <div id="menu-items" class="grid grid-cols-2 md:grid-cols-3 gap-4"></div>
     </main>
 
-    <div id="checkout-bar" class="fixed bottom-0 left-0 right-0 p-5 bg-white border-t shadow-2xl hidden z-50 rounded-t-3xl">
+    <div id="checkout-bar" class="fixed bottom-0 left-0 right-0 p-5 bg-white border-t shadow-2xl hidden z-50 rounded-t-3xl fade-in">
         <div class="max-w-4xl mx-auto flex justify-between items-center">
             <div>
                 <p class="text-gray-400 text-xs font-bold uppercase">Wadarta Guud</p>
                 <p id="total-price" class="text-xl font-black text-red-600">$0.00</p>
             </div>
-            <button onclick="checkoutWhatsApp()" class="bg-green-500 text-white px-8 py-3 rounded-xl font-bold shadow-lg">
+            <button onclick="checkoutWhatsApp()" class="bg-green-500 text-white px-8 py-3 rounded-xl font-bold shadow-lg active:scale-95 transition">
                 <i class="fab fa-whatsapp mr-2"></i> DALBO
             </button>
         </div>
@@ -54,18 +57,32 @@
 
     <script>
         const GOOGLE_URL = "https://script.google.com/macros/s/AKfycbzN7tYUEMrPtYhRXZwt0z5--8vUKL1Gl35Ixa8WWzesIbReJUa2f9aZWjZF7Gu3iQYH/exec";
-        let menuData = [];
+        
+        // CACHE SYSTEM: Ku bilow xogtii hore ee birawsarka ku jirtay
+        let menuData = JSON.parse(localStorage.getItem('tufaax_cache')) || [];
         let cart = [];
 
         async function loadMenu() {
+            // Haddii xog hore ay jirto, isla markiiba tus macaamiisha
+            if(menuData.length > 0) {
+                document.getElementById('loading-state').style.display = 'none';
+                updateUI();
+            }
+
             try {
                 const res = await fetch(GOOGLE_URL);
                 const data = await res.json();
-                menuData = data.filter(item => String(item.id) && item.status !== 'hidden');
+                const filtered = data.filter(item => String(item.id) && item.status !== 'hidden');
+                
+                // Kaliya haddii xogta cusub ay ka duwan tahay tan hore, badal UI-ga
+                if(JSON.stringify(filtered) !== JSON.stringify(menuData)) {
+                    menuData = filtered;
+                    localStorage.setItem('tufaax_cache', JSON.stringify(menuData));
+                    updateUI();
+                }
                 document.getElementById('loading-state').style.display = 'none';
-                updateUI();
             } catch (e) {
-                console.error("Error fetching menu");
+                console.log("Xiriirka Google waa gaabis, laakiin cache ayaa shaqaynaya.");
             }
         }
 
@@ -80,15 +97,15 @@
             container.innerHTML = filtered.map(item => {
                 const count = cart.filter(c => String(c.id) === String(item.id)).length;
                 return `
-                <div class="bg-white rounded-3xl overflow-hidden shadow-sm border p-3 flex flex-col">
+                <div class="bg-white rounded-3xl overflow-hidden shadow-sm border p-3 flex flex-col fade-in">
                     <img src="${item.img}" class="w-full h-32 object-cover rounded-2xl mb-3" onerror="this.src='https://via.placeholder.com/150'">
                     <h3 class="font-bold text-gray-800 text-sm truncate">${item.name}</h3>
                     <div class="mt-auto flex justify-between items-center pt-2">
                         <span class="text-red-600 font-bold">$${parseFloat(item.price || 0).toFixed(2)}</span>
                         <div class="flex items-center gap-2">
-                            <button onclick="removeFromCart('${item.id}')" class="w-7 h-7 bg-gray-100 rounded-lg">-</button>
-                            <span class="text-xs font-bold">${count}</span>
-                            <button onclick="addToCart('${item.id}')" class="w-7 h-7 bg-red-600 text-white rounded-lg">+</button>
+                            <button onclick="removeFromCart('${item.id}')" class="w-8 h-8 bg-gray-100 rounded-xl active:bg-gray-200">-</button>
+                            <span class="text-xs font-bold w-4 text-center">${count}</span>
+                            <button onclick="addToCart('${item.id}')" class="w-8 h-8 bg-red-600 text-white rounded-xl active:bg-red-700">+</button>
                         </div>
                     </div>
                 </div>`;
@@ -123,16 +140,24 @@
         }
 
         function checkoutWhatsApp() {
-            const phone = "25261XXXXXXX"; // Geli lambarkaaga
-            let msg = "Dalab Cusub (Tufaax):%0A";
-            cart.forEach(i => msg += `- ${i.name} ($${i.price})%0A`);
+            const phone = "25261XXXXXXX"; // Geli lambarkaaga saxda ah
+            let msg = "🛒 *DALAB CUSUB (TUFAAX)*%0A%0A";
+            const itemsGrouped = cart.reduce((acc, item) => {
+                acc[item.name] = (acc[item.name] || 0) + 1;
+                return acc;
+            }, {});
+
+            for (const [name, qty] of Object.entries(itemsGrouped)) {
+                msg += `▪️ ${qty}x ${name}%0A`;
+            }
+
             const total = cart.reduce((sum, i) => sum + i.price, 0);
-            msg += `%0AWadarta: $${total.toFixed(2)}`;
+            msg += `%0A💰 *Wadarta: $${total.toFixed(2)}*`;
             window.open(`https://wa.me/${phone}?text=${msg}`);
         }
 
-        // Auto-refresh menu-ga 30-kii ilbiriqsiba si ay u helaan wax kasta oo cusub
-        setInterval(loadMenu, 30000);
+        // Silent refresh: 20-kii ilbiriqsiba iskiis u cusboonaysii gadaal
+        setInterval(loadMenu, 20000);
         loadMenu();
     </script>
 </body>
