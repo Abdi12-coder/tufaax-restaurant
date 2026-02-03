@@ -7,113 +7,101 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        .cart-badge { position: absolute; top: -5px; right: -5px; font-size: 10px; }
-        .category-btn.active { background-color: #dc2626; color: white; border-color: #dc2626; }
-        .fade-in { animation: fadeIn 0.4s ease-out; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .sold-out-card { filter: grayscale(1); opacity: 0.7; pointer-events: none; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
+        .active-cat { background-color: #dc2626; color: white; border-color: #dc2626; }
     </style>
 </head>
 <body class="bg-gray-50 pb-32">
 
     <header class="bg-red-600 text-white p-6 rounded-b-[3rem] sticky top-0 z-50 shadow-xl">
         <div class="flex justify-between items-center max-w-4xl mx-auto mb-4">
-            <h1 class="text-3xl font-black italic tracking-tighter">🍎 TUFAAX</h1>
-            <div class="flex items-center gap-3">
-                <button onclick="toggleLanguage()" class="bg-white/20 px-3 py-1 rounded-full text-[10px] font-bold border border-white/30">
-                    <span id="lang-label">ENGLISH</span>
-                </button>
-                <div class="relative bg-white p-3 rounded-2xl text-red-600 shadow-lg cursor-pointer active:scale-90 transition">
-                    <i class="fas fa-shopping-basket text-xl"></i>
-                    <span id="cart-count" class="cart-badge bg-yellow-400 text-black font-black px-2 py-0.5 rounded-full">0</span>
-                </div>
+            <div>
+                <h1 class="text-3xl font-black italic">🍎 TUFAAX</h1>
+                <p id="table-display" class="text-[10px] font-bold bg-white/20 px-3 py-1 rounded-full mt-1 inline-block border border-white/30">MIISKA: ...</p>
+            </div>
+            <div class="relative bg-white p-3 rounded-2xl text-red-600 shadow-lg cursor-pointer active:scale-90 transition">
+                <i class="fas fa-shopping-basket text-xl"></i>
+                <span id="cart-count" class="absolute -top-1 -right-1 bg-yellow-400 text-black text-[10px] font-black px-2 py-0.5 rounded-full border-2 border-white">0</span>
             </div>
         </div>
         <div class="max-w-4xl mx-auto relative">
             <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-red-300"></i>
-            <input type="text" id="userSearch" oninput="updateUI()" placeholder="Raadi cunto..." class="w-full bg-red-700/50 border border-red-400 rounded-2xl py-3 pl-12 pr-4 text-white placeholder-red-300 outline-none focus:ring-2 focus:ring-white/50">
+            <input type="text" id="userSearch" oninput="updateUI()" placeholder="Raadi cunto..." class="w-full bg-red-700/50 border border-red-400 rounded-2xl py-3 pl-12 pr-4 text-white outline-none placeholder-red-300">
         </div>
     </header>
 
     <main class="p-4 max-w-4xl mx-auto space-y-6">
         <div class="flex space-x-3 overflow-x-auto pb-2 no-scrollbar">
-            <button onclick="filterCategory('Dhammaan', this)" class="category-btn active px-6 py-2 rounded-full font-bold bg-white border whitespace-nowrap shadow-sm">Dhammaan</button>
+            <button onclick="filterCategory('Dhammaan', this)" class="category-btn active-cat px-6 py-2 rounded-full font-bold bg-white border whitespace-nowrap shadow-sm">Dhammaan</button>
             <button onclick="filterCategory('Quraac', this)" class="category-btn px-6 py-2 rounded-full font-bold bg-white border whitespace-nowrap shadow-sm">Quraac</button>
             <button onclick="filterCategory('Qado', this)" class="category-btn px-6 py-2 rounded-full font-bold bg-white border whitespace-nowrap shadow-sm">Qado</button>
             <button onclick="filterCategory('Casho', this)" class="category-btn px-6 py-2 rounded-full font-bold bg-white border whitespace-nowrap shadow-sm">Casho</button>
             <button onclick="filterCategory('Cabitaan', this)" class="category-btn px-6 py-2 rounded-full font-bold bg-white border whitespace-nowrap shadow-sm">Cabitaan</button>
         </div>
 
-        <div id="loading-state" class="text-center py-20 text-gray-400">
-            <i class="fas fa-circle-notch fa-spin text-3xl mb-2"></i>
-        </div>
-
         <div id="menu-items" class="grid grid-cols-2 md:grid-cols-3 gap-4"></div>
     </main>
 
-    <div id="checkout-bar" class="fixed bottom-0 left-0 right-0 p-5 bg-white/90 backdrop-blur-md border-t shadow-2xl hidden z-50 rounded-t-[2.5rem] fade-in">
+    <div id="checkout-bar" class="fixed bottom-0 left-0 right-0 p-5 bg-white/90 backdrop-blur-md border-t shadow-2xl hidden z-50 rounded-t-[2.5rem]">
         <div class="max-w-4xl mx-auto flex justify-between items-center">
             <div>
-                <p id="total-label" class="text-gray-400 text-[10px] font-black uppercase">Wadarta Guud</p>
+                <p class="text-gray-400 text-[10px] font-black uppercase">Total Price</p>
                 <p id="total-price" class="text-2xl font-black text-red-600">$0.00</p>
             </div>
             <button onclick="checkoutWhatsApp()" class="bg-green-500 text-white px-10 py-4 rounded-2xl font-black shadow-lg active:scale-95 transition">
-                <i class="fab fa-whatsapp mr-2"></i> <span id="order-btn-text">DALBO</span>
+                <i class="fab fa-whatsapp mr-2"></i> DALBO HADDA
             </button>
         </div>
     </div>
 
     <script>
         const GOOGLE_URL = "https://script.google.com/macros/s/AKfycbzN7tYUEMrPtYhRXZwt0z5--8vUKL1Gl35Ixa8WWzesIbReJUa2f9aZWjZF7Gu3iQYH/exec";
-        let menuData = JSON.parse(localStorage.getItem('tufaax_cache')) || [];
+        let menuData = [];
         let cart = [];
-        let currentLang = 'so';
-        const addSound = new Audio('https://www.soundjay.com/buttons/button-37.mp3');
 
-        function playAdd() { addSound.play().catch(()=>{}); }
+        // Automatic Table Detection
+        const urlParams = new URLSearchParams(window.location.search);
+        const tableId = urlParams.get('table') || "LA'AAN";
+        document.getElementById('table-display').innerText = `MIISKA: ${tableId}`;
 
         async function loadMenu() {
             try {
                 const res = await fetch(GOOGLE_URL);
                 const data = await res.json();
-                const filtered = data.filter(item => String(item.id) && item.status !== 'hidden');
+                const filtered = data.filter(item => item.status !== 'hidden');
                 if(JSON.stringify(filtered) !== JSON.stringify(menuData)) {
                     menuData = filtered;
-                    localStorage.setItem('tufaax_cache', JSON.stringify(menuData));
                     updateUI();
                 }
-                document.getElementById('loading-state').style.display = 'none';
-            } catch (e) { console.error("Update failed"); }
+            } catch (e) { }
         }
 
         function updateUI() {
             const container = document.getElementById('menu-items');
-            const activeBtn = document.querySelector('.category-btn.active');
-            const searchTerm = document.getElementById('userSearch').value.toLowerCase();
-            const cat = activeBtn ? activeBtn.innerText : 'Dhammaan';
+            const search = document.getElementById('userSearch').value.toLowerCase();
+            const activeBtn = document.querySelector('.active-cat').innerText;
             
-            let filtered = menuData.filter(i => i.name.toLowerCase().includes(searchTerm));
-            if(cat !== 'Dhammaan' && cat !== 'All') filtered = filtered.filter(i => i.category === cat);
+            let filtered = menuData.filter(i => i.name.toLowerCase().includes(search));
+            if(activeBtn !== 'Dhammaan') filtered = filtered.filter(i => i.category === activeBtn);
 
             container.innerHTML = filtered.map(item => {
                 const count = cart.filter(c => String(c.id) === String(item.id)).length;
-                const isSoldOut = item.status === 'soldout'; // Qodobka 2
+                const isSoldOut = item.status === 'soldout';
                 return `
                 <div class="bg-white rounded-[2rem] overflow-hidden shadow-sm border border-gray-100 p-3 flex flex-col ${isSoldOut ? 'opacity-60' : ''}">
                     <div class="relative">
-                        <img src="${item.img}" class="w-full h-36 object-cover rounded-[1.5rem] mb-3 ${isSoldOut ? 'grayscale' : ''}" onerror="this.src='https://via.placeholder.com/150'">
-                        ${isSoldOut ? '<span class="absolute top-2 left-2 bg-black/70 text-white text-[10px] font-bold px-3 py-1 rounded-full">DHAMMAAD</span>' : ''}
+                        <img src="${item.img}" class="w-full h-36 object-cover rounded-[1.5rem] mb-3 ${isSoldOut ? 'grayscale' : ''}">
+                        ${isSoldOut ? '<span class="absolute top-2 left-2 bg-black text-white text-[10px] font-bold px-2 py-1 rounded-full">DHAMMAAD</span>' : ''}
                     </div>
                     <h3 class="font-black text-gray-800 text-sm truncate px-1">${item.name}</h3>
                     <div class="mt-auto flex justify-between items-center pt-3">
-                        <span class="text-red-600 font-black text-lg">$${parseFloat(item.price || 0).toFixed(2)}</span>
+                        <span class="text-red-600 font-black text-lg">$${parseFloat(item.price).toFixed(2)}</span>
                         <div class="flex items-center gap-2">
                             ${!isSoldOut ? `
-                                <button onclick="removeFromCart('${item.id}')" class="w-8 h-8 bg-gray-50 border rounded-lg font-black active:scale-90 transition">-</button>
+                                <button onclick="removeFromCart('${item.id}')" class="w-8 h-8 bg-gray-50 border rounded-lg font-black">-</button>
                                 <span class="text-xs font-black w-4 text-center">${count}</span>
-                                <button onclick="addToCart('${item.id}')" class="w-8 h-8 bg-red-600 text-white rounded-lg font-black active:scale-90 transition">+</button>
-                            ` : '<span class="text-[10px] font-bold text-gray-400">NA</span>'}
+                                <button onclick="addToCart('${item.id}')" class="w-8 h-8 bg-red-600 text-white rounded-lg font-black">+</button>
+                            ` : '<span class="text-[10px] text-gray-400 font-bold">OUT</span>'}
                         </div>
                     </div>
                 </div>`;
@@ -121,26 +109,9 @@
             updateCartSummary();
         }
 
-        function toggleLanguage() {
-            currentLang = currentLang === 'so' ? 'en' : 'so';
-            document.getElementById('lang-label').innerText = currentLang === 'so' ? 'ENGLISH' : 'SOOMAALI';
-            document.getElementById('total-label').innerText = currentLang === 'so' ? 'WADARTA GUUD' : 'TOTAL PRICE';
-            document.getElementById('order-btn-text').innerText = currentLang === 'so' ? 'DALBO' : 'ORDER NOW';
-            document.getElementById('userSearch').placeholder = currentLang === 'so' ? 'Raadi cunto...' : 'Search food...';
-            updateUI();
-        }
-
-        function updateCartSummary() {
-            document.getElementById('cart-count').innerText = cart.length;
-            const total = cart.reduce((sum, i) => sum + i.price, 0);
-            document.getElementById('total-price').innerText = `$${total.toFixed(2)}`;
-            document.getElementById('checkout-bar').classList.toggle('hidden', cart.length === 0);
-        }
-
         function addToCart(id) {
-            playAdd();
             const item = menuData.find(m => String(m.id) === String(id));
-            if(item) cart.push({ id: item.id, name: item.name, price: parseFloat(item.price) });
+            if(item) cart.push(item);
             updateUI();
         }
 
@@ -151,25 +122,37 @@
         }
 
         function filterCategory(cat, btn) {
-            document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
+            document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active-cat'));
+            btn.classList.add('active-cat');
             updateUI();
         }
 
+        function updateCartSummary() {
+            document.getElementById('cart-count').innerText = cart.length;
+            const total = cart.reduce((sum, i) => sum + parseFloat(i.price), 0);
+            document.getElementById('total-price').innerText = `$${total.toFixed(2)}`;
+            document.getElementById('checkout-bar').classList.toggle('hidden', cart.length === 0);
+        }
+
         function checkoutWhatsApp() {
-            const phone = "25261XXXXXXX"; 
-            let msg = "🛒 *DALAB CUSUB (TUFAAX)*%0A%0A";
-            const itemsGrouped = cart.reduce((acc, item) => {
+            const phone = "252617054480"; // Nambarkaaga
+            let msg = `🛒 *DALAB CUSUB - MIISKA ${tableId}*%0A%0A`;
+            
+            const grouped = cart.reduce((acc, item) => {
                 acc[item.name] = (acc[item.name] || 0) + 1;
                 return acc;
             }, {});
-            for (const [name, qty] of Object.entries(itemsGrouped)) { msg += `▪️ ${qty}x ${name}%0A`; }
-            const total = cart.reduce((sum, i) => sum + i.price, 0);
+
+            for (const [name, qty] of Object.entries(grouped)) {
+                msg += `▪️ ${qty}x ${name}%0A`;
+            }
+
+            const total = cart.reduce((sum, i) => sum + parseFloat(i.price), 0);
             msg += `%0A💰 *Wadarta: $${total.toFixed(2)}*`;
             window.open(`https://wa.me/${phone}?text=${msg}`);
         }
 
-        setInterval(loadMenu, 1000);
+        setInterval(loadMenu, 1500);
         loadMenu();
     </script>
 </body>
