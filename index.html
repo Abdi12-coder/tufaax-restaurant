@@ -49,7 +49,7 @@
 
         <div id="loading-state" class="text-center py-10 text-gray-400">
             <i class="fas fa-spinner fa-spin text-3xl mb-2"></i>
-            <p>Menu-ga ayaa laga soo raryaa Cloud-ka...</p>
+            <p>Menu-ga waa la cusboonaysiinayaa...</p>
         </div>
 
         <div id="menu-items" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"></div>
@@ -67,7 +67,6 @@
     </div>
 
     <script>
-        // --- GOOGLE CONFIG ---
         const GOOGLE_URL = "https://script.google.com/macros/s/AKfycbzZPWtj8QEWtmUdtdiAC8PJ5bngZZqEuqUT65vK63g3an9z6wu5uJibg7YmNaktFmAx/exec";
 
         const urlParams = new URLSearchParams(window.location.search);
@@ -75,19 +74,21 @@
         document.getElementById('table-no').innerText = tableNum !== "Guri" ? `Miiska ${tableNum}` : "Guri";
 
         let cart = [];
-        let menuData = []; // Menu-ga halkan ayuu ku soo dhacayaa markuu Google ka yimaado
+        let menuData = [];
 
-        // --- SHAQADA SOO RARISTA XOGTA ---
         async function loadMenu() {
             try {
                 const res = await fetch(GOOGLE_URL);
                 const data = await res.json();
-                menuData = data; 
-                document.getElementById('loading-state').style.display = 'none';
-                updateUI();
+                
+                // Kaliya update garee haddii xogta Google ay isbeddeshay
+                if (JSON.stringify(data) !== JSON.stringify(menuData)) {
+                    menuData = data;
+                    document.getElementById('loading-state').style.display = 'none';
+                    updateUI();
+                }
             } catch (e) {
-                console.error("Dhib ayaa ka jirtay soo rarista menu-ga:", e);
-                document.getElementById('loading-state').innerHTML = "Dhib ayaa ka jirta soo rarista menu-ga. Hubi internet-ka.";
+                console.error("Dhib xogta Cloud-ka");
             }
         }
 
@@ -114,7 +115,6 @@
         }
 
         function addToCart(name, price) { cart.push({ name, price }); updateUI(); }
-        
         function removeFromCart(name) { 
             const idx = cart.findLastIndex(i => i.name === name);
             if (idx > -1) cart.splice(idx, 1);
@@ -151,8 +151,9 @@
             window.location.href = `https://wa.me/252617054480?text=${encodeURIComponent(msg)}`;
         }
 
-        // --- MARKII BOGGA LA FURO ---
-        window.onload = loadMenu;
+        // Automatic Refresh: 5 ilbiriqsi kasta iska hubi xogta cusub
+        loadMenu();
+        setInterval(loadMenu, 5000);
     </script>
 </body>
 </html>
