@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tufaax Restaurant - Menu</title>
+    <title>Tufaax Restaurant - Smart Menu</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
@@ -16,13 +16,16 @@
     </style>
 </head>
 <body class="bg-gray-50 font-sans pb-32">
+
     <header class="bg-red-600 text-white p-6 rounded-b-[2.5rem] shadow-2xl sticky-header">
         <div class="flex justify-between items-center max-w-4xl mx-auto">
             <div>
                 <h1 class="text-3xl font-black italic tracking-tighter">🍎 TUFAAX</h1>
-                <p class="text-xs opacity-90 font-bold bg-red-700 px-3 py-1 rounded-full mt-2 inline-block">Macaamiil Daacad ah</p>
+                <p id="table-display" class="text-xs opacity-90 font-bold bg-red-700 px-3 py-1 rounded-full mt-2 inline-block">
+                    <i class="fas fa-chair mr-1"></i> Dalabka: Guri
+                </p>
             </div>
-            <div class="relative bg-white p-3 rounded-full text-red-600 shadow-lg">
+            <div class="relative bg-white p-3 rounded-full text-red-600 shadow-lg cursor-pointer transition active:scale-90">
                 <i class="fas fa-shopping-basket text-xl"></i>
                 <span id="cart-count" class="cart-badge bg-yellow-400 text-black font-bold px-2 py-0.5 rounded-full shadow-sm">0</span>
             </div>
@@ -31,55 +34,66 @@
 
     <main class="p-4 max-w-4xl mx-auto space-y-6">
         <div class="relative">
-            <input type="text" id="search-input" onkeyup="updateUI()" placeholder="Raadi cuntada..." class="w-full p-4 pl-12 rounded-2xl border-none shadow-md outline-none">
+            <input type="text" id="search-input" onkeyup="filterMenu()" placeholder="Raadi cuntada aad rabto..." 
+                   class="w-full p-4 pl-12 rounded-2xl border-none shadow-md focus:ring-2 focus:ring-red-500 outline-none">
             <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
         </div>
 
-        <div id="category-list" class="flex space-x-3 overflow-x-auto pb-2 no-scrollbar">
-            <button onclick="filterCategory('Dhammaan', this)" class="category-btn active px-6 py-2 rounded-full font-bold shadow-sm bg-white border">Dhammaan</button>
-            <button onclick="filterCategory('Quraac', this)" class="category-btn px-6 py-2 rounded-full font-bold shadow-sm bg-white border">Quraac</button>
-            <button onclick="filterCategory('Qado', this)" class="category-btn px-6 py-2 rounded-full font-bold shadow-sm bg-white border">Qado</button>
-            <button onclick="filterCategory('Casho', this)" class="category-btn px-6 py-2 rounded-full font-bold shadow-sm bg-white border">Casho</button>
-            <button onclick="filterCategory('Cabitaan', this)" class="category-btn px-6 py-2 rounded-full font-bold shadow-sm bg-white border">Cabitaan</button>
+        <div class="flex space-x-3 overflow-x-auto pb-2 no-scrollbar">
+            <button onclick="filterCategory('Dhammaan', this)" class="category-btn active px-6 py-2 rounded-full font-bold shadow-sm bg-white text-gray-600 border border-gray-100 whitespace-nowrap transition">Dhammaan</button>
+            <button onclick="filterCategory('Quraac', this)" class="category-btn px-6 py-2 rounded-full font-bold shadow-sm bg-white text-gray-600 border border-gray-100 whitespace-nowrap transition">Quraac</button>
+            <button onclick="filterCategory('Qado', this)" class="category-btn px-6 py-2 rounded-full font-bold shadow-sm bg-white text-gray-600 border border-gray-100 whitespace-nowrap transition">Qado</button>
+            <button onclick="filterCategory('Casho', this)" class="category-btn px-6 py-2 rounded-full font-bold shadow-sm bg-white text-gray-600 border border-gray-100 whitespace-nowrap transition">Casho</button>
+            <button onclick="filterCategory('Cabitaan', this)" class="category-btn px-6 py-2 rounded-full font-bold shadow-sm bg-white text-gray-600 border border-gray-100 whitespace-nowrap transition">Cabitaan</button>
+            <button onclick="filterCategory('Macmacaan', this)" class="category-btn px-6 py-2 rounded-full font-bold shadow-sm bg-white text-gray-600 border border-gray-100 whitespace-nowrap transition">Macmacaan</button>
         </div>
 
         <div id="menu-items" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"></div>
     </main>
 
-    <div id="checkout-bar" class="fixed bottom-0 left-0 right-0 p-5 bg-white border-t hidden z-50 rounded-t-3xl">
+    <div id="checkout-bar" class="fixed bottom-0 left-0 right-0 p-5 bg-white border-t shadow-[0_-10px_25px_rgba(0,0,0,0.1)] hidden z-50 rounded-t-3xl">
         <div class="max-w-4xl mx-auto flex justify-between items-center">
             <div>
+                <p class="text-gray-400 text-[10px] font-bold uppercase">Warta Dalabka</p>
                 <p id="total-price" class="text-xl font-black text-red-600">$0.00</p>
             </div>
-            <button onclick="checkoutWhatsApp()" class="bg-green-500 text-white px-6 py-3 rounded-xl font-black flex items-center gap-2">
-                <i class="fab fa-whatsapp"></i> DALBO
+            <button onclick="checkoutWhatsApp()" class="bg-green-500 text-white px-6 py-3 rounded-xl font-black shadow-lg hover:bg-green-600 active:scale-95 transition flex items-center gap-2 text-sm">
+                <i class="fab fa-whatsapp text-lg"></i> DALBO
             </button>
         </div>
     </div>
 
     <script>
+        // Halkan waxaan ku daray xiriirka Admin-ka
+        const defaultMenu = [
+            { id: 13, name: "Canjeero & Malab", price: 3.00, category: "Quraac", desc: "Canjeero jilicsan iyo malab dabiici ah.", img: "https://images.unsplash.com/photo-1622448849336-d3151a4b5e21?auto=format&fit=crop&w=400" },
+            { id: 1, name: "Bariis & Hilib Ari", price: 8.00, category: "Qado", desc: "Bariis basmati iyo hilib ari cusub.", img: "https://images.unsplash.com/photo-1589302168068-964664d93dc0?auto=format&fit=crop&w=400" }
+        ];
+
+        // Read from localStorage OR use defaultMenu
+        let menuData = JSON.parse(localStorage.getItem('tufaax_menu')) || defaultMenu;
         let cart = [];
-        let menuData = JSON.parse(localStorage.getItem('tufaax_menu')) || [];
 
         function renderMenu(items) {
             const container = document.getElementById('menu-items');
-            if(items.length === 0) {
-                container.innerHTML = `<div class='col-span-2 text-center py-10 text-gray-400'>Wali wax cunto ah laguma soo darin.</div>`;
-                return;
-            }
             container.innerHTML = items.map(item => {
                 const count = cart.filter(c => c.name === item.name).length;
                 return `
-                <div class="bg-white rounded-3xl overflow-hidden shadow-sm border food-card transition">
-                    <img src="${item.img}" class="w-full h-32 object-cover">
+                <div class="bg-white rounded-3xl overflow-hidden shadow-sm border border-gray-100 food-card transition active:scale-[0.98]">
+                    <img src="${item.img}" class="w-full h-32 object-cover bg-gray-200">
                     <div class="p-3 flex flex-col flex-1">
                         <h3 class="font-bold text-gray-800 text-[13px] truncate">${item.name}</h3>
+                        <p class="text-gray-400 text-[10px] leading-tight my-1 line-clamp-2">${item.desc}</p>
                         <div class="mt-auto pt-2 flex flex-col gap-2">
-                            <span class="text-red-600 font-black text-sm">$${parseFloat(item.price).toFixed(2)}</span>
+                            <span class="text-red-600 font-black text-sm">$${item.price.toFixed(2)}</span>
                             <div class="flex items-center justify-between bg-gray-50 rounded-xl p-1">
-                                <button onclick="removeFromCart('${item.name}')" class="w-7 h-7 rounded-lg bg-white shadow-sm flex items-center justify-center text-gray-400 hover:text-red-600"><i class="fas fa-minus text-[10px]"></i></button>
+                                <button onclick="removeFromCart('${item.name}')" class="w-7 h-7 rounded-lg bg-white shadow-sm flex items-center justify-center text-gray-500 hover:text-red-600">
+                                    <i class="fas fa-minus text-[10px]"></i>
+                                </button>
                                 <span class="font-bold text-xs">${count}</span>
-                                <button onclick="addToCart('${item.name}', ${item.price})" class="w-7 h-7 rounded-lg bg-red-600 text-white shadow-sm flex items-center justify-center"><i class="fas fa-plus text-[10px]"></i></button>
+                                <button onclick="addToCart('${item.name}', ${item.price})" class="w-7 h-7 rounded-lg bg-red-600 text-white shadow-sm flex items-center justify-center">
+                                    <i class="fas fa-plus text-[10px]"></i>
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -89,26 +103,28 @@
 
         function addToCart(name, price) { cart.push({ name, price }); updateUI(); }
         function removeFromCart(name) { 
-            const idx = cart.findLastIndex(i => i.name === name);
-            if (idx > -1) cart.splice(idx, 1);
+            const index = cart.findLastIndex(item => item.name === name);
+            if (index > -1) cart.splice(index, 1);
             updateUI();
         }
 
         function updateUI() {
-            menuData = JSON.parse(localStorage.getItem('tufaax_menu')) || [];
+            // Re-fetch data in case admin updated it
+            menuData = JSON.parse(localStorage.getItem('tufaax_menu')) || defaultMenu;
             document.getElementById('cart-count').innerText = cart.length;
-            const total = cart.reduce((sum, i) => sum + i.price, 0);
+            const total = cart.reduce((sum, item) => sum + item.price, 0);
             document.getElementById('total-price').innerText = `$${total.toFixed(2)}`;
-            document.getElementById('checkout-bar').classList.toggle('hidden', cart.length === 0);
-            
+            const checkoutBar = document.getElementById('checkout-bar');
+            cart.length > 0 ? checkoutBar.classList.remove('hidden') : checkoutBar.classList.add('hidden');
             const q = document.getElementById('search-input').value.toLowerCase();
-            const cat = document.querySelector('.category-btn.active').innerText;
+            const currentCat = document.querySelector('.category-btn.active').innerText;
             let filtered = menuData;
-            if(cat !== 'Dhammaan') filtered = filtered.filter(i => i.category === cat);
+            if(currentCat !== 'Dhammaan') filtered = menuData.filter(i => i.category === currentCat);
             if(q) filtered = filtered.filter(i => i.name.toLowerCase().includes(q));
             renderMenu(filtered);
         }
 
+        function filterMenu() { updateUI(); }
         function filterCategory(cat, btn) {
             document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
@@ -116,15 +132,17 @@
         }
 
         function checkoutWhatsApp() {
+            const phone = "252617054480"; 
             let summary = cart.reduce((acc, i) => { acc[i.name] = (acc[i.name] || 0) + 1; return acc; }, {});
             let list = Object.entries(summary).map(([n, q]) => `• ${q}x ${n}`).join('\n');
             let total = cart.reduce((s, i) => s + i.price, 0);
             let msg = `*DALAB CUSUB* 🍎\n\n${list}\n\n💰 *Total:* $${total.toFixed(2)}`;
-            window.location.href = `https://wa.me/252617054480?text=${encodeURIComponent(msg)}`;
+            window.location.href = `https://wa.me/${phone}?text=${encodeURIComponent(msg)}`;
         }
-
-        updateUI();
-        window.addEventListener('storage', updateUI); // Automatic update if admin changes
+        
+        renderMenu(menuData);
+        // Dhagayso haddii admin page-ka wax laga badalo
+        window.addEventListener('storage', () => updateUI());
     </script>
 </body>
 </html>
