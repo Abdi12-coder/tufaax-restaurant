@@ -69,7 +69,8 @@
     </div>
 
     <script>
-        const GOOGLE_URL = "https://script.google.com/macros/s/AKfycbzZPWtj8QEWtmUdtdiAC8PJ5bngZZqEuqUT65vK63g3an9z6wu5uJibg7YmNaktFmAx/exec";
+        // HUBI IN URL-KAN UU YAHAY KII U DAMBEEYAY EE AAD DEPLOY-GARAYSAY
+        const GOOGLE_URL = "https://script.google.com/macros/s/AKfycbzjN6OZ7n075iJowEE7EYYS6qo-_C4_biFLNwlG8gy78Qkl9V_DmPLB52Arfuwi4WND/exec";
 
         const urlParams = new URLSearchParams(window.location.search);
         const tableNum = urlParams.get('table') || "Guri";
@@ -83,6 +84,7 @@
                 const res = await fetch(GOOGLE_URL);
                 const data = await res.json();
                 
+                // Kaliya cusboonaysii haddii xogta isbeddeshay si looga fogaado "Flickering"
                 if (JSON.stringify(data) !== JSON.stringify(menuData)) {
                     menuData = data;
                     document.getElementById('loading-state').style.display = 'none';
@@ -96,7 +98,7 @@
         function renderMenu(items) {
             const container = document.getElementById('menu-items');
             if(items.length === 0) {
-                container.innerHTML = `<div class="col-span-full text-center py-10 text-gray-400 italic">Lama helin cunto...</div>`;
+                container.innerHTML = `<div class="col-span-full text-center py-10 text-gray-400 italic">Lama helin cunto hadda furan...</div>`;
                 return;
             }
 
@@ -123,7 +125,7 @@
         function addToCart(id) {
             const item = menuData.find(m => m.id == id);
             if(item) {
-                cart.push({ id: item.id, name: item.name, price: item.price });
+                cart.push({ id: item.id, name: item.name, price: parseFloat(item.price) });
                 updateUI();
             }
         }
@@ -141,9 +143,10 @@
             document.getElementById('checkout-bar').classList.toggle('hidden', cart.length === 0);
             
             const q = document.getElementById('search-input').value.toLowerCase();
-            const cat = document.querySelector('.category-btn.active').innerText;
+            const activeBtn = document.querySelector('.category-btn.active');
+            const cat = activeBtn ? activeBtn.innerText : 'Dhammaan';
             
-            // FILTER: Kaliya tus cuntooyinka aan ahayn 'hidden'
+            // FILTER: Kaliya tus cuntooyinka ah 'visible'
             let filtered = menuData.filter(i => i.status !== 'hidden');
             
             if(cat !== 'Dhammaan') filtered = filtered.filter(i => i.category === cat);
@@ -166,8 +169,10 @@
             window.location.href = `https://wa.me/252617054480?text=${encodeURIComponent(msg)}`;
         }
 
+        // Bilow loading-ka
         loadMenu();
-        setInterval(loadMenu, 5000);
+        // Hubi isbeddelada 10-kii ilbiriqsi kasta
+        setInterval(loadMenu, 10000);
     </script>
 </body>
 </html>
