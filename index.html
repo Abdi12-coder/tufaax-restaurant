@@ -8,48 +8,49 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         .cart-badge { position: absolute; top: -5px; right: -5px; font-size: 10px; }
-        .category-btn.active { background-color: #dc2626; color: white; }
-        .fade-in { animation: fadeIn 0.5s ease-in; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .category-btn.active { background-color: #dc2626; color: white; border-color: #dc2626; }
+        .fade-in { animation: fadeIn 0.4s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        body { -webkit-tap-highlight-color: transparent; }
     </style>
 </head>
 <body class="bg-gray-50 pb-32">
 
-    <header class="bg-red-600 text-white p-6 rounded-b-[2.5rem] sticky top-0 z-50 shadow-lg">
+    <header class="bg-red-600 text-white p-6 rounded-b-[3rem] sticky top-0 z-50 shadow-xl">
         <div class="flex justify-between items-center max-w-4xl mx-auto">
-            <h1 class="text-3xl font-black italic">🍎 TUFAAX</h1>
-            <div class="relative bg-white p-3 rounded-full text-red-600 shadow-lg cursor-pointer">
+            <h1 class="text-3xl font-black italic tracking-tighter">🍎 TUFAAX</h1>
+            <div class="relative bg-white p-3 rounded-2xl text-red-600 shadow-lg cursor-pointer active:scale-90 transition">
                 <i class="fas fa-shopping-basket text-xl"></i>
-                <span id="cart-count" class="cart-badge bg-yellow-400 text-black font-bold px-2 py-0.5 rounded-full">0</span>
+                <span id="cart-count" class="cart-badge bg-yellow-400 text-black font-black px-2 py-0.5 rounded-full border-2 border-white">0</span>
             </div>
         </div>
     </header>
 
     <main class="p-4 max-w-4xl mx-auto space-y-6">
-        <div class="flex space-x-3 overflow-x-auto pb-2 scrollbar-hide">
-            <button onclick="filterCategory('Dhammaan', this)" class="category-btn active px-6 py-2 rounded-full font-bold bg-white border whitespace-nowrap">Dhammaan</button>
-            <button onclick="filterCategory('Quraac', this)" class="category-btn px-6 py-2 rounded-full font-bold bg-white border whitespace-nowrap">Quraac</button>
-            <button onclick="filterCategory('Qado', this)" class="category-btn px-6 py-2 rounded-full font-bold bg-white border whitespace-nowrap">Qado</button>
-            <button onclick="filterCategory('Casho', this)" class="category-btn px-6 py-2 rounded-full font-bold bg-white border whitespace-nowrap">Casho</button>
-            <button onclick="filterCategory('Cabitaan', this)" class="category-btn px-6 py-2 rounded-full font-bold bg-white border whitespace-nowrap">Cabitaan</button>
+        <div class="flex space-x-3 overflow-x-auto pb-2 scrollbar-hide no-scrollbar">
+            <button onclick="filterCategory('Dhammaan', this)" class="category-btn active px-6 py-2 rounded-full font-bold bg-white border whitespace-nowrap shadow-sm transition">Dhammaan</button>
+            <button onclick="filterCategory('Quraac', this)" class="category-btn px-6 py-2 rounded-full font-bold bg-white border whitespace-nowrap shadow-sm transition">Quraac</button>
+            <button onclick="filterCategory('Qado', this)" class="category-btn px-6 py-2 rounded-full font-bold bg-white border whitespace-nowrap shadow-sm transition">Qado</button>
+            <button onclick="filterCategory('Casho', this)" class="category-btn px-6 py-2 rounded-full font-bold bg-white border whitespace-nowrap shadow-sm transition">Casho</button>
+            <button onclick="filterCategory('Cabitaan', this)" class="category-btn px-6 py-2 rounded-full font-bold bg-white border whitespace-nowrap shadow-sm transition">Cabitaan</button>
         </div>
 
         <div id="loading-state" class="text-center py-20 text-gray-400">
             <i class="fas fa-circle-notch fa-spin text-3xl mb-2"></i>
-            <p class="text-sm">Maamulaha ayaa wax cusub ku daraya...</p>
+            <p class="text-xs font-bold">XOGTA WAA LA CUSBOONAYSIINAYAA...</p>
         </div>
 
         <div id="menu-items" class="grid grid-cols-2 md:grid-cols-3 gap-4"></div>
     </main>
 
-    <div id="checkout-bar" class="fixed bottom-0 left-0 right-0 p-5 bg-white border-t shadow-2xl hidden z-50 rounded-t-3xl fade-in">
+    <div id="checkout-bar" class="fixed bottom-0 left-0 right-0 p-5 bg-white/90 backdrop-blur-md border-t shadow-2xl hidden z-50 rounded-t-[2.5rem] fade-in">
         <div class="max-w-4xl mx-auto flex justify-between items-center">
             <div>
-                <p class="text-gray-400 text-xs font-bold uppercase">Wadarta Guud</p>
-                <p id="total-price" class="text-xl font-black text-red-600">$0.00</p>
+                <p class="text-gray-400 text-[10px] font-black uppercase">Wadarta Guud</p>
+                <p id="total-price" class="text-2xl font-black text-red-600">$0.00</p>
             </div>
-            <button onclick="checkoutWhatsApp()" class="bg-green-500 text-white px-8 py-3 rounded-xl font-bold shadow-lg active:scale-95 transition">
-                <i class="fab fa-whatsapp mr-2"></i> DALBO
+            <button onclick="checkoutWhatsApp()" class="bg-green-500 text-white px-10 py-4 rounded-2xl font-black shadow-lg shadow-green-200 active:scale-95 transition">
+                <i class="fab fa-whatsapp mr-2"></i> DALBO HADDA
             </button>
         </div>
     </div>
@@ -65,7 +66,7 @@
                 const data = await res.json();
                 const filtered = data.filter(item => String(item.id) && item.status !== 'hidden');
                 
-                // Silent Update: Kaliya haddii xogtu isbedesho ayuu UI-ga bedelayaa
+                // NO WHITE FADE: Kaliya UI-ga cusboonaysii haddii xogta server-ka ay ka duwan tahay tan cache-ka
                 if(JSON.stringify(filtered) !== JSON.stringify(menuData)) {
                     menuData = filtered;
                     localStorage.setItem('tufaax_cache', JSON.stringify(menuData));
@@ -73,7 +74,7 @@
                 }
                 document.getElementById('loading-state').style.display = 'none';
             } catch (e) {
-                console.log("Searching for updates...");
+                console.error("Live update failed");
             }
         }
 
@@ -88,15 +89,15 @@
             container.innerHTML = filtered.map(item => {
                 const count = cart.filter(c => String(c.id) === String(item.id)).length;
                 return `
-                <div class="bg-white rounded-3xl overflow-hidden shadow-sm border p-3 flex flex-col transition-all duration-300">
-                    <img src="${item.img}" class="w-full h-32 object-cover rounded-2xl mb-3" onerror="this.src='https://via.placeholder.com/150'">
-                    <h3 class="font-bold text-gray-800 text-sm truncate">${item.name}</h3>
-                    <div class="mt-auto flex justify-between items-center pt-2">
-                        <span class="text-red-600 font-bold">$${parseFloat(item.price || 0).toFixed(2)}</span>
-                        <div class="flex items-center gap-2">
-                            <button onclick="removeFromCart('${item.id}')" class="w-8 h-8 bg-gray-100 rounded-xl active:bg-gray-200">-</button>
-                            <span class="text-xs font-bold w-4 text-center">${count}</span>
-                            <button onclick="addToCart('${item.id}')" class="w-8 h-8 bg-red-600 text-white rounded-xl active:bg-red-700">+</button>
+                <div class="bg-white rounded-[2rem] overflow-hidden shadow-sm border border-gray-100 p-3 flex flex-col transition-all active:shadow-md">
+                    <img src="${item.img}" class="w-full h-36 object-cover rounded-[1.5rem] mb-3" onerror="this.src='https://via.placeholder.com/150'">
+                    <h3 class="font-black text-gray-800 text-sm truncate px-1">${item.name}</h3>
+                    <div class="mt-auto flex justify-between items-center pt-3">
+                        <span class="text-red-600 font-black text-lg">$${parseFloat(item.price || 0).toFixed(2)}</span>
+                        <div class="flex items-center gap-2 bg-gray-50 p-1 rounded-xl">
+                            <button onclick="removeFromCart('${item.id}')" class="w-8 h-8 bg-white border rounded-lg font-black active:scale-90 transition">-</button>
+                            <span class="text-xs font-black w-4 text-center">${count}</span>
+                            <button onclick="addToCart('${item.id}')" class="w-8 h-8 bg-red-600 text-white rounded-lg font-black active:scale-90 transition">+</button>
                         </div>
                     </div>
                 </div>`;
@@ -147,10 +148,9 @@
             window.open(`https://wa.me/${phone}?text=${msg}`);
         }
 
-        // 1-ilbiriqsiba iskiis u cusboonaysii gadaal (macmiilku ma dareemayo)
+        // Automatic Refresh (1 second) - Silent
         setInterval(loadMenu, 1000);
         
-        // Initial load
         if(menuData.length > 0) {
             document.getElementById('loading-state').style.display = 'none';
             updateUI();
