@@ -120,28 +120,29 @@
             btn.innerText = "KEYDINTA...";
             btn.disabled = true;
 
+            // U dir Google Script
             await fetch(GOOGLE_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(data) });
             
+            // Ha sugin Google, si degdeg ah u cusboonaysii UI
             setTimeout(() => {
                 resetForm();
                 loadAdminMenu();
                 btn.innerText = "KEYDI XOGTA";
                 btn.disabled = false;
-            }, 1500);
+            }, 800);
         }
 
         async function deleteFood(id) {
             if(!confirm("Ma hubtaa?")) return;
             await fetch(GOOGLE_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ action: "delete", id: String(id) }) });
-            setTimeout(loadAdminMenu, 1000);
+            setTimeout(loadAdminMenu, 800);
         }
 
         async function toggleVisibility(id) {
             const item = menu.find(i => String(i.id) === String(id));
             const newStatus = item.status === 'hidden' ? 'visible' : 'hidden';
-            const updatedItem = { ...item, action: "update", status: newStatus };
-            await fetch(GOOGLE_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(updatedItem) });
-            setTimeout(loadAdminMenu, 1000);
+            await fetch(GOOGLE_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ ...item, action: "update", status: newStatus }) });
+            setTimeout(loadAdminMenu, 800);
         }
 
         function resetForm() {
