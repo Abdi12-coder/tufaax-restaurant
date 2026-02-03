@@ -16,7 +16,7 @@
     <header class="bg-red-600 text-white p-6 rounded-b-[2.5rem] sticky top-0 z-50 shadow-lg">
         <div class="flex justify-between items-center max-w-4xl mx-auto">
             <h1 class="text-3xl font-black italic">🍎 TUFAAX</h1>
-            <div class="relative bg-white p-3 rounded-full text-red-600 shadow-lg">
+            <div class="relative bg-white p-3 rounded-full text-red-600 shadow-lg cursor-pointer">
                 <i class="fas fa-shopping-basket text-xl"></i>
                 <span id="cart-count" class="cart-badge bg-yellow-400 text-black font-bold px-2 py-0.5 rounded-full">0</span>
             </div>
@@ -34,7 +34,7 @@
 
         <div id="loading-state" class="text-center py-20 text-gray-500">
             <i class="fas fa-spinner fa-spin text-3xl mb-2"></i>
-            <p>Xogta waxaa laga soo celinayaa Google Sheet...</p>
+            <p>Menu-ga waa la soo ridaybaa...</p>
         </div>
 
         <div id="menu-items" class="grid grid-cols-2 md:grid-cols-3 gap-4"></div>
@@ -53,9 +53,7 @@
     </div>
 
     <script>
-        // HALKAN GELI URL-KA CUSUB EE APPS SCRIPT
-        const GOOGLE_URL = "https://script.google.com/macros/s/AKfycbweI7__fuqNsLOtYaS0bbAAv1fAVMwepjwz7wjf61btvLWbn9SFI1Y71j1CX5qRPA_6/exec";
-        
+        const GOOGLE_URL = "https://script.google.com/macros/s/AKfycbzN7tYUEMrPtYhRXZwt0z5--8vUKL1Gl35Ixa8WWzesIbReJUa2f9aZWjZF7Gu3iQYH/exec";
         let menuData = [];
         let cart = [];
 
@@ -63,31 +61,30 @@
             try {
                 const res = await fetch(GOOGLE_URL);
                 const data = await res.json();
-                // Hubi in xogtu sax tahay oo ID leedahay
-                menuData = data.filter(item => item.id && item.status !== 'hidden');
+                menuData = data.filter(item => String(item.id) && item.status !== 'hidden');
                 document.getElementById('loading-state').style.display = 'none';
                 updateUI();
             } catch (e) {
-                console.error("Dhib xogta Sheet-ka");
-                document.getElementById('loading-state').innerHTML = "Dhib ayaa dhacay, fadlan Refresh dheh.";
+                console.error("Error fetching menu");
             }
         }
 
         function updateUI() {
             const container = document.getElementById('menu-items');
-            const cat = document.querySelector('.category-btn.active').innerText;
+            const activeBtn = document.querySelector('.category-btn.active');
+            const cat = activeBtn ? activeBtn.innerText : 'Dhammaan';
             
             let filtered = menuData;
             if(cat !== 'Dhammaan') filtered = menuData.filter(i => i.category === cat);
 
             container.innerHTML = filtered.map(item => {
-                const count = cart.filter(c => c.id === item.id).length;
+                const count = cart.filter(c => String(c.id) === String(item.id)).length;
                 return `
                 <div class="bg-white rounded-3xl overflow-hidden shadow-sm border p-3 flex flex-col">
                     <img src="${item.img}" class="w-full h-32 object-cover rounded-2xl mb-3" onerror="this.src='https://via.placeholder.com/150'">
                     <h3 class="font-bold text-gray-800 text-sm truncate">${item.name}</h3>
                     <div class="mt-auto flex justify-between items-center pt-2">
-                        <span class="text-red-600 font-bold">$${parseFloat(item.price).toFixed(2)}</span>
+                        <span class="text-red-600 font-bold">$${parseFloat(item.price || 0).toFixed(2)}</span>
                         <div class="flex items-center gap-2">
                             <button onclick="removeFromCart('${item.id}')" class="w-7 h-7 bg-gray-100 rounded-lg">-</button>
                             <span class="text-xs font-bold">${count}</span>
@@ -97,6 +94,10 @@
                 </div>`;
             }).join('');
 
+            updateCartSummary();
+        }
+
+        function updateCartSummary() {
             document.getElementById('cart-count').innerText = cart.length;
             const total = cart.reduce((sum, i) => sum + i.price, 0);
             document.getElementById('total-price').innerText = `$${total.toFixed(2)}`;
@@ -104,13 +105,13 @@
         }
 
         function addToCart(id) {
-            const item = menuData.find(m => m.id == id);
+            const item = menuData.find(m => String(m.id) === String(id));
             if(item) cart.push({ id: item.id, name: item.name, price: parseFloat(item.price) });
             updateUI();
         }
 
         function removeFromCart(id) {
-            const idx = cart.findLastIndex(c => c.id == id);
+            const idx = cart.findLastIndex(c => String(c.id) === String(id));
             if(idx > -1) cart.splice(idx, 1);
             updateUI();
         }
@@ -121,6 +122,17 @@
             updateUI();
         }
 
+        function checkoutWhatsApp() {
+            const phone = "25261XXXXXXX"; // Geli lambarkaaga
+            let msg = "Dalab Cusub (Tufaax):%0A";
+            cart.forEach(i => msg += `- ${i.name} ($${i.price})%0A`);
+            const total = cart.reduce((sum, i) => sum + i.price, 0);
+            msg += `%0AWadarta: $${total.toFixed(2)}`;
+            window.open(`https://wa.me/${phone}?text=${msg}`);
+        }
+
+        // Auto-refresh menu-ga 30-kii ilbiriqsiba si ay u helaan wax kasta oo cusub
+        setInterval(loadMenu, 30000);
         loadMenu();
     </script>
 </body>
