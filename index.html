@@ -3,125 +3,94 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tufaax Restaurant - Menu</title>
+    <title>Tufaax Restaurant</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <style>
-        .cart-badge { position: absolute; top: -5px; right: -5px; font-size: 10px; }
-        .category-btn.active { background-color: #dc2626; color: white; }
-    </style>
 </head>
 <body class="bg-gray-50 pb-32">
-
     <header class="bg-red-600 text-white p-6 rounded-b-[2.5rem] sticky top-0 z-50 shadow-lg">
         <div class="flex justify-between items-center max-w-4xl mx-auto">
             <h1 class="text-3xl font-black italic">🍎 TUFAAX</h1>
             <div class="relative bg-white p-3 rounded-full text-red-600 shadow-lg">
                 <i class="fas fa-shopping-basket text-xl"></i>
-                <span id="cart-count" class="cart-badge bg-yellow-400 text-black font-bold px-2 py-0.5 rounded-full">0</span>
+                <span id="cart-count" class="bg-yellow-400 text-black font-bold px-2 py-0.5 rounded-full absolute -top-1 -right-1 text-[10px]">0</span>
             </div>
         </div>
     </header>
 
     <main class="p-4 max-w-4xl mx-auto space-y-6">
-        <div class="flex space-x-3 overflow-x-auto pb-2">
+        <div id="cats" class="flex space-x-3 overflow-x-auto pb-2">
             <button onclick="filterCategory('Dhammaan', this)" class="category-btn active px-6 py-2 rounded-full font-bold bg-white border whitespace-nowrap">Dhammaan</button>
-            <button onclick="filterCategory('Quraac', this)" class="category-btn px-6 py-2 rounded-full font-bold bg-white border whitespace-nowrap">Quraac</button>
-            <button onclick="filterCategory('Qado', this)" class="category-btn px-6 py-2 rounded-full font-bold bg-white border whitespace-nowrap">Qado</button>
-            <button onclick="filterCategory('Casho', this)" class="category-btn px-6 py-2 rounded-full font-bold bg-white border whitespace-nowrap">Casho</button>
-            <button onclick="filterCategory('Cabitaan', this)" class="category-btn px-6 py-2 rounded-full font-bold bg-white border whitespace-nowrap">Cabitaan</button>
+            <button onclick="filterCategory('Quraac', this)" class="category-btn px-6 py-2 rounded-full font-bold bg-white border">Quraac</button>
+            <button onclick="filterCategory('Qado', this)" class="category-btn px-6 py-2 rounded-full font-bold bg-white border">Qado</button>
+            <button onclick="filterCategory('Casho', this)" class="category-btn px-6 py-2 rounded-full font-bold bg-white border">Casho</button>
         </div>
 
-        <div id="loading-state" class="text-center py-20 text-gray-500">
-            <i class="fas fa-spinner fa-spin text-3xl mb-2"></i>
-            <p>Xogta waxaa laga soo celinayaa Google Sheet...</p>
+        <div id="menu-items" class="grid grid-cols-2 md:grid-cols-3 gap-4">
+            <div class="col-span-full text-center py-20 text-gray-400"><i class="fas fa-spinner fa-spin text-3xl"></i></div>
         </div>
-
-        <div id="menu-items" class="grid grid-cols-2 md:grid-cols-3 gap-4"></div>
     </main>
 
-    <div id="checkout-bar" class="fixed bottom-0 left-0 right-0 p-5 bg-white border-t shadow-2xl hidden z-50 rounded-t-3xl">
-        <div class="max-w-4xl mx-auto flex justify-between items-center">
-            <div>
-                <p class="text-gray-400 text-xs font-bold uppercase">Wadarta Guud</p>
-                <p id="total-price" class="text-xl font-black text-red-600">$0.00</p>
-            </div>
-            <button onclick="checkoutWhatsApp()" class="bg-green-500 text-white px-8 py-3 rounded-xl font-bold shadow-lg">
-                <i class="fab fa-whatsapp mr-2"></i> DALBO
-            </button>
-        </div>
-    </div>
-
     <script>
-        // HALKAN GELI URL-KA CUSUB EE APPS SCRIPT
-        const GOOGLE_URL = "https://script.google.com/macros/s/AKfycbzTAnR4eeg4k0hnuZgn4u-TuLOCKL43QHvD3BqlND6wg3fFNN9AMJX97FqaiUKNvxk-/exec";
-        
+        const GOOGLE_URL = "https://script.google.com/macros/s/AKfycbxTAnR4eeg4k0hnuZgn4u-TuLOCKL43QHvD3BqlND6wg3fFNN9AMJX97FqaiUKNvxk-/exec";
         let menuData = [];
         let cart = [];
+        let currentCat = 'Dhammaan';
 
         async function loadMenu() {
             try {
                 const res = await fetch(GOOGLE_URL);
                 const data = await res.json();
-                // Hubi in xogtu sax tahay oo ID leedahay
-                menuData = data.filter(item => item.id && item.status !== 'hidden');
-                document.getElementById('loading-state').style.display = 'none';
+                // Kaliya soo saar kuwa "Visible" ah
+                menuData = data.filter(item => item.id && String(item.status).toLowerCase() !== 'hidden');
                 updateUI();
-            } catch (e) {
-                console.error("Dhib xogta Sheet-ka");
-                document.getElementById('loading-state').innerHTML = "Dhib ayaa dhacay, fadlan Refresh dheh.";
-            }
+            } catch (e) { console.error("Sync error"); }
         }
 
         function updateUI() {
             const container = document.getElementById('menu-items');
-            const cat = document.querySelector('.category-btn.active').innerText;
-            
-            let filtered = menuData;
-            if(cat !== 'Dhammaan') filtered = menuData.filter(i => i.category === cat);
+            let filtered = currentCat === 'Dhammaan' ? menuData : menuData.filter(i => i.category === currentCat);
 
             container.innerHTML = filtered.map(item => {
                 const count = cart.filter(c => c.id === item.id).length;
                 return `
-                <div class="bg-white rounded-3xl overflow-hidden shadow-sm border p-3 flex flex-col">
-                    <img src="${item.img}" class="w-full h-32 object-cover rounded-2xl mb-3" onerror="this.src='https://via.placeholder.com/150'">
+                <div class="bg-white rounded-3xl shadow-sm border p-3 flex flex-col">
+                    <img src="${item.img}" class="w-full h-32 object-cover rounded-2xl mb-2">
                     <h3 class="font-bold text-gray-800 text-sm truncate">${item.name}</h3>
                     <div class="mt-auto flex justify-between items-center pt-2">
                         <span class="text-red-600 font-bold">$${parseFloat(item.price).toFixed(2)}</span>
                         <div class="flex items-center gap-2">
-                            <button onclick="removeFromCart('${item.id}')" class="w-7 h-7 bg-gray-100 rounded-lg">-</button>
+                            <button onclick="changeCart('${item.id}', -1)" class="w-7 h-7 bg-gray-100 rounded-lg">-</button>
                             <span class="text-xs font-bold">${count}</span>
-                            <button onclick="addToCart('${item.id}')" class="w-7 h-7 bg-red-600 text-white rounded-lg">+</button>
+                            <button onclick="changeCart('${item.id}', 1)" class="w-7 h-7 bg-red-600 text-white rounded-lg">+</button>
                         </div>
                     </div>
                 </div>`;
             }).join('');
-
             document.getElementById('cart-count').innerText = cart.length;
-            const total = cart.reduce((sum, i) => sum + i.price, 0);
-            document.getElementById('total-price').innerText = `$${total.toFixed(2)}`;
-            document.getElementById('checkout-bar').classList.toggle('hidden', cart.length === 0);
         }
 
-        function addToCart(id) {
-            const item = menuData.find(m => m.id == id);
-            if(item) cart.push({ id: item.id, name: item.name, price: parseFloat(item.price) });
-            updateUI();
-        }
-
-        function removeFromCart(id) {
-            const idx = cart.findLastIndex(c => c.id == id);
-            if(idx > -1) cart.splice(idx, 1);
+        function changeCart(id, amt) {
+            if(amt === 1) {
+                const item = menuData.find(m => m.id == id);
+                cart.push(item);
+            } else {
+                const idx = cart.findLastIndex(c => c.id == id);
+                if(idx > -1) cart.splice(idx, 1);
+            }
             updateUI();
         }
 
         function filterCategory(cat, btn) {
-            document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
+            document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('bg-red-600', 'text-white'));
+            btn.classList.add('bg-red-600', 'text-white');
+            currentCat = cat;
             updateUI();
         }
 
+        // Automatic Sync 30-kii ilbiriqsi walba
         loadMenu();
+        setInterval(loadMenu, 30000); 
     </script>
 </body>
 </html>
