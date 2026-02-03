@@ -51,15 +51,19 @@
     </div>
 
     <script>
+        // DHIG URL-KA CUSUB EE APPS SCRIPT-KA Halkan
         const GOOGLE_URL = "https://script.google.com/macros/s/AKfycbxrh4VynwabwU2d0shKq0957fIIsL5m0h8lrLua3qwSI9YO0_cm2cQQ640tzgwAKuqL/exec";
         let menu = [];
 
         async function loadAdminMenu() {
             try {
                 const res = await fetch(GOOGLE_URL);
-                menu = await res.json();
+                const data = await res.json();
+                menu = data.filter(item => item.id); // Kaliya aqbal xogta leh ID (iska ilaali banaanada)
                 renderAdminList();
-            } catch (e) { console.error("Error fetching data"); }
+            } catch (e) { 
+                document.getElementById('admin-list').innerHTML = "<p class='text-red-500 text-center'>Xogta waa laga waayay Cloud-ka.</p>";
+            }
         }
 
         function renderAdminList() {
@@ -74,10 +78,10 @@
                         </div>
                     </div>
                     <div class="flex gap-2">
-                        <button onclick="toggleVisibility('${item.id}')" class="p-2 text-xs font-bold border rounded-xl bg-white">
+                        <button onclick="toggleVisibility('${item.id}')" class="p-2 text-xs font-bold border rounded-xl bg-white shadow-sm">
                             ${item.status === 'hidden' ? 'SHOW' : 'HIDE'}
                         </button>
-                        <button onclick="deleteFood('${item.id}')" class="p-2 text-red-500">
+                        <button onclick="deleteFood('${item.id}')" class="p-2 text-red-500 hover:bg-red-100 rounded-lg">
                             <i class="fas fa-trash-alt"></i>
                         </button>
                     </div>
@@ -94,7 +98,7 @@
             document.getElementById('foodCat').value = item.category;
             document.getElementById('foodImg').value = item.img;
             document.getElementById('foodStatus').value = item.status;
-            document.getElementById('form-title').innerText = "Wax ka beddel: " + item.name;
+            document.getElementById('form-title').innerHTML = `<i class="fas fa-edit text-orange-500"></i> Wax ka beddel: ${item.name}`;
             document.getElementById('cancelBtn').classList.remove('hidden');
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
@@ -103,7 +107,7 @@
             const idInput = document.getElementById('foodId').value;
             const data = {
                 action: "update",
-                id: idInput || "ID-" + Date.now(),
+                id: idInput || "ID-" + Math.floor(Math.random() * 1000000),
                 name: document.getElementById('foodName').value,
                 price: parseFloat(document.getElementById('foodPrice').value) || 0,
                 category: document.getElementById('foodCat').value,
@@ -113,7 +117,7 @@
             
             if(!data.name || data.price <= 0) return alert("Fadlan magaca iyo qiimaha sax!");
             
-            // Update Local durbadiiba si uusan duplicate u noqon
+            // Local Update
             if(idInput) {
                 const idx = menu.findIndex(i => i.id == idInput);
                 menu[idx] = data;
@@ -124,30 +128,22 @@
             resetForm();
 
             await fetch(GOOGLE_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(data) });
-            loadAdminMenu(); // Refresh xogta saxda ah
+            setTimeout(loadAdminMenu, 1500); // Hubi xogta dhabta ah waxyar kadib
         }
 
         async function deleteFood(id) {
             if(!confirm("Ma hubtaa inaad tirtirto?")) return;
-            
-            // Ka saar hortaada isla markiiba (Local Update)
             menu = menu.filter(i => i.id != id);
             renderAdminList();
-
-            const data = { action: "delete", id: String(id) };
-            await fetch(GOOGLE_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(data) });
+            await fetch(GOOGLE_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ action: "delete", id: String(id) }) });
         }
 
         async function toggleVisibility(id) {
             const item = menu.find(i => i.id == id);
             if(!item) return;
-
-            const newStatus = item.status === 'hidden' ? 'visible' : 'hidden';
-            item.status = newStatus; // Local update
+            item.status = item.status === 'hidden' ? 'visible' : 'hidden';
             renderAdminList();
-
-            const data = { ...item, action: "update", status: newStatus };
-            await fetch(GOOGLE_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(data) });
+            await fetch(GOOGLE_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ ...item, action: "update" }) });
         }
 
         function resetForm() {
@@ -156,7 +152,7 @@
             document.getElementById('foodPrice').value = "";
             document.getElementById('foodImg').value = "";
             document.getElementById('foodStatus').value = "visible";
-            document.getElementById('form-title').innerText = "Ku dar Cunto Cusub";
+            document.getElementById('form-title').innerHTML = `<i class="fas fa-plus-circle text-green-500"></i> Ku dar Cunto Cusub`;
             document.getElementById('cancelBtn').classList.add('hidden');
         }
 
