@@ -68,7 +68,9 @@
     </div>
 
     <script>
-        const GOOGLE_URL = "https://script.google.com/macros/s/AKfycbwvlVabE9cWmBlBeMuc5rvCLd_aBrkNghlAelObrkqGouDFrU6F6q4_ggw_5M5xeGrI/exec"; 
+        // REPLACE THIS URL WITH YOUR DEPLOYED WEB APP URL
+        const GOOGLE_URL = "https://script.google.com/macros/s/AKfycby1WsAuLAyCN1r-IN9Z6Jn54G1D_X9EmU1oHmiPyqquA7JEhYXXdFrVTs0zG5lgELqZ/exec"; 
+        
         let menuData = JSON.parse(localStorage.getItem('tufaax_cache')) || [];
         let cart = [];
 
@@ -85,7 +87,7 @@
             try {
                 const res = await fetch(GOOGLE_URL);
                 const data = await res.json();
-                // Kaliya tus cuntooyinka aan ahayn 'hidden'
+                // Only show visible items
                 const filtered = data.filter(item => item.status !== 'hidden');
                 
                 if(JSON.stringify(filtered) !== JSON.stringify(menuData)) {
@@ -158,6 +160,7 @@
         }
 
         function checkoutWhatsApp() {
+            // REPLACE THIS NUMBER WITH YOUR RESTAURANT NUMBER
             const phone = "252617054480"; 
             let msg = "🍎 *DALAB CUSUB - TUFAAX*%0A%0A";
             msg += `📍 *Miiska:* ${tableId}%0A`;
@@ -180,7 +183,7 @@
             window.open(`https://wa.me/${phone}?text=${msg}`);
         }
 
-        // Auto Refresh 0.5 sec si ay xogtu live ugu dhex jirto
+        // Auto Refresh 0.5 sec
         setInterval(loadMenu, 500);
         
         if(menuData.length > 0) updateUI();
@@ -188,4 +191,3 @@
     </script>
 </body>
 </html>
-
