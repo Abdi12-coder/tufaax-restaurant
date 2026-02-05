@@ -6,7 +6,10 @@
     <title>Tufaax - Instant Menu</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <style>.no-sb::-webkit-scrollbar { display: none; }</style>
+    <style>
+        .no-sb::-webkit-scrollbar { display: none; }
+        .active-cat { background-color: #dc2626 !important; color: white !important; border-color: #dc2626 !important; }
+    </style>
 </head>
 <body class="bg-gray-50 pb-32">
     <header class="bg-red-600 text-white p-6 rounded-b-[3rem] sticky top-0 z-50 shadow-xl">
@@ -22,30 +25,31 @@
     <main class="p-4 max-w-4xl mx-auto space-y-4">
         <div class="bg-white p-3 rounded-2xl shadow-sm border flex items-center px-4">
             <i class="fas fa-search text-gray-400 mr-2"></i>
-            <input type="text" id="custSearch" oninput="ui()" placeholder="Raadi halkan..." class="w-full outline-none">
+            <input type="text" id="custSearch" oninput="ui()" placeholder="Raadi cuntada aad rabto..." class="w-full outline-none bg-transparent">
         </div>
 
         <div class="flex space-x-2 overflow-x-auto no-sb pb-2">
-            <button onclick="filter('Dhammaan', this)" class="cat-btn active bg-red-600 text-white px-5 py-2 rounded-full font-bold whitespace-nowrap transition">Dhammaan</button>
-            <button onclick="filter('Quraac', this)" class="cat-btn bg-white border px-5 py-2 rounded-full font-bold whitespace-nowrap transition">Quraac</button>
-            <button onclick="filter('Qado', this)" class="cat-btn bg-white border px-5 py-2 rounded-full font-bold whitespace-nowrap transition">Qado</button>
-            <button onclick="filter('Casho', this)" class="cat-btn bg-white border px-5 py-2 rounded-full font-bold whitespace-nowrap transition">Casho</button>
-            <button onclick="filter('Macmacaan', this)" class="cat-btn bg-white border px-5 py-2 rounded-full font-bold whitespace-nowrap transition">Macmacaan</button>
-            <button onclick="filter('Coffee', this)" class="cat-btn bg-white border px-5 py-2 rounded-full font-bold whitespace-nowrap transition">Coffee</button>
+            <button onclick="filter('Dhammaan', this)" class="cat-btn active-cat bg-white border px-6 py-2 rounded-full font-bold whitespace-nowrap transition shadow-sm">Dhammaan</button>
+            <button onclick="filter('Quraac', this)" class="cat-btn bg-white border px-6 py-2 rounded-full font-bold whitespace-nowrap transition shadow-sm">Quraac</button>
+            <button onclick="filter('Qado', this)" class="cat-btn bg-white border px-6 py-2 rounded-full font-bold whitespace-nowrap transition shadow-sm">Qado</button>
+            <button onclick="filter('Casho', this)" class="cat-btn bg-white border px-6 py-2 rounded-full font-bold whitespace-nowrap transition shadow-sm">Casho</button>
+            <button onclick="filter('Macmacaan', this)" class="cat-btn bg-white border px-6 py-2 rounded-full font-bold whitespace-nowrap transition shadow-sm">Macmacaan</button>
+            <button onclick="filter('Coffee', this)" class="cat-btn bg-white border px-6 py-2 rounded-full font-bold whitespace-nowrap transition shadow-sm">Coffee</button>
+            <button onclick="filter('Shaah', this)" class="cat-btn bg-white border px-6 py-2 rounded-full font-bold whitespace-nowrap transition shadow-sm">Shaah</button>
         </div>
 
         <div id="items" class="grid grid-cols-2 md:grid-cols-3 gap-4"></div>
     </main>
 
-    <div id="checkout-bar" class="fixed bottom-0 left-0 right-0 p-5 bg-white/90 backdrop-blur-md border-t hidden z-50 rounded-t-[2.5rem] shadow-2xl">
+    <div id="checkout-bar" class="fixed bottom-0 left-0 right-0 p-5 bg-white/90 backdrop-blur-md border-t hidden z-50 rounded-t-[2.5rem] shadow-2xl transition-all">
         <div class="max-w-4xl mx-auto flex justify-between items-center">
-            <div><p class="text-red-600 text-2xl font-black" id="total">$0.00</p></div>
-            <button onclick="order()" class="bg-green-500 text-white px-8 py-4 rounded-2xl font-black shadow-lg">DALBO HADDA</button>
+            <div><p class="text-gray-400 text-[10px] font-bold">TOTAL</p><p class="text-red-600 text-2xl font-black" id="total">$0.00</p></div>
+            <button onclick="order()" class="bg-green-500 text-white px-10 py-4 rounded-2xl font-black shadow-lg active:scale-95 transition">DALBO HADDA</button>
         </div>
     </div>
 
     <script>
-        const API = "https://script.google.com/macros/s/AKfycbzN7tYUEMrPtYhRXZwt0z5--8vUKL1Gl35Ixa8WWzesIbReJUa2f9aZWjZF7Gu3iQYH/exec";
+        const API = "https://script.google.com/macros/s/AKfycbwCkKbke23xP8XwFUrh43pnKRU8EfimCScRzC6zrxTQ3mU-GuGrv3rEgJrKuJbSN35G/exec";
         let menu = JSON.parse(localStorage.getItem('cache')) || [];
         let cart = [];
         const table = new URLSearchParams(window.location.search).get('table') || "Unknown";
@@ -66,7 +70,8 @@
         function ui() {
             const list = document.getElementById('items');
             const query = document.getElementById('custSearch').value.toLowerCase();
-            const cat = document.querySelector('.cat-btn.active').innerText;
+            const activeCatBtn = document.querySelector('.active-cat');
+            const cat = activeCatBtn ? activeCatBtn.innerText : 'Dhammaan';
             
             let data = menu;
             if(cat !== 'Dhammaan') data = data.filter(i => i.category === cat);
@@ -76,15 +81,15 @@
                 const qty = cart.filter(c => c.id === i.id).length;
                 return `
                 <div class="bg-white rounded-[2rem] p-3 shadow-sm border border-gray-100 flex flex-col">
-                    <img src="${i.img}" class="w-full h-32 object-cover rounded-[1.5rem] mb-2">
-                    <h3 class="font-black text-xs truncate">${i.name}</h3>
-                    <p class="text-[9px] text-gray-400 line-clamp-2 h-6 leading-tight mb-2">${i.description || 'Macaan & Nadiif'}</p>
+                    <img src="${i.img}" class="w-full h-32 object-cover rounded-[1.5rem] mb-2 shadow-inner" onerror="this.src='https://via.placeholder.com/150'">
+                    <h3 class="font-black text-xs truncate px-1">${i.name}</h3>
+                    <p class="text-[9px] text-gray-400 line-clamp-2 h-6 leading-tight mb-2 px-1">${i.description || 'Nadiif & Macaan'}</p>
                     <div class="mt-auto flex justify-between items-center">
-                        <span class="text-red-600 font-black">$${parseFloat(i.price).toFixed(2)}</span>
-                        <div class="flex items-center gap-2 bg-gray-50 rounded-lg p-1">
-                            <button onclick="change('${i.id}',-1)" class="w-6 h-6 bg-white border rounded font-bold">-</button>
-                            <span class="text-[10px] font-bold">${qty}</span>
-                            <button onclick="change('${i.id}',1)" class="w-6 h-6 bg-red-600 text-white rounded font-bold">+</button>
+                        <span class="text-red-600 font-black px-1">$${parseFloat(i.price).toFixed(2)}</span>
+                        <div class="flex items-center gap-2 bg-gray-50 rounded-xl p-1">
+                            <button onclick="change('${i.id}',-1)" class="w-6 h-6 bg-white border rounded-lg font-bold shadow-sm active:scale-90">-</button>
+                            <span class="text-[10px] font-black w-3 text-center">${qty}</span>
+                            <button onclick="change('${i.id}',1)" class="w-6 h-6 bg-red-600 text-white rounded-lg font-bold shadow-sm active:scale-90">+</button>
                         </div>
                     </div>
                 </div>`;
@@ -95,7 +100,7 @@
         function change(id, delta) {
             if(delta > 0) {
                 const item = menu.find(m => m.id == id);
-                cart.push({id: item.id, name: item.name, price: parseFloat(item.price)});
+                if(item) cart.push({id: item.id, name: item.name, price: parseFloat(item.price)});
             } else {
                 const idx = cart.findLastIndex(c => c.id == id);
                 if(idx > -1) cart.splice(idx, 1);
@@ -111,11 +116,8 @@
         }
 
         function filter(cat, btn) {
-            document.querySelectorAll('.cat-btn').forEach(b => {
-                b.classList.replace('bg-red-600', 'bg-white');
-                b.classList.replace('text-white', 'text-black');
-            });
-            btn.classList.add('bg-red-600', 'text-white');
+            document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active-cat'));
+            btn.classList.add('active-cat');
             ui();
         }
 
@@ -128,7 +130,7 @@
             window.open(`https://wa.me/${phone}?text=${msg}`);
         }
 
-        setInterval(sync, 1000); // Fast Background Sync
+        setInterval(sync, 1000); // Background check every 1 second
         ui();
         sync();
     </script>
