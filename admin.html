@@ -32,7 +32,7 @@
     <div class="max-w-xl mx-auto space-y-6">
         <header class="bg-gray-800 text-white p-6 rounded-[2rem] shadow-xl flex justify-between items-center">
             <div>
-                <h1 class="text-xl font-black italic text-red-500">🍎 TUFAAX ADMIN</h1>
+                <h1 class="text-xl font-black italic">🍎 TUFAAX ADMIN</h1>
                 <p class="text-[10px] text-gray-400">Maamul xogta si toos ah</p>
             </div>
             <div id="sync-indicator" class="text-green-400 text-[10px] flex items-center gap-1 font-bold">
@@ -40,9 +40,9 @@
             </div>
         </header>
 
-        <div class="relative">
-            <i class="fas fa-search absolute left-4 top-4 text-gray-400"></i>
-            <input type="text" id="adminSearch" oninput="renderAdminList()" placeholder="Raadi cunto..." class="w-full p-4 pl-12 bg-white rounded-2xl border-none shadow-sm outline-none focus:ring-2 focus:ring-green-400">
+        <div class="bg-white p-2 rounded-2xl shadow-sm border border-gray-100 flex items-center px-4">
+            <i class="fas fa-search text-gray-400 mr-2"></i>
+            <input type="text" id="adminSearch" oninput="renderAdminList()" placeholder="Raadi cunto..." class="w-full p-2 outline-none bg-transparent text-sm">
         </div>
 
         <div class="bg-white p-6 rounded-[2rem] shadow-sm border border-gray-100 space-y-4">
@@ -60,12 +60,12 @@
                     </select>
                 </div>
                 
-                <div class="space-y-2">
+                <div class="flex flex-col gap-2">
                     <input id="foodImg" type="text" placeholder="Link-ga Sawirka (URL)" class="w-full p-4 bg-gray-50 rounded-2xl border-none outline-none focus:ring-2 focus:ring-green-400 transition-all">
-                    <div class="flex items-center gap-2 p-4 bg-gray-100 rounded-2xl border-2 border-dashed border-gray-300">
-                        <input type="file" id="fileInput" accept="image/*" class="hidden" onchange="handleFileUpload(this)">
-                        <label for="fileInput" class="cursor-pointer flex items-center gap-2 text-gray-600 font-bold text-sm w-full">
-                            <i class="fas fa-upload"></i> <span id="fileName">Ama Sawir ka soo upload gareey files-kaaga</span>
+                    <div class="flex items-center gap-2">
+                        <label class="flex-1 bg-blue-50 text-blue-600 p-4 rounded-2xl border border-dashed border-blue-200 cursor-pointer hover:bg-blue-100 transition text-center">
+                            <i class="fas fa-upload mr-2"></i> <span id="uploadStatus">Upload Sawir</span>
+                            <input type="file" accept="image/*" class="hidden" onchange="uploadImage(this)">
                         </label>
                     </div>
                 </div>
@@ -91,17 +91,16 @@
     <script>
         const GOOGLE_URL = "https://script.google.com/macros/s/AKfycbzN7tYUEMrPtYhRXZwt0z5--8vUKL1Gl35Ixa8WWzesIbReJUa2f9aZWjZF7Gu3iQYH/exec";
         let menu = [];
-        let uploadedImgBase64 = "";
 
-        // Function loogu talagalay Upload-ka
-        function handleFileUpload(input) {
+        // FUNCTION TO CONVERT IMAGE TO BASE64
+        function uploadImage(input) {
             const file = input.files[0];
             if (file) {
-                document.getElementById('fileName').innerText = file.name;
                 const reader = new FileReader();
+                document.getElementById('uploadStatus').innerText = "Waa la diyaariyay...";
                 reader.onload = function(e) {
-                    uploadedImgBase64 = e.target.result;
-                    document.getElementById('foodImg').value = "Sawir cusub ayaa la doortay...";
+                    document.getElementById('foodImg').value = e.target.result;
+                    document.getElementById('uploadStatus').innerText = "Sawirka waa diyaar ✅";
                 };
                 reader.readAsDataURL(file);
             }
@@ -111,20 +110,26 @@
             try {
                 const res = await fetch(GOOGLE_URL);
                 const newData = await res.json();
+                
                 if (JSON.stringify(menu) !== JSON.stringify(newData)) {
                     menu = newData;
                     document.getElementById('item-count').innerText = menu.length;
                     renderAdminList();
                 }
-            } catch (e) { console.error("Sync error"); }
+            } catch (e) { 
+                console.error("Sync error");
+            }
         }
 
         function renderAdminList() {
-            const query = document.getElementById('adminSearch').value.toLowerCase();
+            const searchTerm = document.getElementById('adminSearch').value.toLowerCase();
             const list = document.getElementById('admin-list');
-            const filtered = menu.filter(item => (item.name || '').toLowerCase().includes(query));
+            
+            const filteredMenu = menu.filter(item => 
+                item.name.toLowerCase().includes(searchTerm)
+            );
 
-            list.innerHTML = filtered.map((item) => `
+            list.innerHTML = filteredMenu.map((item) => `
                 <div id="row-${item.id}" class="flex items-center justify-between p-3 ${item.status === 'hidden' ? 'bg-red-50 opacity-60' : 'bg-gray-50'} rounded-2xl border transition-all duration-300">
                     <div class="flex items-center gap-3 flex-1 cursor-pointer" onclick="prepareEdit('${item.id}')">
                         <img src="${item.img}" class="w-12 h-12 rounded-xl object-cover shadow-sm" onerror="this.src='https://via.placeholder.com/150'">
@@ -174,7 +179,9 @@
             }
         }
 
-        function closePopup() { document.getElementById('custom-popup').style.display = 'none'; }
+        function closePopup() {
+            document.getElementById('custom-popup').style.display = 'none';
+        }
 
         async function deleteFood(id) {
             document.getElementById(`row-${id}`).classList.add('processing');
@@ -212,7 +219,7 @@
                 name: document.getElementById('foodName').value,
                 price: document.getElementById('foodPrice').value,
                 category: document.getElementById('foodCat').value,
-                img: uploadedImgBase64 || document.getElementById('foodImg').value,
+                img: document.getElementById('foodImg').value,
                 status: document.getElementById('foodStatus').value
             };
             if(!data.name || !data.price) return;
@@ -234,10 +241,9 @@
             document.getElementById('foodName').value = "";
             document.getElementById('foodPrice').value = "";
             document.getElementById('foodImg').value = "";
-            uploadedImgBase64 = "";
-            document.getElementById('fileName').innerText = "Ama Sawir ka soo upload gareey files-kaaga";
             document.getElementById('foodStatus').value = "visible";
             document.getElementById('cancelBtn').classList.add('hidden');
+            document.getElementById('uploadStatus').innerText = "Upload Sawir";
             document.getElementById('form-title').innerHTML = `<i class="fas fa-plus-circle text-green-500"></i> Ku dar Cunto Cusub`;
         }
 
