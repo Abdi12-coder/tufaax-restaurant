@@ -3,173 +3,134 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tufaax Restaurant - Menu</title>
+    <title>Tufaax - Instant Menu</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <style>
-        .cart-badge { position: absolute; top: -5px; right: -5px; font-size: 10px; }
-        .category-btn.active { background-color: #dc2626; color: white; border-color: #dc2626; }
-        .fade-in { animation: fadeIn 0.4s ease-out; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        body { -webkit-tap-highlight-color: transparent; }
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-    </style>
+    <style>.no-sb::-webkit-scrollbar { display: none; }</style>
 </head>
 <body class="bg-gray-50 pb-32">
-
     <header class="bg-red-600 text-white p-6 rounded-b-[3rem] sticky top-0 z-50 shadow-xl">
         <div class="flex justify-between items-center max-w-4xl mx-auto">
-            <div>
-                <h1 class="text-3xl font-black italic tracking-tighter">🍎 TUFAAX</h1>
-                <p id="display-table" class="text-xs font-bold bg-black/20 px-2 py-1 rounded-lg mt-1 hidden"></p>
-            </div>
-            <div class="relative bg-white p-3 rounded-2xl text-red-600 shadow-lg cursor-pointer active:scale-90 transition">
+            <h1 class="text-3xl font-black italic tracking-tighter">🍎 TUFAAX</h1>
+            <div id="cart-btn" class="relative bg-white p-3 rounded-2xl text-red-600 shadow-lg">
                 <i class="fas fa-shopping-basket text-xl"></i>
-                <span id="cart-count" class="cart-badge bg-yellow-400 text-black font-black px-2 py-0.5 rounded-full border-2 border-white">0</span>
+                <span id="cart-count" class="absolute -top-1 -right-1 bg-yellow-400 text-black text-[10px] font-bold px-2 py-0.5 rounded-full border-2 border-white">0</span>
             </div>
         </div>
     </header>
 
-    <main class="p-4 max-w-4xl mx-auto space-y-6">
-        <div class="bg-white p-3 rounded-2xl shadow-sm border border-gray-100 flex items-center px-4">
+    <main class="p-4 max-w-4xl mx-auto space-y-4">
+        <div class="bg-white p-3 rounded-2xl shadow-sm border flex items-center px-4">
             <i class="fas fa-search text-gray-400 mr-2"></i>
-            <input type="text" id="custSearch" oninput="updateUI()" placeholder="Raadi cuntada aad rabto..." class="w-full outline-none bg-transparent">
+            <input type="text" id="custSearch" oninput="ui()" placeholder="Raadi halkan..." class="w-full outline-none">
         </div>
 
-        <div class="flex space-x-3 overflow-x-auto pb-2 no-scrollbar">
-            <button onclick="filterCategory('Dhammaan', this)" class="category-btn active px-6 py-2 rounded-full font-bold bg-white border whitespace-nowrap shadow-sm transition">Dhammaan</button>
-            <button onclick="filterCategory('Quraac', this)" class="category-btn px-6 py-2 rounded-full font-bold bg-white border whitespace-nowrap shadow-sm transition">Quraac</button>
-            <button onclick="filterCategory('Qado', this)" class="category-btn px-6 py-2 rounded-full font-bold bg-white border whitespace-nowrap shadow-sm transition">Qado</button>
-            <button onclick="filterCategory('Casho', this)" class="category-btn px-6 py-2 rounded-full font-bold bg-white border whitespace-nowrap shadow-sm transition">Casho</button>
-            <button onclick="filterCategory('Cabitaan', this)" class="category-btn px-6 py-2 rounded-full font-bold bg-white border whitespace-nowrap shadow-sm transition">Cabitaan</button>
-            <button onclick="filterCategory('Macmacaan', this)" class="category-btn px-6 py-2 rounded-full font-bold bg-white border whitespace-nowrap shadow-sm transition">Macmacaan</button>
-            <button onclick="filterCategory('Coffee', this)" class="category-btn px-6 py-2 rounded-full font-bold bg-white border whitespace-nowrap shadow-sm transition">Coffee</button>
-            <button onclick="filterCategory('Shaah', this)" class="category-btn px-6 py-2 rounded-full font-bold bg-white border whitespace-nowrap shadow-sm transition">Shaah</button>
+        <div class="flex space-x-2 overflow-x-auto no-sb pb-2">
+            <button onclick="filter('Dhammaan', this)" class="cat-btn active bg-red-600 text-white px-5 py-2 rounded-full font-bold whitespace-nowrap transition">Dhammaan</button>
+            <button onclick="filter('Quraac', this)" class="cat-btn bg-white border px-5 py-2 rounded-full font-bold whitespace-nowrap transition">Quraac</button>
+            <button onclick="filter('Qado', this)" class="cat-btn bg-white border px-5 py-2 rounded-full font-bold whitespace-nowrap transition">Qado</button>
+            <button onclick="filter('Casho', this)" class="cat-btn bg-white border px-5 py-2 rounded-full font-bold whitespace-nowrap transition">Casho</button>
+            <button onclick="filter('Macmacaan', this)" class="cat-btn bg-white border px-5 py-2 rounded-full font-bold whitespace-nowrap transition">Macmacaan</button>
+            <button onclick="filter('Coffee', this)" class="cat-btn bg-white border px-5 py-2 rounded-full font-bold whitespace-nowrap transition">Coffee</button>
         </div>
 
-        <div id="loading-state" class="text-center py-20 text-gray-400">
-            <i class="fas fa-circle-notch fa-spin text-3xl mb-2"></i>
-            <p class="text-xs font-bold">XOGTA WAA LA CUSBOONAYSIINAYAA...</p>
-        </div>
-
-        <div id="menu-items" class="grid grid-cols-2 md:grid-cols-3 gap-4"></div>
+        <div id="items" class="grid grid-cols-2 md:grid-cols-3 gap-4"></div>
     </main>
 
-    <div id="checkout-bar" class="fixed bottom-0 left-0 right-0 p-5 bg-white/90 backdrop-blur-md border-t shadow-2xl hidden z-50 rounded-t-[2.5rem] fade-in">
+    <div id="checkout-bar" class="fixed bottom-0 left-0 right-0 p-5 bg-white/90 backdrop-blur-md border-t hidden z-50 rounded-t-[2.5rem] shadow-2xl">
         <div class="max-w-4xl mx-auto flex justify-between items-center">
-            <div>
-                <p class="text-gray-400 text-[10px] font-black uppercase">Wadarta Guud</p>
-                <p id="total-price" class="text-2xl font-black text-red-600">$0.00</p>
-            </div>
-            <button onclick="checkoutWhatsApp()" class="bg-green-500 text-white px-10 py-4 rounded-2xl font-black shadow-lg shadow-green-200 active:scale-95 transition">
-                <i class="fab fa-whatsapp mr-2"></i> DALBO HADDA
-            </button>
+            <div><p class="text-red-600 text-2xl font-black" id="total">$0.00</p></div>
+            <button onclick="order()" class="bg-green-500 text-white px-8 py-4 rounded-2xl font-black shadow-lg">DALBO HADDA</button>
         </div>
     </div>
 
     <script>
-        const GOOGLE_URL = "https://script.google.com/macros/s/AKfycbzN7tYUEMrPtYhRXZwt0z5--8vUKL1Gl35Ixa8WWzesIbReJUa2f9aZWjZF7Gu3iQYH/exec";
-        let menuData = JSON.parse(localStorage.getItem('tufaax_cache')) || [];
+        const API = "https://script.google.com/macros/s/AKfycbzN7tYUEMrPtYhRXZwt0z5--8vUKL1Gl35Ixa8WWzesIbReJUa2f9aZWjZF7Gu3iQYH/exec";
+        let menu = JSON.parse(localStorage.getItem('cache')) || [];
         let cart = [];
+        const table = new URLSearchParams(window.location.search).get('table') || "Unknown";
 
-        const urlParams = new URLSearchParams(window.location.search);
-        const tableId = urlParams.get('table') || "Lama aqoon";
-        if(urlParams.has('table')) {
-            const display = document.getElementById('display-table');
-            display.innerText = "📍 Miiska: " + tableId;
-            display.classList.remove('hidden');
-        }
-
-        async function loadMenu() {
+        async function sync() {
             try {
-                const res = await fetch(GOOGLE_URL);
+                const res = await fetch(API);
                 const data = await res.json();
-                const filtered = data.filter(item => String(item.id) && item.status !== 'hidden');
-                if(JSON.stringify(filtered) !== JSON.stringify(menuData)) {
-                    menuData = filtered;
-                    localStorage.setItem('tufaax_cache', JSON.stringify(menuData));
-                    updateUI();
+                const filtered = data.filter(i => i.status !== 'hidden');
+                if(JSON.stringify(filtered) !== JSON.stringify(menu)) {
+                    menu = filtered;
+                    localStorage.setItem('cache', JSON.stringify(menu));
+                    ui();
                 }
-                document.getElementById('loading-state').style.display = 'none';
-            } catch (e) { console.error("Live update failed"); }
+            } catch(e) {}
         }
 
-        function updateUI() {
-            const container = document.getElementById('menu-items');
-            const activeBtn = document.querySelector('.category-btn.active');
-            const cat = activeBtn ? activeBtn.innerText : 'Dhammaan';
-            const searchTerm = document.getElementById('custSearch').value.toLowerCase();
-            let filtered = menuData;
-            if(cat !== 'Dhammaan') filtered = menuData.filter(i => i.category === cat);
-            filtered = filtered.filter(item => item.name.toLowerCase().includes(searchTerm));
+        function ui() {
+            const list = document.getElementById('items');
+            const query = document.getElementById('custSearch').value.toLowerCase();
+            const cat = document.querySelector('.cat-btn.active').innerText;
+            
+            let data = menu;
+            if(cat !== 'Dhammaan') data = data.filter(i => i.category === cat);
+            data = data.filter(i => i.name.toLowerCase().includes(query));
 
-            container.innerHTML = filtered.map(item => {
-                const count = cart.filter(c => String(c.id) === String(item.id)).length;
+            list.innerHTML = data.map(i => {
+                const qty = cart.filter(c => c.id === i.id).length;
                 return `
-                <div class="bg-white rounded-[2rem] overflow-hidden shadow-sm border border-gray-100 p-3 flex flex-col transition-all active:shadow-md">
-                    <img src="${item.img}" class="w-full h-36 object-cover rounded-[1.5rem] mb-2" onerror="this.src='https://via.placeholder.com/150'">
-                    <h3 class="font-black text-gray-800 text-sm truncate px-1">${item.name}</h3>
-                    <p class="text-[10px] text-gray-400 px-1 line-clamp-2 mb-2 leading-tight">${item.desc || 'Ma lahan faahfaahin'}</p>
-                    <div class="mt-auto flex justify-between items-center pt-2">
-                        <span class="text-red-600 font-black text-lg">$${parseFloat(item.price || 0).toFixed(2)}</span>
-                        <div class="flex items-center gap-2 bg-gray-50 p-1 rounded-xl">
-                            <button onclick="removeFromCart('${item.id}')" class="w-8 h-8 bg-white border rounded-lg font-black active:scale-90 transition">-</button>
-                            <span class="text-xs font-black w-4 text-center">${count}</span>
-                            <button onclick="addToCart('${item.id}')" class="w-8 h-8 bg-red-600 text-white rounded-lg font-black active:scale-90 transition">+</button>
+                <div class="bg-white rounded-[2rem] p-3 shadow-sm border border-gray-100 flex flex-col">
+                    <img src="${i.img}" class="w-full h-32 object-cover rounded-[1.5rem] mb-2">
+                    <h3 class="font-black text-xs truncate">${i.name}</h3>
+                    <p class="text-[9px] text-gray-400 line-clamp-2 h-6 leading-tight mb-2">${i.description || 'Macaan & Nadiif'}</p>
+                    <div class="mt-auto flex justify-between items-center">
+                        <span class="text-red-600 font-black">$${parseFloat(i.price).toFixed(2)}</span>
+                        <div class="flex items-center gap-2 bg-gray-50 rounded-lg p-1">
+                            <button onclick="change('${i.id}',-1)" class="w-6 h-6 bg-white border rounded font-bold">-</button>
+                            <span class="text-[10px] font-bold">${qty}</span>
+                            <button onclick="change('${i.id}',1)" class="w-6 h-6 bg-red-600 text-white rounded font-bold">+</button>
                         </div>
                     </div>
                 </div>`;
             }).join('');
-            updateCartSummary();
+            updateBar();
         }
 
-        function updateCartSummary() {
+        function change(id, delta) {
+            if(delta > 0) {
+                const item = menu.find(m => m.id == id);
+                cart.push({id: item.id, name: item.name, price: parseFloat(item.price)});
+            } else {
+                const idx = cart.findLastIndex(c => c.id == id);
+                if(idx > -1) cart.splice(idx, 1);
+            }
+            ui();
+        }
+
+        function updateBar() {
+            const total = cart.reduce((s, i) => s + i.price, 0);
+            document.getElementById('total').innerText = `$${total.toFixed(2)}`;
             document.getElementById('cart-count').innerText = cart.length;
-            const total = cart.reduce((sum, i) => sum + i.price, 0);
-            document.getElementById('total-price').innerText = `$${total.toFixed(2)}`;
             document.getElementById('checkout-bar').classList.toggle('hidden', cart.length === 0);
         }
 
-        function addToCart(id) {
-            const item = menuData.find(m => String(m.id) === String(id));
-            if(item) cart.push({ id: item.id, name: item.name, price: parseFloat(item.price) });
-            updateUI();
+        function filter(cat, btn) {
+            document.querySelectorAll('.cat-btn').forEach(b => {
+                b.classList.replace('bg-red-600', 'bg-white');
+                b.classList.replace('text-white', 'text-black');
+            });
+            btn.classList.add('bg-red-600', 'text-white');
+            ui();
         }
 
-        function removeFromCart(id) {
-            const idx = cart.findLastIndex(c => String(c.id) === String(id));
-            if(idx > -1) cart.splice(idx, 1);
-            updateUI();
-        }
-
-        function filterCategory(cat, btn) {
-            document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            updateUI();
-        }
-
-        function checkoutWhatsApp() {
-            const phone = "252617054480"; 
-            let msg = "DALAB CUSUB 🍎%0A%0A";
-            msg += `📍 Miiska: ${tableId}%0A`;
-            msg += "--------------------------%0A";
-            const itemsGrouped = cart.reduce((acc, item) => {
-                acc[item.name] = (acc[item.name] || 0) + 1;
-                return acc;
-            }, {});
-            for (const [name, qty] of Object.entries(itemsGrouped)) {
-                msg += `* ${qty}x ${name}%0A`;
-            }
-            const total = cart.reduce((sum, i) => sum + i.price, 0);
-            msg += "--------------------------%0A";
-            msg += `💰 Warta: $${total.toFixed(2)}%0A%0A`;
-            msg += "Fadlan si degdeg ah ii diyaariya!";
+        function order() {
+            const phone = "252617054480";
+            let msg = `DALAB CUSUB 🍎%0A📍 Miiska: ${table}%0A--------------------------%0A`;
+            const counts = cart.reduce((a, i) => { a[i.name] = (a[i.name] || 0) + 1; return a; }, {});
+            for (const [n, q] of Object.entries(counts)) msg += `* ${q}x ${n}%0A`;
+            msg += `--------------------------%0A💰 Total: $${cart.reduce((s,i)=>s+i.price,0).toFixed(2)}`;
             window.open(`https://wa.me/${phone}?text=${msg}`);
         }
 
-        setInterval(loadMenu, 1000);
-        if(menuData.length > 0) { document.getElementById('loading-state').style.display = 'none'; updateUI(); }
-        loadMenu();
+        setInterval(sync, 1000); // Fast Background Sync
+        ui();
+        sync();
     </script>
 </body>
 </html>
