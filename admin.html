@@ -11,41 +11,56 @@
     <div class="max-w-xl mx-auto space-y-6">
         <header class="bg-gray-800 text-white p-6 rounded-[2rem] flex justify-between items-center shadow-xl">
             <h1 class="text-xl font-black italic">🍎 ADMIN FAST</h1>
-            <div id="sync-status" class="text-[10px] text-green-400 font-bold italic">CONNECTED</div>
+            <div id="sync-status" class="text-[10px] text-green-400 font-bold italic tracking-widest">LIVE SYNC</div>
         </header>
 
         <div class="bg-white p-6 rounded-[2rem] shadow-sm space-y-3">
             <input id="foodId" type="hidden">
             <input id="foodName" type="text" placeholder="Magaca Cuntada" class="w-full p-4 bg-gray-50 rounded-2xl outline-none focus:ring-2 focus:ring-green-400">
-            <textarea id="foodDesc" placeholder="Faahfaahinta Cuntada (Description)" class="w-full p-4 bg-gray-50 rounded-2xl outline-none focus:ring-2 focus:ring-green-400 h-20"></textarea>
+            <textarea id="foodDesc" placeholder="Faahfaahinta Cuntada (Description)" class="w-full p-4 bg-gray-50 rounded-2xl outline-none focus:ring-2 focus:ring-green-400 h-20 resize-none"></textarea>
+            
             <div class="grid grid-cols-2 gap-3">
                 <input id="foodPrice" type="number" step="0.01" placeholder="Qiimaha $" class="p-4 bg-gray-50 rounded-2xl outline-none focus:ring-2 focus:ring-green-400">
                 <select id="foodCat" class="p-4 bg-gray-50 rounded-2xl outline-none focus:ring-2 focus:ring-green-400">
-                    <option>Quraac</option><option>Qado</option><option>Casho</option><option>Cabitaan</option><option>Macmacaan</option><option>Coffee</option><option>Shaah</option>
+                    <option>Quraac</option>
+                    <option>Qado</option>
+                    <option>Casho</option>
+                    <option>Cabitaan</option>
+                    <option>Macmacaan</option>
+                    <option>Coffee</option>
+                    <option>Shaah</option>
                 </select>
             </div>
-            <input id="foodImg" type="text" placeholder="Sawirka (URL ama Upload)" class="w-full p-4 bg-gray-50 rounded-2xl outline-none">
-            <label class="block w-full bg-blue-50 text-blue-600 p-4 rounded-2xl border-dashed border border-blue-200 text-center cursor-pointer">
-                <i class="fas fa-upload mr-2"></i> Upload Sawir
+            <input id="foodImg" type="text" placeholder="Sawirka (URL)" class="w-full p-4 bg-gray-50 rounded-2xl outline-none">
+            <label class="block w-full bg-blue-50 text-blue-600 p-4 rounded-2xl border-dashed border border-blue-200 text-center cursor-pointer hover:bg-blue-100 transition">
+                <i class="fas fa-upload mr-2"></i> <span id="uploadTxt">Upload Sawir</span>
                 <input type="file" class="hidden" onchange="uploadToInput(this)">
             </label>
-            <button id="saveBtn" onclick="saveData()" class="w-full bg-green-500 text-white p-5 rounded-2xl font-black shadow-lg">KEYDI XOGTA</button>
+            <button id="saveBtn" onclick="saveData()" class="w-full bg-green-500 text-white p-5 rounded-2xl font-black shadow-lg active:scale-95 transition">KEYDI XOGTA</button>
         </div>
 
         <div class="bg-white p-6 rounded-[2rem]">
             <input type="text" id="adminSearch" oninput="renderAdmin()" placeholder="Raadi halkan..." class="w-full mb-4 p-3 bg-gray-50 rounded-xl outline-none border">
-            <div id="admin-list" class="space-y-3 text-center text-gray-400 italic">Soo ridaybaa...</div>
+            <div id="admin-list" class="space-y-3">
+                <p class="text-center text-gray-400 italic">Xogta waa la soo ridaybaa...</p>
+            </div>
         </div>
     </div>
 
     <script>
-        const API = "https://script.google.com/macros/s/AKfycbzN7tYUEMrPtYhRXZwt0z5--8vUKL1Gl35Ixa8WWzesIbReJUa2f9aZWjZF7Gu3iQYH/exec";
+        const API = "https://script.google.com/macros/s/AKfycbwCkKbke23xP8XwFUrh43pnKRU8EfimCScRzC6zrxTQ3mU-GuGrv3rEgJrKuJbSN35G/exec";
         let menu = [];
 
         function uploadToInput(input) {
-            const reader = new FileReader();
-            reader.onload = e => { document.getElementById('foodImg').value = e.target.result; };
-            reader.readAsDataURL(input.files[0]);
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                document.getElementById('uploadTxt').innerText = "Wuu socdaa...";
+                reader.onload = e => { 
+                    document.getElementById('foodImg').value = e.target.result;
+                    document.getElementById('uploadTxt').innerText = "Sawirka waa diyaar ✅";
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
         }
 
         async function load() {
@@ -56,7 +71,7 @@
                     menu = data;
                     renderAdmin();
                 }
-            } catch(e) {}
+            } catch(e) { console.log("Sync error"); }
         }
 
         function renderAdmin() {
@@ -65,12 +80,12 @@
             const filtered = menu.filter(i => i.name.toLowerCase().includes(query));
             list.innerHTML = filtered.map(i => `
                 <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-2xl border">
-                    <img src="${i.img}" class="w-12 h-12 rounded-xl object-cover">
+                    <img src="${i.img}" class="w-12 h-12 rounded-xl object-cover shadow-sm" onerror="this.src='https://via.placeholder.com/150'">
                     <div class="flex-1 text-left">
-                        <p class="font-bold text-sm">${i.name}</p>
-                        <p class="text-[9px] text-gray-500 truncate w-32">${i.description || ''}</p>
+                        <p class="font-bold text-sm text-gray-800">${i.name}</p>
+                        <p class="text-[9px] text-gray-500 truncate w-32">${i.description || 'No description'}</p>
                     </div>
-                    <button onclick="edit('${i.id}')" class="p-2 text-blue-500"><i class="fas fa-edit"></i></button>
+                    <button onclick="edit('${i.id}')" class="p-2 text-blue-500 active:scale-90"><i class="fas fa-edit text-lg"></i></button>
                 </div>
             `).join('');
         }
@@ -87,9 +102,10 @@
                 img: document.getElementById('foodImg').value,
                 status: "visible"
             };
+            if(!payload.name || !payload.price) return alert("Fadlan buuxi magaca iyo qiimaha");
             btn.innerText = "KEYDINAYAA..."; btn.disabled = true;
             await fetch(API, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
-            setTimeout(() => { location.reload(); }, 800);
+            setTimeout(() => { location.reload(); }, 1000);
         }
 
         function edit(id) {
@@ -100,10 +116,10 @@
             document.getElementById('foodPrice').value = i.price;
             document.getElementById('foodCat').value = i.category;
             document.getElementById('foodImg').value = i.img;
-            window.scrollTo(0,0);
+            window.scrollTo({top: 0, behavior: 'smooth'});
         }
 
-        setInterval(load, 1000); // 1-sec refresh
+        setInterval(load, 1000); // 1-sec sync
         load();
     </script>
 </body>
