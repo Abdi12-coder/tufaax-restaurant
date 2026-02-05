@@ -12,6 +12,7 @@
         .fade-in { animation: fadeIn 0.4s ease-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         body { -webkit-tap-highlight-color: transparent; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
     </style>
 </head>
 <body class="bg-gray-50 pb-32">
@@ -20,7 +21,7 @@
         <div class="flex justify-between items-center max-w-4xl mx-auto">
             <div>
                 <h1 class="text-3xl font-black italic tracking-tighter">🍎 TUFAAX</h1>
-                <p id="table-label" class="text-[10px] bg-red-700 w-fit px-2 py-0.5 rounded-full mt-1 hidden"></p>
+                <p id="table-display" class="text-[10px] bg-red-700 px-3 py-1 rounded-full mt-1 font-bold hidden"></p>
             </div>
             <div class="relative bg-white p-3 rounded-2xl text-red-600 shadow-lg cursor-pointer active:scale-90 transition">
                 <i class="fas fa-shopping-basket text-xl"></i>
@@ -35,11 +36,12 @@
             <input type="text" id="custSearch" oninput="updateUI()" placeholder="Raadi cunto aad jeceshahay..." class="w-full p-4 pl-12 bg-white rounded-3xl border-none shadow-md outline-none focus:ring-2 focus:ring-red-400">
         </div>
 
-        <div class="flex space-x-3 overflow-x-auto pb-2 scrollbar-hide no-scrollbar">
+        <div class="flex space-x-3 overflow-x-auto pb-2 no-scrollbar">
             <button onclick="filterCategory('Dhammaan', this)" class="category-btn active px-6 py-2 rounded-full font-bold bg-white border whitespace-nowrap shadow-sm transition">Dhammaan</button>
             <button onclick="filterCategory('Quraac', this)" class="category-btn px-6 py-2 rounded-full font-bold bg-white border whitespace-nowrap shadow-sm transition">Quraac</button>
             <button onclick="filterCategory('Qado', this)" class="category-btn px-6 py-2 rounded-full font-bold bg-white border whitespace-nowrap shadow-sm transition">Qado</button>
             <button onclick="filterCategory('Casho', this)" class="category-btn px-6 py-2 rounded-full font-bold bg-white border whitespace-nowrap shadow-sm transition">Casho</button>
+            <button onclick="filterCategory('Cabitaan', this)" class="category-btn px-6 py-2 rounded-full font-bold bg-white border whitespace-nowrap shadow-sm transition">Cabitaan</button>
         </div>
 
         <div id="loading-state" class="text-center py-20 text-gray-400">
@@ -67,12 +69,12 @@
         let menuData = JSON.parse(localStorage.getItem('tufaax_cache')) || [];
         let cart = [];
 
-        // Hel Table ID-ga URL-ka (e.g., ?table=1)
+        // 3. TABLE ID DETECTION
         const urlParams = new URLSearchParams(window.location.search);
         const tableId = urlParams.get('table');
         if(tableId) {
-            document.getElementById('table-label').innerText = `Miiska: ${tableId}`;
-            document.getElementById('table-label').classList.remove('hidden');
+            document.getElementById('table-display').innerText = `📍 Miiska: ${tableId}`;
+            document.getElementById('table-display').classList.remove('hidden');
         }
 
         async function loadMenu() {
@@ -80,22 +82,23 @@
                 const res = await fetch(GOOGLE_URL);
                 const data = await res.json();
                 const filtered = data.filter(item => String(item.id) && item.status !== 'hidden');
+                
                 if(JSON.stringify(filtered) !== JSON.stringify(menuData)) {
                     menuData = filtered;
                     localStorage.setItem('tufaax_cache', JSON.stringify(menuData));
                     updateUI();
                 }
                 document.getElementById('loading-state').style.display = 'none';
-            } catch (e) { console.error("Update failed"); }
+            } catch (e) { console.error("Live update failed"); }
         }
 
         function updateUI() {
             const container = document.getElementById('menu-items');
-            const searchQuery = document.getElementById('custSearch').value.toLowerCase();
+            const query = document.getElementById('custSearch').value.toLowerCase();
             const activeBtn = document.querySelector('.category-btn.active');
             const cat = activeBtn ? activeBtn.innerText : 'Dhammaan';
             
-            let filtered = menuData.filter(i => i.name.toLowerCase().includes(searchQuery));
+            let filtered = menuData.filter(i => (i.name || '').toLowerCase().includes(query));
             if(cat !== 'Dhammaan') filtered = filtered.filter(i => i.category === cat);
 
             container.innerHTML = filtered.map(item => {
@@ -144,10 +147,15 @@
 
         function checkoutWhatsApp() {
             const phone = "252617054480"; 
-            let msg = "DALAB CUSUB 🍎%0A";
-            if(tableId) msg += `%0A📍 Miiska: ${tableId}%0A`;
-            msg += "--------------------------%0A";
+            let msg = "DALAB CUSUB 🍎%0A%0A";
             
+            // 3. WHATSAPP TABLE FORMAT
+            if(tableId) {
+                msg += `📍 Miiska: ${tableId}%0A--------------------------%0A`;
+            } else {
+                msg += "📍 Miiska: Aan la aqoon%0A--------------------------%0A";
+            }
+
             const itemsGrouped = cart.reduce((acc, item) => {
                 acc[item.name] = (acc[item.name] || 0) + 1;
                 return acc;
@@ -158,12 +166,11 @@
             }
 
             const total = cart.reduce((sum, i) => sum + i.price, 0);
-            msg += "--------------------------%0A";
-            msg += `💰 Wadarta: $${total.toFixed(2)}%0A%0AFadlan si degdeg ah ii diyaariya!`;
+            msg += `--------------------------%0A💰 Wadarta: $${total.toFixed(2)}%0A%0AFadlan si degdeg ah ii diyaariya!`;
             window.open(`https://wa.me/${phone}?text=${msg}`);
         }
 
-        setInterval(loadMenu, 3000);
+        setInterval(loadMenu, 1000);
         if(menuData.length > 0) {
             document.getElementById('loading-state').style.display = 'none';
             updateUI();
