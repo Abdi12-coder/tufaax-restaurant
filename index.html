@@ -18,7 +18,10 @@
 
     <header class="bg-red-600 text-white p-6 rounded-b-[3rem] sticky top-0 z-50 shadow-xl">
         <div class="flex justify-between items-center max-w-4xl mx-auto">
-            <h1 class="text-3xl font-black italic tracking-tighter">🍎 TUFAAX</h1>
+            <div>
+                <h1 class="text-3xl font-black italic tracking-tighter">🍎 TUFAAX</h1>
+                <p id="table-label" class="text-[10px] bg-red-700 w-fit px-2 py-0.5 rounded-full mt-1 hidden"></p>
+            </div>
             <div class="relative bg-white p-3 rounded-2xl text-red-600 shadow-lg cursor-pointer active:scale-90 transition">
                 <i class="fas fa-shopping-basket text-xl"></i>
                 <span id="cart-count" class="cart-badge bg-yellow-400 text-black font-black px-2 py-0.5 rounded-full border-2 border-white">0</span>
@@ -27,12 +30,16 @@
     </header>
 
     <main class="p-4 max-w-4xl mx-auto space-y-6">
+        <div class="relative">
+            <i class="fas fa-search absolute left-4 top-4 text-gray-400"></i>
+            <input type="text" id="custSearch" oninput="updateUI()" placeholder="Raadi cunto aad jeceshahay..." class="w-full p-4 pl-12 bg-white rounded-3xl border-none shadow-md outline-none focus:ring-2 focus:ring-red-400">
+        </div>
+
         <div class="flex space-x-3 overflow-x-auto pb-2 scrollbar-hide no-scrollbar">
             <button onclick="filterCategory('Dhammaan', this)" class="category-btn active px-6 py-2 rounded-full font-bold bg-white border whitespace-nowrap shadow-sm transition">Dhammaan</button>
             <button onclick="filterCategory('Quraac', this)" class="category-btn px-6 py-2 rounded-full font-bold bg-white border whitespace-nowrap shadow-sm transition">Quraac</button>
             <button onclick="filterCategory('Qado', this)" class="category-btn px-6 py-2 rounded-full font-bold bg-white border whitespace-nowrap shadow-sm transition">Qado</button>
             <button onclick="filterCategory('Casho', this)" class="category-btn px-6 py-2 rounded-full font-bold bg-white border whitespace-nowrap shadow-sm transition">Casho</button>
-            <button onclick="filterCategory('Cabitaan', this)" class="category-btn px-6 py-2 rounded-full font-bold bg-white border whitespace-nowrap shadow-sm transition">Cabitaan</button>
         </div>
 
         <div id="loading-state" class="text-center py-20 text-gray-400">
@@ -60,31 +67,36 @@
         let menuData = JSON.parse(localStorage.getItem('tufaax_cache')) || [];
         let cart = [];
 
+        // Hel Table ID-ga URL-ka (e.g., ?table=1)
+        const urlParams = new URLSearchParams(window.location.search);
+        const tableId = urlParams.get('table');
+        if(tableId) {
+            document.getElementById('table-label').innerText = `Miiska: ${tableId}`;
+            document.getElementById('table-label').classList.remove('hidden');
+        }
+
         async function loadMenu() {
             try {
                 const res = await fetch(GOOGLE_URL);
                 const data = await res.json();
                 const filtered = data.filter(item => String(item.id) && item.status !== 'hidden');
-                
-                // NO WHITE FADE: Kaliya UI-ga cusboonaysii haddii xogta server-ka ay ka duwan tahay tan cache-ka
                 if(JSON.stringify(filtered) !== JSON.stringify(menuData)) {
                     menuData = filtered;
                     localStorage.setItem('tufaax_cache', JSON.stringify(menuData));
                     updateUI();
                 }
                 document.getElementById('loading-state').style.display = 'none';
-            } catch (e) {
-                console.error("Live update failed");
-            }
+            } catch (e) { console.error("Update failed"); }
         }
 
         function updateUI() {
             const container = document.getElementById('menu-items');
+            const searchQuery = document.getElementById('custSearch').value.toLowerCase();
             const activeBtn = document.querySelector('.category-btn.active');
             const cat = activeBtn ? activeBtn.innerText : 'Dhammaan';
             
-            let filtered = menuData;
-            if(cat !== 'Dhammaan') filtered = menuData.filter(i => i.category === cat);
+            let filtered = menuData.filter(i => i.name.toLowerCase().includes(searchQuery));
+            if(cat !== 'Dhammaan') filtered = filtered.filter(i => i.category === cat);
 
             container.innerHTML = filtered.map(item => {
                 const count = cart.filter(c => String(c.id) === String(item.id)).length;
@@ -102,7 +114,6 @@
                     </div>
                 </div>`;
             }).join('');
-
             updateCartSummary();
         }
 
@@ -133,24 +144,26 @@
 
         function checkoutWhatsApp() {
             const phone = "252617054480"; 
-            let msg = "🛒 *DALAB CUSUB (TUFAAX)*%0A%0A";
+            let msg = "DALAB CUSUB 🍎%0A";
+            if(tableId) msg += `%0A📍 Miiska: ${tableId}%0A`;
+            msg += "--------------------------%0A";
+            
             const itemsGrouped = cart.reduce((acc, item) => {
                 acc[item.name] = (acc[item.name] || 0) + 1;
                 return acc;
             }, {});
 
             for (const [name, qty] of Object.entries(itemsGrouped)) {
-                msg += `▪️ ${qty}x ${name}%0A`;
+                msg += `* ${qty}x ${name}%0A`;
             }
 
             const total = cart.reduce((sum, i) => sum + i.price, 0);
-            msg += `%0A💰 *Wadarta: $${total.toFixed(2)}*`;
+            msg += "--------------------------%0A";
+            msg += `💰 Wadarta: $${total.toFixed(2)}%0A%0AFadlan si degdeg ah ii diyaariya!`;
             window.open(`https://wa.me/${phone}?text=${msg}`);
         }
 
-        // Automatic Refresh (1 second) - Silent
-        setInterval(loadMenu, 1000);
-        
+        setInterval(loadMenu, 3000);
         if(menuData.length > 0) {
             document.getElementById('loading-state').style.display = 'none';
             updateUI();
@@ -159,4 +172,3 @@
     </script>
 </body>
 </html>
-
