@@ -12,6 +12,7 @@
         .fade-in { animation: fadeIn 0.4s ease-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         body { -webkit-tap-highlight-color: transparent; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
     </style>
 </head>
 <body class="bg-gray-50 pb-32">
@@ -35,12 +36,15 @@
             <input type="text" id="custSearch" oninput="updateUI()" placeholder="Raadi cuntada aad rabto..." class="w-full outline-none bg-transparent">
         </div>
 
-        <div class="flex space-x-3 overflow-x-auto pb-2 scrollbar-hide no-scrollbar">
+        <div class="flex space-x-3 overflow-x-auto pb-2 no-scrollbar">
             <button onclick="filterCategory('Dhammaan', this)" class="category-btn active px-6 py-2 rounded-full font-bold bg-white border whitespace-nowrap shadow-sm transition">Dhammaan</button>
             <button onclick="filterCategory('Quraac', this)" class="category-btn px-6 py-2 rounded-full font-bold bg-white border whitespace-nowrap shadow-sm transition">Quraac</button>
             <button onclick="filterCategory('Qado', this)" class="category-btn px-6 py-2 rounded-full font-bold bg-white border whitespace-nowrap shadow-sm transition">Qado</button>
             <button onclick="filterCategory('Casho', this)" class="category-btn px-6 py-2 rounded-full font-bold bg-white border whitespace-nowrap shadow-sm transition">Casho</button>
             <button onclick="filterCategory('Cabitaan', this)" class="category-btn px-6 py-2 rounded-full font-bold bg-white border whitespace-nowrap shadow-sm transition">Cabitaan</button>
+            <button onclick="filterCategory('Macmacaan', this)" class="category-btn px-6 py-2 rounded-full font-bold bg-white border whitespace-nowrap shadow-sm transition">Macmacaan</button>
+            <button onclick="filterCategory('Coffee', this)" class="category-btn px-6 py-2 rounded-full font-bold bg-white border whitespace-nowrap shadow-sm transition">Coffee</button>
+            <button onclick="filterCategory('Shaah', this)" class="category-btn px-6 py-2 rounded-full font-bold bg-white border whitespace-nowrap shadow-sm transition">Shaah</button>
         </div>
 
         <div id="loading-state" class="text-center py-20 text-gray-400">
@@ -68,7 +72,6 @@
         let menuData = JSON.parse(localStorage.getItem('tufaax_cache')) || [];
         let cart = [];
 
-        // GET TABLE ID FROM URL
         const urlParams = new URLSearchParams(window.location.search);
         const tableId = urlParams.get('table') || "Lama aqoon";
         if(urlParams.has('table')) {
@@ -82,16 +85,13 @@
                 const res = await fetch(GOOGLE_URL);
                 const data = await res.json();
                 const filtered = data.filter(item => String(item.id) && item.status !== 'hidden');
-                
                 if(JSON.stringify(filtered) !== JSON.stringify(menuData)) {
                     menuData = filtered;
                     localStorage.setItem('tufaax_cache', JSON.stringify(menuData));
                     updateUI();
                 }
                 document.getElementById('loading-state').style.display = 'none';
-            } catch (e) {
-                console.error("Live update failed");
-            }
+            } catch (e) { console.error("Live update failed"); }
         }
 
         function updateUI() {
@@ -99,20 +99,18 @@
             const activeBtn = document.querySelector('.category-btn.active');
             const cat = activeBtn ? activeBtn.innerText : 'Dhammaan';
             const searchTerm = document.getElementById('custSearch').value.toLowerCase();
-            
             let filtered = menuData;
             if(cat !== 'Dhammaan') filtered = menuData.filter(i => i.category === cat);
-            
-            // Search filter
             filtered = filtered.filter(item => item.name.toLowerCase().includes(searchTerm));
 
             container.innerHTML = filtered.map(item => {
                 const count = cart.filter(c => String(c.id) === String(item.id)).length;
                 return `
                 <div class="bg-white rounded-[2rem] overflow-hidden shadow-sm border border-gray-100 p-3 flex flex-col transition-all active:shadow-md">
-                    <img src="${item.img}" class="w-full h-36 object-cover rounded-[1.5rem] mb-3" onerror="this.src='https://via.placeholder.com/150'">
+                    <img src="${item.img}" class="w-full h-36 object-cover rounded-[1.5rem] mb-2" onerror="this.src='https://via.placeholder.com/150'">
                     <h3 class="font-black text-gray-800 text-sm truncate px-1">${item.name}</h3>
-                    <div class="mt-auto flex justify-between items-center pt-3">
+                    <p class="text-[10px] text-gray-400 px-1 line-clamp-2 mb-2 leading-tight">${item.desc || 'Ma lahan faahfaahin'}</p>
+                    <div class="mt-auto flex justify-between items-center pt-2">
                         <span class="text-red-600 font-black text-lg">$${parseFloat(item.price || 0).toFixed(2)}</span>
                         <div class="flex items-center gap-2 bg-gray-50 p-1 rounded-xl">
                             <button onclick="removeFromCart('${item.id}')" class="w-8 h-8 bg-white border rounded-lg font-black active:scale-90 transition">-</button>
@@ -122,7 +120,6 @@
                     </div>
                 </div>`;
             }).join('');
-
             updateCartSummary();
         }
 
@@ -156,30 +153,22 @@
             let msg = "DALAB CUSUB 🍎%0A%0A";
             msg += `📍 Miiska: ${tableId}%0A`;
             msg += "--------------------------%0A";
-            
             const itemsGrouped = cart.reduce((acc, item) => {
                 acc[item.name] = (acc[item.name] || 0) + 1;
                 return acc;
             }, {});
-
             for (const [name, qty] of Object.entries(itemsGrouped)) {
                 msg += `* ${qty}x ${name}%0A`;
             }
-
             const total = cart.reduce((sum, i) => sum + i.price, 0);
             msg += "--------------------------%0A";
             msg += `💰 Warta: $${total.toFixed(2)}%0A%0A`;
             msg += "Fadlan si degdeg ah ii diyaariya!";
-            
             window.open(`https://wa.me/${phone}?text=${msg}`);
         }
 
         setInterval(loadMenu, 1000);
-        
-        if(menuData.length > 0) {
-            document.getElementById('loading-state').style.display = 'none';
-            updateUI();
-        }
+        if(menuData.length > 0) { document.getElementById('loading-state').style.display = 'none'; updateUI(); }
         loadMenu();
     </script>
 </body>
