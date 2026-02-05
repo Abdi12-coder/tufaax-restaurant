@@ -3,76 +3,187 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tufaax - Digital Menu</title>
+    <title>Tufaax Restaurant - Menu</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        .category-btn.active { background-color: #dc2626; color: white; border-color: #dc2626; }
+        .cart-badge { position: absolute; top: -5px; right: -5px; font-size: 10px; }
+        .category-btn.active { background-color: #dc2626; color: white; border-color: #dc2626; transform: scale(1.05); }
+        .fade-in { animation: fadeIn 0.4s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        body { -webkit-tap-highlight-color: transparent; font-family: 'Inter', sans-serif; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .glass-effect { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px); }
     </style>
 </head>
 <body class="bg-gray-50 pb-32">
-    <header class="bg-red-600 text-white p-6 rounded-b-[3rem] sticky top-0 z-50 shadow-xl">
-        <h1 class="text-3xl font-black italic text-center">🍎 TUFAAX</h1>
+
+    <header class="bg-red-600 text-white p-6 rounded-b-[3rem] sticky top-0 z-50 shadow-2xl">
+        <div class="flex justify-between items-center max-w-4xl mx-auto">
+            <div>
+                <h1 class="text-3xl font-black italic tracking-tighter">🍎 TUFAAX</h1>
+                <p id="display-table" class="text-[10px] font-bold bg-black/20 px-3 py-1 rounded-full mt-1 hidden w-fit"></p>
+            </div>
+            <div class="relative bg-white p-3 rounded-2xl text-red-600 shadow-lg cursor-pointer active:scale-90 transition">
+                <i class="fas fa-shopping-basket text-xl"></i>
+                <span id="cart-count" class="cart-badge bg-yellow-400 text-black font-black px-2 py-0.5 rounded-full border-2 border-white">0</span>
+            </div>
+        </div>
     </header>
 
     <main class="p-4 max-w-4xl mx-auto space-y-6">
-        <div class="flex space-x-3 overflow-x-auto pb-2 no-scrollbar">
-            <button onclick="filterCategory('Dhammaan', this)" class="category-btn active px-6 py-2 rounded-full font-bold bg-white border whitespace-nowrap">Dhammaan</button>
-            <button onclick="filterCategory('Quraac', this)" class="category-btn px-6 py-2 rounded-full font-bold bg-white border whitespace-nowrap">Quraac</button>
-            <button onclick="filterCategory('Qado', this)" class="category-btn px-6 py-2 rounded-full font-bold bg-white border whitespace-nowrap">Qado</button>
-            <button onclick="filterCategory('Casho', this)" class="category-btn px-6 py-2 rounded-full font-bold bg-white border whitespace-nowrap">Casho</button>
-            <button onclick="filterCategory('Coffee', this)" class="category-btn px-6 py-2 rounded-full font-bold bg-white border whitespace-nowrap">Coffee</button>
-            <button onclick="filterCategory('Shaah', this)" class="category-btn px-6 py-2 rounded-full font-bold bg-white border whitespace-nowrap">Shaah</button>
-            <button onclick="filterCategory('Cabitaan', this)" class="category-btn px-6 py-2 rounded-full font-bold bg-white border whitespace-nowrap">Cabitaan</button>
+        
+        <div class="bg-white p-3 rounded-2xl shadow-sm border border-gray-100 flex items-center px-4">
+            <i class="fas fa-search text-gray-400 mr-2"></i>
+            <input type="text" id="custSearch" oninput="updateUI()" placeholder="Raadi cuntada aad rabto..." class="w-full outline-none bg-transparent text-sm">
         </div>
 
-        <div id="menu-items" class="grid grid-cols-2 md:grid-cols-3 gap-4"></div>
+        <div class="flex space-x-3 overflow-x-auto pb-2 no-scrollbar">
+            <button onclick="filterCategory('Dhammaan', this)" class="category-btn active px-6 py-2 rounded-full font-bold bg-white border whitespace-nowrap shadow-sm transition">Dhammaan</button>
+            <button onclick="filterCategory('Quraac', this)" class="category-btn px-6 py-2 rounded-full font-bold bg-white border whitespace-nowrap shadow-sm transition">Quraac</button>
+            <button onclick="filterCategory('Qado', this)" class="category-btn px-6 py-2 rounded-full font-bold bg-white border whitespace-nowrap shadow-sm transition">Qado</button>
+            <button onclick="filterCategory('Casho', this)" class="category-btn px-6 py-2 rounded-full font-bold bg-white border whitespace-nowrap shadow-sm transition">Casho</button>
+            <button onclick="filterCategory('Coffee', this)" class="category-btn px-6 py-2 rounded-full font-bold bg-white border whitespace-nowrap shadow-sm transition">Coffee</button>
+            <button onclick="filterCategory('Shaah', this)" class="category-btn px-6 py-2 rounded-full font-bold bg-white border whitespace-nowrap shadow-sm transition">Shaah</button>
+            <button onclick="filterCategory('Cabitaan', this)" class="category-btn px-6 py-2 rounded-full font-bold bg-white border whitespace-nowrap shadow-sm transition">Cabitaan</button>
+            <button onclick="filterCategory('Macmacaan', this)" class="category-btn px-6 py-2 rounded-full font-bold bg-white border whitespace-nowrap shadow-sm transition">Macmacaan</button>
+        </div>
+
+        <div id="menu-items" class="grid grid-cols-2 md:grid-cols-3 gap-4">
+            </div>
+
     </main>
 
+    <div id="checkout-bar" class="fixed bottom-0 left-0 right-0 p-5 glass-effect border-t shadow-2xl hidden z-50 rounded-t-[2.5rem] fade-in">
+        <div class="max-w-4xl mx-auto flex justify-between items-center">
+            <div>
+                <p class="text-gray-400 text-[10px] font-black uppercase">Wadarta Guud</p>
+                <p id="total-price" class="text-2xl font-black text-red-600">$0.00</p>
+            </div>
+            <button onclick="checkoutWhatsApp()" class="bg-green-500 text-white px-10 py-4 rounded-2xl font-black shadow-lg active:scale-95 transition flex items-center gap-2">
+                <i class="fab fa-whatsapp text-xl"></i> DALBO
+            </button>
+        </div>
+    </div>
+
     <script>
-        const GOOGLE_URL = "https://script.google.com/macros/s/AKfycbwk9qt-H6s3vk9x58YxfXoDtVl_14nnkL4G6ghoohIFu0RB0pBoCI6_ewOGCw473ZXP/exec";
-        let menuData = [];
+        const GOOGLE_URL = "https://script.google.com/macros/s/AKfycbwk9qt-H6s3vk9x58YxfXoDtVl_14nnkL4G6ghoohIFu0RB0pBoCI6_ewOGCw473ZXP/exec"; 
+        let menuData = JSON.parse(localStorage.getItem('tufaax_cache')) || [];
+        let cart = [];
+
+        // TABLE ID HANDLING
+        const urlParams = new URLSearchParams(window.location.search);
+        const tableId = urlParams.get('table') || "Lama aqoon";
+        if(urlParams.has('table')) {
+            const display = document.getElementById('display-table');
+            display.innerText = "📍 Miiska: " + tableId;
+            display.classList.remove('hidden');
+        }
 
         async function loadMenu() {
             try {
                 const res = await fetch(GOOGLE_URL);
                 const data = await res.json();
-                menuData = data.filter(i => i.status !== 'hidden');
-                updateUI();
-            } catch (e) {}
+                // Kaliya tus cuntooyinka aan ahayn 'hidden'
+                const filtered = data.filter(item => item.status !== 'hidden');
+                
+                if(JSON.stringify(filtered) !== JSON.stringify(menuData)) {
+                    menuData = filtered;
+                    localStorage.setItem('tufaax_cache', JSON.stringify(menuData));
+                    updateUI();
+                }
+            } catch (e) { console.error("Update failed"); }
         }
 
         function updateUI() {
             const container = document.getElementById('menu-items');
-            const cat = document.querySelector('.category-btn.active').innerText;
+            const activeBtn = document.querySelector('.category-btn.active');
+            const cat = activeBtn ? activeBtn.innerText : 'Dhammaan';
+            const searchTerm = document.getElementById('custSearch').value.toLowerCase();
             
             let filtered = menuData;
             if(cat !== 'Dhammaan') filtered = menuData.filter(i => i.category === cat);
+            filtered = filtered.filter(item => item.name.toLowerCase().includes(searchTerm));
 
-            container.innerHTML = filtered.map(item => `
-                <div class="bg-white rounded-[2rem] p-3 shadow-sm border border-gray-100 flex flex-col">
-                    <img src="${item.img}" class="w-full h-32 object-cover rounded-[1.5rem] mb-2">
-                    <h3 class="font-black text-gray-800 text-xs truncate px-1">${item.name}</h3>
+            container.innerHTML = filtered.map(item => {
+                const count = cart.filter(c => String(c.id) === String(item.id)).length;
+                return `
+                <div class="bg-white rounded-[2rem] overflow-hidden shadow-sm border border-gray-100 p-3 flex flex-col transition-all active:shadow-md fade-in">
+                    <img src="${item.img}" class="w-full h-36 object-cover rounded-[1.5rem] mb-3 bg-gray-100" onerror="this.src='https://via.placeholder.com/150?text=No+Image'">
                     
-                    <p class="text-[10px] text-gray-400 line-clamp-2 px-1 mb-2 leading-tight h-6">
-                        ${item.description || 'Macaan oo nadiif ah'}
+                    <h3 class="font-black text-gray-800 text-sm truncate px-1 uppercase">${item.name}</h3>
+                    
+                    <p class="text-[10px] text-gray-400 line-clamp-2 px-1 mb-2 leading-tight h-6 italic">
+                        ${item.description || 'Nadiif iyo dhadhan macaan'}
                     </p>
 
-                    <div class="mt-auto flex justify-between items-center">
-                        <span class="text-red-600 font-black">$${parseFloat(item.price).toFixed(2)}</span>
-                        <button class="bg-red-600 text-white w-8 h-8 rounded-lg font-black">+</button>
+                    <div class="mt-auto flex justify-between items-center pt-2">
+                        <span class="text-red-600 font-black text-lg">$${parseFloat(item.price || 0).toFixed(2)}</span>
+                        <div class="flex items-center gap-2 bg-gray-50 p-1 rounded-xl">
+                            <button onclick="removeFromCart('${item.id}')" class="w-8 h-8 bg-white border rounded-lg font-black active:scale-90 transition text-gray-400">-</button>
+                            <span class="text-xs font-black w-4 text-center">${count}</span>
+                            <button onclick="addToCart('${item.id}')" class="w-8 h-8 bg-red-600 text-white rounded-lg font-black active:scale-90 transition shadow-sm">+</button>
+                        </div>
                     </div>
-                </div>
-            `).join('');
+                </div>`;
+            }).join('');
+            
+            updateCartSummary();
+        }
+
+        function updateCartSummary() {
+            document.getElementById('cart-count').innerText = cart.length;
+            const total = cart.reduce((sum, i) => sum + i.price, 0);
+            document.getElementById('total-price').innerText = `$${total.toFixed(2)}`;
+            document.getElementById('checkout-bar').classList.toggle('hidden', cart.length === 0);
+        }
+
+        function addToCart(id) {
+            const item = menuData.find(m => String(m.id) === String(id));
+            if(item) cart.push({ id: item.id, name: item.name, price: parseFloat(item.price) });
+            updateUI();
+        }
+
+        function removeFromCart(id) {
+            const idx = cart.findLastIndex(c => String(c.id) === String(id));
+            if(idx > -1) cart.splice(idx, 1);
+            updateUI();
         }
 
         function filterCategory(cat, btn) {
             document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active'); updateUI();
+            btn.classList.add('active');
+            updateUI();
         }
 
-        setInterval(loadMenu, 500); 
+        function checkoutWhatsApp() {
+            const phone = "252617054480"; 
+            let msg = "🍎 *DALAB CUSUB - TUFAAX*%0A%0A";
+            msg += `📍 *Miiska:* ${tableId}%0A`;
+            msg += "--------------------------%0A";
+            
+            const itemsGrouped = cart.reduce((acc, item) => {
+                acc[item.name] = (acc[item.name] || 0) + 1;
+                return acc;
+            }, {});
+
+            for (const [name, qty] of Object.entries(itemsGrouped)) {
+                msg += `✅ ${qty}x ${name}%0A`;
+            }
+
+            const total = cart.reduce((sum, i) => sum + i.price, 0);
+            msg += "--------------------------%0A";
+            msg += `💰 *Wadarta Guud:* $${total.toFixed(2)}%0A%0A`;
+            msg += "Fadlan iisoo diyaariya si deg-deg ah!";
+            
+            window.open(`https://wa.me/${phone}?text=${msg}`);
+        }
+
+        // Auto Refresh 0.5 sec si ay xogtu live ugu dhex jirto
+        setInterval(loadMenu, 500);
+        
+        if(menuData.length > 0) updateUI();
         loadMenu();
     </script>
 </body>
