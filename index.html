@@ -12,7 +12,6 @@
         .fade-in { animation: fadeIn 0.4s ease-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         body { -webkit-tap-highlight-color: transparent; }
-        .no-scrollbar::-webkit-scrollbar { display: none; }
     </style>
 </head>
 <body class="bg-gray-50 pb-32">
@@ -21,7 +20,7 @@
         <div class="flex justify-between items-center max-w-4xl mx-auto">
             <div>
                 <h1 class="text-3xl font-black italic tracking-tighter">🍎 TUFAAX</h1>
-                <p id="table-display" class="text-[10px] bg-red-700 px-3 py-1 rounded-full mt-1 font-bold hidden"></p>
+                <p id="display-table" class="text-xs font-bold bg-black/20 px-2 py-1 rounded-lg mt-1 hidden"></p>
             </div>
             <div class="relative bg-white p-3 rounded-2xl text-red-600 shadow-lg cursor-pointer active:scale-90 transition">
                 <i class="fas fa-shopping-basket text-xl"></i>
@@ -31,12 +30,12 @@
     </header>
 
     <main class="p-4 max-w-4xl mx-auto space-y-6">
-        <div class="relative">
-            <i class="fas fa-search absolute left-4 top-4 text-gray-400"></i>
-            <input type="text" id="custSearch" oninput="updateUI()" placeholder="Raadi cunto aad jeceshahay..." class="w-full p-4 pl-12 bg-white rounded-3xl border-none shadow-md outline-none focus:ring-2 focus:ring-red-400">
+        <div class="bg-white p-3 rounded-2xl shadow-sm border border-gray-100 flex items-center px-4">
+            <i class="fas fa-search text-gray-400 mr-2"></i>
+            <input type="text" id="custSearch" oninput="updateUI()" placeholder="Raadi cuntada aad rabto..." class="w-full outline-none bg-transparent">
         </div>
 
-        <div class="flex space-x-3 overflow-x-auto pb-2 no-scrollbar">
+        <div class="flex space-x-3 overflow-x-auto pb-2 scrollbar-hide no-scrollbar">
             <button onclick="filterCategory('Dhammaan', this)" class="category-btn active px-6 py-2 rounded-full font-bold bg-white border whitespace-nowrap shadow-sm transition">Dhammaan</button>
             <button onclick="filterCategory('Quraac', this)" class="category-btn px-6 py-2 rounded-full font-bold bg-white border whitespace-nowrap shadow-sm transition">Quraac</button>
             <button onclick="filterCategory('Qado', this)" class="category-btn px-6 py-2 rounded-full font-bold bg-white border whitespace-nowrap shadow-sm transition">Qado</button>
@@ -69,12 +68,13 @@
         let menuData = JSON.parse(localStorage.getItem('tufaax_cache')) || [];
         let cart = [];
 
-        // 3. TABLE ID DETECTION
+        // GET TABLE ID FROM URL
         const urlParams = new URLSearchParams(window.location.search);
-        const tableId = urlParams.get('table');
-        if(tableId) {
-            document.getElementById('table-display').innerText = `📍 Miiska: ${tableId}`;
-            document.getElementById('table-display').classList.remove('hidden');
+        const tableId = urlParams.get('table') || "Lama aqoon";
+        if(urlParams.has('table')) {
+            const display = document.getElementById('display-table');
+            display.innerText = "📍 Miiska: " + tableId;
+            display.classList.remove('hidden');
         }
 
         async function loadMenu() {
@@ -89,17 +89,22 @@
                     updateUI();
                 }
                 document.getElementById('loading-state').style.display = 'none';
-            } catch (e) { console.error("Live update failed"); }
+            } catch (e) {
+                console.error("Live update failed");
+            }
         }
 
         function updateUI() {
             const container = document.getElementById('menu-items');
-            const query = document.getElementById('custSearch').value.toLowerCase();
             const activeBtn = document.querySelector('.category-btn.active');
             const cat = activeBtn ? activeBtn.innerText : 'Dhammaan';
+            const searchTerm = document.getElementById('custSearch').value.toLowerCase();
             
-            let filtered = menuData.filter(i => (i.name || '').toLowerCase().includes(query));
-            if(cat !== 'Dhammaan') filtered = filtered.filter(i => i.category === cat);
+            let filtered = menuData;
+            if(cat !== 'Dhammaan') filtered = menuData.filter(i => i.category === cat);
+            
+            // Search filter
+            filtered = filtered.filter(item => item.name.toLowerCase().includes(searchTerm));
 
             container.innerHTML = filtered.map(item => {
                 const count = cart.filter(c => String(c.id) === String(item.id)).length;
@@ -117,6 +122,7 @@
                     </div>
                 </div>`;
             }).join('');
+
             updateCartSummary();
         }
 
@@ -148,14 +154,9 @@
         function checkoutWhatsApp() {
             const phone = "252617054480"; 
             let msg = "DALAB CUSUB 🍎%0A%0A";
+            msg += `📍 Miiska: ${tableId}%0A`;
+            msg += "--------------------------%0A";
             
-            // 3. WHATSAPP TABLE FORMAT
-            if(tableId) {
-                msg += `📍 Miiska: ${tableId}%0A--------------------------%0A`;
-            } else {
-                msg += "📍 Miiska: Aan la aqoon%0A--------------------------%0A";
-            }
-
             const itemsGrouped = cart.reduce((acc, item) => {
                 acc[item.name] = (acc[item.name] || 0) + 1;
                 return acc;
@@ -166,11 +167,15 @@
             }
 
             const total = cart.reduce((sum, i) => sum + i.price, 0);
-            msg += `--------------------------%0A💰 Wadarta: $${total.toFixed(2)}%0A%0AFadlan si degdeg ah ii diyaariya!`;
+            msg += "--------------------------%0A";
+            msg += `💰 Warta: $${total.toFixed(2)}%0A%0A`;
+            msg += "Fadlan si degdeg ah ii diyaariya!";
+            
             window.open(`https://wa.me/${phone}?text=${msg}`);
         }
 
         setInterval(loadMenu, 1000);
+        
         if(menuData.length > 0) {
             document.getElementById('loading-state').style.display = 'none';
             updateUI();
