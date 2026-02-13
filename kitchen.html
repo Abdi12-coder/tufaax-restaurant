@@ -10,24 +10,33 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
         /* Responsive base */
-        html { font-size: 14px; }
-        @media (min-width: 640px) { html { font-size: 15px; } }
-        @media (min-width: 1024px) { html { font-size: 16px; } }
+        html { font-size: 16px; }
+        @media (max-width: 640px) { html { font-size: 14px; } }
         
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: #f8fafc;
+            background: #f1f5f9;
+            padding: 1rem;
         }
         
-        /* Order card styles */
+        /* Kitchen header */
+        .kitchen-header {
+            background: white;
+            border-radius: 2rem;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+            border: 1px solid #e2e8f0;
+        }
+        
+        /* Order card - SIMPLE: only shows table and items */
         .order-card {
             background: white;
-            border: 1px solid #e2e8f0;
-            border-radius: 1rem;
-            padding: 1rem;
+            border-radius: 1.5rem;
+            padding: 1.5rem;
             margin-bottom: 1rem;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
-            transition: all 0.2s;
+            border-left: 8px solid #f59e0b;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
             animation: slideIn 0.3s ease-out;
         }
         
@@ -36,46 +45,107 @@
             to { opacity: 1; transform: translateY(0); }
         }
         
-        .order-card.new-order {
-            border-left: 6px solid #f59e0b;
-            background: #fffbeb;
-        }
-        
-        .order-card.completed {
-            background: #f1f5f9;
-            opacity: 0.8;
-        }
-        
-        .table-badge {
+        /* Table number - LARGE and CLEAR */
+        .table-number {
             background: #1e293b;
             color: white;
-            font-weight: 800;
-            padding: 0.5rem 1rem;
-            border-radius: 999px;
-            display: inline-flex;
+            font-size: 2.5rem;
+            font-weight: 900;
+            padding: 1rem 2rem;
+            border-radius: 2rem;
+            display: inline-block;
+            margin-bottom: 1rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        
+        /* Item list */
+        .item-row {
+            background: #f8fafc;
+            border-radius: 1rem;
+            padding: 1rem;
+            margin-bottom: 0.75rem;
+            border: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
             align-items: center;
-            gap: 0.5rem;
             font-size: 1.2rem;
         }
         
-        .item-row {
-            background: #f8fafc;
-            border-radius: 0.75rem;
-            padding: 0.75rem;
-            margin-bottom: 0.5rem;
-            border: 1px solid #e2e8f0;
+        .item-name {
+            font-weight: 600;
+            color: #1e293b;
         }
         
+        .item-quantity {
+            background: #f59e0b;
+            color: white;
+            font-weight: 800;
+            padding: 0.25rem 1rem;
+            border-radius: 2rem;
+            font-size: 1.2rem;
+        }
+        
+        /* Complete button - BIG and GREEN */
+        .complete-btn {
+            background: #10b981;
+            color: white;
+            font-weight: 800;
+            font-size: 1.3rem;
+            padding: 1rem;
+            border-radius: 2rem;
+            width: 100%;
+            margin-top: 1rem;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+        }
+        
+        .complete-btn:active {
+            transform: scale(0.98);
+            background: #059669;
+        }
+        
+        /* Stats bar */
+        .stats-bar {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+        
+        .stat-item {
+            background: white;
+            padding: 1rem 2rem;
+            border-radius: 2rem;
+            font-weight: 800;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            border: 1px solid #e2e8f0;
+            flex: 1;
+            text-align: center;
+            min-width: 120px;
+        }
+        
+        .stat-number {
+            font-size: 2rem;
+            display: block;
+            color: #f59e0b;
+        }
+        
+        /* Notification */
         .notification {
             position: fixed;
             top: 1rem;
             right: 1rem;
-            background: #f59e0b;
+            background: #10b981;
             color: white;
             padding: 1rem 2rem;
             border-radius: 999px;
             font-weight: bold;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
             z-index: 9999;
             display: none;
             animation: slideDown 0.3s ease-out;
@@ -86,27 +156,7 @@
             to { transform: translateY(0); opacity: 1; }
         }
         
-        .btn-complete {
-            background: #10b981;
-            color: white;
-            font-weight: bold;
-            padding: 0.75rem 1.5rem;
-            border-radius: 999px;
-            transition: all 0.2s;
-            width: 100%;
-        }
-        
-        .btn-complete:hover {
-            background: #059669;
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(16, 185, 129, 0.3);
-        }
-        
-        .btn-complete:active {
-            transform: translateY(0);
-        }
-        
-        /* Responsive grid */
+        /* Mobile responsive */
         .orders-grid {
             display: grid;
             grid-template-columns: 1fr;
@@ -125,223 +175,86 @@
             }
         }
         
-        /* Touch-friendly buttons */
-        button, .btn-complete {
-            min-height: 44px;
+        /* Clear button */
+        .clear-btn {
+            background: #ef4444;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 2rem;
+            font-weight: bold;
+            border: none;
             cursor: pointer;
-            -webkit-tap-highlight-color: transparent;
-        }
-        
-        /* Smooth scrolling */
-        .smooth-scroll {
-            scroll-behavior: smooth;
-            -webkit-overflow-scrolling: touch;
-        }
-        
-        /* Hide scrollbar but keep functionality */
-        .no-scrollbar::-webkit-scrollbar {
-            display: none;
-        }
-        .no-scrollbar {
-            -ms-overflow-style: none;
-            scrollbar-width: none;
-        }
-        
-        /* Kitchen header */
-        .kitchen-header {
-            background: white;
-            border-bottom: 3px solid #f59e0b;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-            position: sticky;
-            top: 0;
-            z-index: 50;
-        }
-        
-        .stats-card {
-            background: white;
-            border: 1px solid #e2e8f0;
-            border-radius: 1rem;
-            padding: 1rem;
-            text-align: center;
-        }
-        
-        .stats-number {
-            font-size: 2rem;
-            font-weight: 800;
-            line-height: 1;
         }
     </style>
 </head>
-<body class="min-h-screen bg-gray-50">
+<body>
 
-    <!-- Notification Toast -->
+    <!-- Notification -->
     <div id="notification" class="notification">
         <i class="fas fa-bell mr-2"></i>
-        <span id="notification-message">New order received!</span>
+        <span id="notification-message">New Order!</span>
     </div>
 
-    <!-- Kitchen Header -->
-    <header class="kitchen-header p-4">
-        <div class="max-w-7xl mx-auto">
-            <div class="flex flex-col sm:flex-row justify-between items-center gap-4 mb-4">
-                <div class="flex items-center gap-3">
-                    <h1 class="text-2xl sm:text-3xl font-black text-gray-800 flex items-center gap-2">
-                        <i class="fas fa-utensils text-orange-500"></i>
-                        TUFAAX KITCHEN
-                    </h1>
-                    <span class="bg-green-100 text-green-700 text-xs px-3 py-1 rounded-full font-bold flex items-center gap-1">
-                        <span class="relative flex h-2 w-2">
-                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                            <span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
-                        </span>
-                        LIVE
-                    </span>
-                </div>
-                
-                <div class="flex items-center gap-3">
-                    <button onclick="clearAllCompleted()" class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-full text-sm font-bold transition-all flex items-center gap-2">
-                        <i class="fas fa-trash-alt"></i>
-                        <span class="hidden sm:inline">Clear Completed</span>
-                    </button>
-                    <button onclick="toggleSound()" id="soundBtn" class="bg-gray-100 hover:bg-gray-200 text-gray-700 p-3 rounded-full transition-all">
-                        <i class="fas fa-volume-up"></i>
-                    </button>
-                </div>
-            </div>
-
-            <!-- Stats Row -->
-            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                <div class="stats-card">
-                    <p class="text-xs text-gray-500 mb-1">New Orders</p>
-                    <p id="new-count" class="stats-number text-orange-500">0</p>
-                </div>
-                <div class="stats-card">
-                    <p class="text-xs text-gray-500 mb-1">Active</p>
-                    <p id="active-count" class="stats-number text-blue-500">0</p>
-                </div>
-                <div class="stats-card">
-                    <p class="text-xs text-gray-500 mb-1">Today</p>
-                    <p id="today-count" class="stats-number text-green-500">0</p>
-                </div>
-                <div class="stats-card">
-                    <p class="text-xs text-gray-500 mb-1">Tables</p>
-                    <p id="tables-count" class="stats-number text-purple-500">0</p>
-                </div>
-            </div>
-        </div>
-    </header>
-
-    <!-- Main Content -->
-    <main class="max-w-7xl mx-auto p-4">
-        
-        <!-- Tabs for Mobile -->
-        <div class="flex gap-2 mb-6 overflow-x-auto pb-2 no-scrollbar sm:hidden">
-            <button onclick="showTab('new')" id="tab-new" class="tab-btn active px-6 py-3 rounded-full font-bold text-sm bg-orange-500 text-white whitespace-nowrap">
-                <i class="fas fa-clock mr-1"></i> New (<span id="mobile-new-count">0</span>)
-            </button>
-            <button onclick="showTab('active')" id="tab-active" class="tab-btn px-6 py-3 rounded-full font-bold text-sm bg-gray-200 text-gray-700 whitespace-nowrap">
-                <i class="fas fa-fire mr-1"></i> Active (<span id="mobile-active-count">0</span>)
-            </button>
-            <button onclick="showTab('completed')" id="tab-completed" class="tab-btn px-6 py-3 rounded-full font-bold text-sm bg-gray-200 text-gray-700 whitespace-nowrap">
-                <i class="fas fa-check-circle mr-1"></i> Done
-            </button>
-        </div>
-
-        <!-- Desktop View - 3 Columns -->
-        <div class="hidden sm:grid sm:grid-cols-3 gap-6">
-            <!-- New Orders Column -->
-            <div class="bg-white rounded-2xl p-4 border border-gray-200">
-                <div class="flex items-center justify-between mb-4">
-                    <h2 class="text-lg font-bold text-orange-600 flex items-center gap-2">
-                        <i class="fas fa-clock"></i>
-                        New Orders
-                    </h2>
-                    <span id="desktop-new-count" class="bg-orange-100 text-orange-600 px-3 py-1 rounded-full text-sm font-bold">0</span>
-                </div>
-                <div id="new-orders" class="space-y-4 max-h-[calc(100vh-280px)] overflow-y-auto pr-2 smooth-scroll">
-                    <!-- New orders will appear here -->
-                </div>
-            </div>
-
-            <!-- Active Orders Column -->
-            <div class="bg-white rounded-2xl p-4 border border-gray-200">
-                <div class="flex items-center justify-between mb-4">
-                    <h2 class="text-lg font-bold text-blue-600 flex items-center gap-2">
-                        <i class="fas fa-fire"></i>
-                        In Progress
-                    </h2>
-                    <span id="desktop-active-count" class="bg-blue-100 text-blue-600 px-3 py-1 rounded-full text-sm font-bold">0</span>
-                </div>
-                <div id="active-orders" class="space-y-4 max-h-[calc(100vh-280px)] overflow-y-auto pr-2 smooth-scroll">
-                    <!-- Active orders will appear here -->
-                </div>
-            </div>
-
-            <!-- Completed Orders Column -->
-            <div class="bg-white rounded-2xl p-4 border border-gray-200">
-                <div class="flex items-center justify-between mb-4">
-                    <h2 class="text-lg font-bold text-green-600 flex items-center gap-2">
-                        <i class="fas fa-check-circle"></i>
-                        Completed
-                    </h2>
-                    <span id="desktop-completed-count" class="bg-green-100 text-green-600 px-3 py-1 rounded-full text-sm font-bold">0</span>
-                </div>
-                <div id="completed-orders" class="space-y-4 max-h-[calc(100vh-280px)] overflow-y-auto pr-2 smooth-scroll">
-                    <!-- Completed orders will appear here -->
-                </div>
-            </div>
-        </div>
-
-        <!-- Mobile View - Single Column with Tabs -->
-        <div class="sm:hidden">
-            <!-- New Orders Tab -->
-            <div id="mobile-new-view" class="tab-view">
-                <div id="mobile-new-orders" class="space-y-4">
-                    <!-- New orders for mobile -->
-                </div>
+    <!-- Header -->
+    <div class="kitchen-header">
+        <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
+            <div class="flex items-center gap-3">
+                <h1 class="text-3xl font-black text-gray-800">
+                    <i class="fas fa-utensils text-orange-500 mr-2"></i>
+                    KITCHEN
+                </h1>
+                <span class="bg-green-500 text-white text-xs px-3 py-1 rounded-full font-bold">LIVE</span>
             </div>
             
-            <!-- Active Orders Tab -->
-            <div id="mobile-active-view" class="tab-view hidden">
-                <div id="mobile-active-orders" class="space-y-4">
-                    <!-- Active orders for mobile -->
+            <div class="flex items-center gap-3">
+                <div class="bg-orange-100 px-4 py-2 rounded-full">
+                    <span id="order-count" class="font-black text-orange-600">0</span>
+                    <span class="text-gray-600 ml-1">Active</span>
                 </div>
-            </div>
-            
-            <!-- Completed Orders Tab -->
-            <div id="mobile-completed-view" class="tab-view hidden">
-                <div id="mobile-completed-orders" class="space-y-4">
-                    <!-- Completed orders for mobile -->
-                </div>
+                <button onclick="clearCompleted()" class="clear-btn">
+                    <i class="fas fa-trash-alt mr-2"></i>Clear All
+                </button>
             </div>
         </div>
 
-        <!-- Empty State -->
-        <div id="empty-state" class="hidden text-center py-16">
-            <div class="bg-white rounded-3xl p-8 max-w-md mx-auto">
-                <i class="fas fa-utensils text-6xl text-gray-300 mb-4"></i>
-                <h3 class="text-xl font-bold text-gray-700 mb-2">No Orders Yet</h3>
-                <p class="text-gray-500">Waiting for customers to place orders...</p>
+        <!-- Simple Stats -->
+        <div class="stats-bar mt-4">
+            <div class="stat-item">
+                <span class="stat-number" id="total-tables">0</span>
+                <span class="text-gray-600">Tables</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number" id="total-orders">0</span>
+                <span class="text-gray-600">Orders</span>
             </div>
         </div>
-    </main>
+    </div>
+
+    <!-- Active Orders Grid - ONLY ACTIVE ORDERS SHOWN -->
+    <div id="orders-container" class="orders-grid">
+        <!-- Orders will appear here -->
+    </div>
+
+    <!-- Empty State -->
+    <div id="empty-state" class="text-center py-16 bg-white rounded-3xl">
+        <i class="fas fa-utensils text-6xl text-gray-300 mb-4"></i>
+        <p class="text-xl text-gray-500">No active orders</p>
+        <p class="text-gray-400 mt-2">Waiting for new orders...</p>
+    </div>
 
     <script>
-        // Configuration
+        // Simple kitchen - ONLY ACTIVE ORDERS
         const STORAGE_KEY = 'tufaax_kitchen_orders';
         let orders = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
-        let soundEnabled = true;
-        let currentTab = 'new';
 
         // Initialize
         document.addEventListener('DOMContentLoaded', () => {
             renderOrders();
             checkForNewOrders();
             setInterval(checkForNewOrders, 1000);
-            updateStats();
         });
 
-        // Check for new orders from customer cart
+        // Check for new orders
         function checkForNewOrders() {
             const customerCart = JSON.parse(localStorage.getItem('tufaax_cart')) || [];
             
@@ -350,105 +263,63 @@
                 const cartString = JSON.stringify(customerCart);
                 
                 if (!lastOrder || lastOrder.itemsString !== cartString) {
-                    createOrderFromCart(customerCart);
+                    createOrder(customerCart);
                 }
             }
         }
 
-        // Create new order from customer cart
-        function createOrderFromCart(cart) {
+        // Create new order
+        function createOrder(cart) {
+            // Get table number from URL or random
             const table = new URLSearchParams(window.location.search).get('table') || 
-                         document.getElementById('manual-table')?.value || 
                          Math.floor(Math.random() * 20) + 1;
             
             // Group items
-            const groupedItems = cart.reduce((acc, item) => {
-                const key = item.name;
-                if (!acc[key]) {
-                    acc[key] = {
-                        name: item.name,
-                        quantity: 1
-                    };
+            const items = [];
+            const grouped = {};
+            
+            cart.forEach(item => {
+                if (!grouped[item.name]) {
+                    grouped[item.name] = 1;
                 } else {
-                    acc[key].quantity += 1;
+                    grouped[item.name]++;
                 }
-                return acc;
-            }, {});
-
-            const itemsWithQuantity = Object.values(groupedItems);
+            });
+            
+            for (let [name, quantity] of Object.entries(grouped)) {
+                items.push({ name, quantity });
+            }
             
             const newOrder = {
-                id: 'ORD-' + Date.now() + '-' + Math.random().toString(36).substr(2, 5),
+                id: 'ORD-' + Date.now(),
                 table: table,
-                items: itemsWithQuantity,
+                items: items,
                 itemsString: JSON.stringify(cart),
-                status: 'new', // Only two statuses: new or completed
                 timestamp: new Date().toISOString(),
-                orderNumber: Math.floor(Math.random() * 9000) + 1000,
-                timeReceived: new Date().toLocaleTimeString('so-SO', { hour: '2-digit', minute: '2-digit' })
+                timeReceived: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
             };
 
             orders.unshift(newOrder); // Add to beginning
             saveOrders();
-            
-            if (soundEnabled) {
-                playNotificationSound();
-            }
-            
-            showNotification(`Table ${table} - New Order!`, 'success');
+            showNotification(`Table ${table} - New Order!`);
             localStorage.removeItem('tufaax_cart');
             renderOrders();
-            updateStats();
         }
 
-        // Play notification sound
-        function playNotificationSound() {
-            try {
-                const audio = new Audio('data:audio/wav;base64,UklGRlwAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YVAAAAA8AP8A/gD+AP4A/gD+AP4A/gD+AP4A/gD+AP4A/gD+AP4A/gD+AP4A/gD+AP4A/gD+AP4A/gD+AP4A/gD+AP4A/gA=');
-                audio.play().catch(e => console.log('Audio play failed:', e));
-            } catch (e) {
-                console.log('Audio not supported');
-            }
-        }
-
-        // Toggle sound
-        function toggleSound() {
-            soundEnabled = !soundEnabled;
-            const btn = document.getElementById('soundBtn');
-            btn.innerHTML = soundEnabled ? '<i class="fas fa-volume-up"></i>' : '<i class="fas fa-volume-mute"></i>';
-        }
-
-        // Complete order (moves to completed)
+        // Complete order (remove from list)
         function completeOrder(orderId) {
-            const order = orders.find(o => o.id === orderId);
-            if (order) {
-                order.status = 'completed';
-                saveOrders();
-                showNotification(`Table ${order.table} completed`, 'info');
-                renderOrders();
-                updateStats();
-            }
+            orders = orders.filter(o => o.id !== orderId);
+            saveOrders();
+            renderOrders();
+            showNotification('Order completed', 'info');
         }
 
-        // Clear all completed orders
-        function clearAllCompleted() {
-            if (confirm('Clear all completed orders?')) {
-                orders = orders.filter(o => o.status !== 'completed');
+        // Clear all orders
+        function clearCompleted() {
+            if (confirm('Clear all orders?')) {
+                orders = [];
                 saveOrders();
-                showNotification('Completed orders cleared', 'info');
                 renderOrders();
-                updateStats();
-            }
-        }
-
-        // Delete single order
-        function deleteOrder(orderId) {
-            if (confirm('Delete this order?')) {
-                orders = orders.filter(o => o.id !== orderId);
-                saveOrders();
-                showNotification('Order deleted', 'info');
-                renderOrders();
-                updateStats();
             }
         }
 
@@ -458,145 +329,69 @@
         }
 
         // Show notification
-        function showNotification(message, type = 'info') {
+        function showNotification(message) {
             const notification = document.getElementById('notification');
-            const messageEl = document.getElementById('notification-message');
-            
-            notification.style.background = type === 'success' ? '#10b981' : '#3b82f6';
-            messageEl.textContent = message;
+            document.getElementById('notification-message').textContent = message;
             notification.style.display = 'flex';
-            
-            setTimeout(() => {
-                notification.style.display = 'none';
-            }, 3000);
+            setTimeout(() => notification.style.display = 'none', 2000);
         }
 
-        // Update statistics
-        function updateStats() {
-            const newOrders = orders.filter(o => o.status === 'new').length;
-            const activeOrders = orders.filter(o => o.status === 'active' || o.status === 'new').length;
-            const today = new Date().toDateString();
-            const todayOrders = orders.filter(o => new Date(o.timestamp).toDateString() === today).length;
+        // Render ONLY ACTIVE ORDERS
+        function renderOrders() {
+            const container = document.getElementById('orders-container');
+            const emptyState = document.getElementById('empty-state');
+            
+            // Update stats
+            document.getElementById('total-orders').textContent = orders.length;
+            document.getElementById('order-count').textContent = orders.length;
+            
+            // Count unique tables
             const uniqueTables = [...new Set(orders.map(o => o.table))].length;
+            document.getElementById('total-tables').textContent = uniqueTables;
 
-            document.getElementById('new-count').textContent = newOrders;
-            document.getElementById('active-count').textContent = activeOrders;
-            document.getElementById('today-count').textContent = todayOrders;
-            document.getElementById('tables-count').textContent = uniqueTables;
+            if (orders.length === 0) {
+                container.innerHTML = '';
+                emptyState.style.display = 'block';
+                return;
+            }
 
-            // Mobile counts
-            document.getElementById('mobile-new-count').textContent = newOrders;
-            document.getElementById('mobile-active-count').textContent = activeOrders;
+            emptyState.style.display = 'none';
 
-            // Desktop counts
-            document.getElementById('desktop-new-count').textContent = newOrders;
-            document.getElementById('desktop-active-count').textContent = activeOrders;
-            document.getElementById('desktop-completed-count').textContent = orders.filter(o => o.status === 'completed').length;
-        }
-
-        // Show tab (mobile)
-        function showTab(tab) {
-            currentTab = tab;
-            
-            // Update tab buttons
-            document.querySelectorAll('.tab-btn').forEach(btn => {
-                btn.classList.remove('active', 'bg-orange-500', 'text-white');
-                btn.classList.add('bg-gray-200', 'text-gray-700');
-            });
-            document.getElementById(`tab-${tab}`).classList.add('active', 'bg-orange-500', 'text-white');
-            document.getElementById(`tab-${tab}`).classList.remove('bg-gray-200', 'text-gray-700');
-            
-            // Show correct view
-            document.querySelectorAll('.tab-view').forEach(view => view.classList.add('hidden'));
-            document.getElementById(`mobile-${tab}-view`).classList.remove('hidden');
-        }
-
-        // Render order card (reusable)
-        function renderOrderCard(order, type) {
-            const isNew = order.status === 'new';
-            const tableNum = order.table.toString().padStart(2, '0');
-            
-            return `
-                <div class="order-card ${isNew ? 'new-order' : ''}">
-                    <div class="flex justify-between items-start mb-3">
-                        <div class="table-badge">
-                            <i class="fas fa-chair"></i>
-                            ${tableNum}
-                        </div>
-                        <span class="text-xs text-gray-500">${order.timeReceived}</span>
+            // Show all active orders
+            container.innerHTML = orders.map(order => `
+                <div class="order-card">
+                    <!-- BIG TABLE NUMBER -->
+                    <div class="table-number">
+                        <i class="fas fa-chair mr-2"></i>TABLE ${order.table}
                     </div>
                     
+                    <!-- Order Time -->
+                    <div class="text-sm text-gray-500 mb-3">
+                        <i class="far fa-clock mr-1"></i>${order.timeReceived}
+                    </div>
+                    
+                    <!-- Items List -->
                     <div class="mb-4">
                         ${order.items.map(item => `
-                            <div class="item-row flex justify-between items-center">
-                                <span class="font-bold text-gray-800">${item.quantity}x</span>
-                                <span class="text-gray-700">${item.name}</span>
+                            <div class="item-row">
+                                <span class="item-name">${item.name}</span>
+                                <span class="item-quantity">${item.quantity}</span>
                             </div>
                         `).join('')}
                     </div>
                     
-                    ${isNew ? `
-                        <button onclick="completeOrder('${order.id}')" class="btn-complete">
-                            <i class="fas fa-check-circle mr-2"></i> Complete Order
-                        </button>
-                    ` : `
-                        <div class="flex gap-2">
-                            <button onclick="deleteOrder('${order.id}')" class="flex-1 bg-red-100 text-red-600 py-3 rounded-full font-bold text-sm hover:bg-red-200 transition-all">
-                                <i class="fas fa-trash-alt mr-1"></i> Delete
-                            </button>
-                        </div>
-                    `}
+                    <!-- COMPLETE BUTTON - ONE CLICK -->
+                    <button onclick="completeOrder('${order.id}')" class="complete-btn">
+                        <i class="fas fa-check-circle"></i>
+                        COMPLETE ORDER
+                    </button>
                 </div>
-            `;
+            `).join('');
         }
 
-        // Render all orders
-        function renderOrders() {
-            const newOrders = orders.filter(o => o.status === 'new');
-            const completedOrders = orders.filter(o => o.status === 'completed');
-            
-            // Desktop views
-            document.getElementById('new-orders').innerHTML = newOrders.length ? 
-                newOrders.map(o => renderOrderCard(o, 'new')).join('') : 
-                '<div class="text-center text-gray-400 py-8 bg-gray-50 rounded-2xl"><i class="fas fa-clock text-3xl mb-2"></i><p>No new orders</p></div>';
-            
-            document.getElementById('active-orders').innerHTML = newOrders.length ? 
-                newOrders.map(o => renderOrderCard(o, 'active')).join('') : 
-                '<div class="text-center text-gray-400 py-8 bg-gray-50 rounded-2xl"><i class="fas fa-fire text-3xl mb-2"></i><p>No active orders</p></div>';
-            
-            document.getElementById('completed-orders').innerHTML = completedOrders.length ? 
-                completedOrders.map(o => renderOrderCard(o, 'completed')).join('') : 
-                '<div class="text-center text-gray-400 py-8 bg-gray-50 rounded-2xl"><i class="fas fa-check-circle text-3xl mb-2"></i><p>No completed orders</p></div>';
-            
-            // Mobile views
-            document.getElementById('mobile-new-orders').innerHTML = newOrders.length ? 
-                newOrders.map(o => renderOrderCard(o, 'new')).join('') : 
-                '<div class="text-center text-gray-400 py-8 bg-white rounded-2xl"><p>No new orders</p></div>';
-            
-            document.getElementById('mobile-active-orders').innerHTML = newOrders.length ? 
-                newOrders.map(o => renderOrderCard(o, 'active')).join('') : 
-                '<div class="text-center text-gray-400 py-8 bg-white rounded-2xl"><p>No active orders</p></div>';
-            
-            document.getElementById('mobile-completed-orders').innerHTML = completedOrders.length ? 
-                completedOrders.map(o => renderOrderCard(o, 'completed')).join('') : 
-                '<div class="text-center text-gray-400 py-8 bg-white rounded-2xl"><p>No completed orders</p></div>';
-            
-            // Empty state
-            if (orders.length === 0) {
-                document.getElementById('empty-state').classList.remove('hidden');
-            } else {
-                document.getElementById('empty-state').classList.add('hidden');
-            }
-            
-            updateStats();
-        }
-
-        // Expose functions globally
+        // Expose functions
         window.completeOrder = completeOrder;
-        window.deleteOrder = deleteOrder;
-        window.clearAllCompleted = clearAllCompleted;
-        window.toggleSound = toggleSound;
-        window.showTab = showTab;
+        window.clearCompleted = clearCompleted;
     </script>
 </body>
 </html>
