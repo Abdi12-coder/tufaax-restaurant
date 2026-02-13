@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🍎 Tufaax Restaurant - Menu</title>
+    <title>🍎 Tufaax Restaurant - Dalab Online</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
@@ -20,9 +20,67 @@
         
         .live-badge { background: #22c55e; animation: soft-pulse 1.5s infinite; }
         @keyframes soft-pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
+        
+        .order-success {
+            animation: slideUp 0.5s ease-out;
+        }
+        
+        @keyframes slideUp {
+            from { transform: translateY(100px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        
+        .receipt-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.8);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        }
+        
+        .receipt-card {
+            background: white;
+            border-radius: 2rem;
+            padding: 2rem;
+            max-width: 400px;
+            width: 90%;
+        }
     </style>
 </head>
 <body class="pb-32">
+
+    <!-- Success Modal -->
+    <div id="successModal" class="receipt-modal">
+        <div class="receipt-card order-success">
+            <div class="text-center mb-6">
+                <div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-check-circle text-4xl text-green-600"></i>
+                </div>
+                <h2 class="text-2xl font-black text-gray-800 mb-2">Dalabkaaga waa la diray!</h2>
+                <p class="text-gray-500">Lambarka dalabka:</p>
+                <p id="orderNumberDisplay" class="text-3xl font-black text-red-600 mt-2">#123</p>
+            </div>
+            
+            <div class="border-t border-b border-gray-200 py-4 my-4">
+                <p class="text-sm text-gray-600 mb-2">Waxaad dalbatay:</p>
+                <div id="orderItemsDisplay" class="space-y-2"></div>
+            </div>
+            
+            <div class="flex justify-between items-center mb-6">
+                <span class="font-bold text-gray-700">Wadarta:</span>
+                <span id="orderTotalDisplay" class="text-xl font-black text-red-600">$0.00</span>
+            </div>
+            
+            <button onclick="closeModal()" class="w-full bg-red-600 text-white py-4 rounded-2xl font-black hover:bg-red-700 transition-all">
+                <i class="fas fa-check mr-2"></i> OK
+            </button>
+        </div>
+    </div>
 
     <!-- Header -->
     <header class="bg-gradient-to-r from-red-600 to-red-700 text-white p-6 rounded-b-[3rem] sticky top-0 z-50 shadow-2xl">
@@ -106,9 +164,9 @@
                     <p id="total-price" class="text-3xl font-black text-red-600">$0.00</p>
                     <p id="item-count-text" class="text-gray-400 text-xs mt-1">0 shay</p>
                 </div>
-                <button onclick="checkoutWhatsApp()" class="bg-gradient-to-r from-green-500 to-green-600 text-white px-10 py-4 rounded-2xl font-black shadow-lg active:scale-95 transition-all flex items-center gap-3">
-                    <i class="fab fa-whatsapp text-2xl"></i> 
-                    <span>DALBO<br><span class="text-xs font-normal">via WhatsApp</span></span>
+                <button onclick="checkoutToKitchen()" class="bg-gradient-to-r from-green-500 to-green-600 text-white px-10 py-4 rounded-2xl font-black shadow-lg active:scale-95 transition-all flex items-center gap-3">
+                    <i class="fas fa-paper-plane text-2xl"></i> 
+                    <span>DIR DALAB<br><span class="text-xs font-normal">Kitchen-ka</span></span>
                 </button>
             </div>
         </div>
@@ -116,8 +174,7 @@
 
     <script>
         // Configuration
-        const GOOGLE_URL = "https://script.google.com/macros/s/AKfycbzVMUruRAnuRcUqfV0CqgiSK1yDSDJo_UTYIE7mNabudjfIMl_H1ZHl58ymhmu97pTzcw/exec"; // Replace with your Apps Script URL
-        const WHATSAPP_PHONE = "252617054480";
+        const GOOGLE_URL = "https://script.google.com/macros/s/AKfycbzvLBr8LpmByUWsanFFqUei_7ANXlh4IYgpV52KQ2LgF_e907Oo-gGhfYxhIS7hC7BRmw/exec"; // Replace with your Apps Script URL
         const REFRESH_INTERVAL = 500; // 0.5 seconds
 
         // State
@@ -290,7 +347,8 @@
             document.getElementById('checkout-bar').scrollIntoView({ behavior: 'smooth', block: 'end' });
         }
 
-        function checkoutWhatsApp() {
+        // NEW: Checkout to Kitchen (replaces WhatsApp)
+        function checkoutToKitchen() {
             if (cart.length === 0) {
                 alert('Fadlan soo dar cunto ka hor intaanad dalbanin!');
                 return;
@@ -298,28 +356,87 @@
             
             const tableId = new URLSearchParams(window.location.search).get('table') || 'Lama aqoon';
             
-            let msg = "🍎 *DALAB CUSUB - TUFAAX*%0A%0A";
-            msg += `📍 *Miiska:* ${tableId}%0A`;
-            msg += "─────────────────────%0A%0A";
-            
-            const grouped = cart.reduce((acc, item) => {
-                if (!acc[item.name]) acc[item.name] = { qty: 0, price: item.price };
-                acc[item.name].qty += 1;
+            // Group items by name for better display
+            const groupedItems = cart.reduce((acc, item) => {
+                const key = item.name;
+                if (!acc[key]) {
+                    acc[key] = {
+                        name: item.name,
+                        quantity: 1,
+                        price: item.price
+                    };
+                } else {
+                    acc[key].quantity += 1;
+                }
                 return acc;
             }, {});
 
-            for (const [name, data] of Object.entries(grouped)) {
-                const itemTotal = data.qty * data.price;
-                msg += `✅ ${data.qty}x *${name}*%0A`;
-                msg += `   ${formatPrice(data.price)} × ${data.qty} = ${formatPrice(itemTotal)}%0A%0A`;
-            }
+            // Create items array with quantities
+            const itemsWithQuantity = Object.values(groupedItems).map(item => ({
+                name: item.name,
+                quantity: item.quantity,
+                price: item.price,
+                total: item.price * item.quantity
+            }));
 
+            // Calculate total
             const total = cart.reduce((sum, i) => sum + i.price, 0);
-            msg += "─────────────────────%0A";
-            msg += `💰 *WADARTA GUUD:* ${formatPrice(total)}%0A%0A`;
-            msg += "🙏 Mahadsanid!";
             
-            window.open(`https://wa.me/${WHATSAPP_PHONE}?text=${msg}`, '_blank');
+            // Generate order number
+            const orderNumber = Math.floor(Math.random() * 9000) + 1000;
+            
+            // Prepare order data
+            const orderData = {
+                id: 'ORD-' + Date.now(),
+                table: tableId,
+                items: itemsWithQuantity,
+                total: total,
+                status: 'pending',
+                timestamp: new Date().toISOString(),
+                orderNumber: orderNumber,
+                customerName: 'Customer at Table ' + tableId
+            };
+            
+            // Save to kitchen orders (using localStorage for demo)
+            // In production, you would send this to Google Sheets
+            const kitchenOrders = JSON.parse(localStorage.getItem('tufaax_kitchen_orders')) || [];
+            kitchenOrders.push(orderData);
+            localStorage.setItem('tufaax_kitchen_orders', JSON.stringify(kitchenOrders));
+            
+            // Show success modal
+            showOrderSuccess(orderData);
+            
+            // Clear cart
+            cart = [];
+            updateUI();
+        }
+
+        // Show order success modal
+        function showOrderSuccess(order) {
+            const modal = document.getElementById('successModal');
+            document.getElementById('orderNumberDisplay').textContent = '#' + order.orderNumber;
+            
+            // Display items
+            const itemsHtml = order.items.map(item => `
+                <div class="flex justify-between text-sm">
+                    <span>${item.quantity}x ${item.name}</span>
+                    <span class="font-medium">${formatPrice(item.total)}</span>
+                </div>
+            `).join('');
+            
+            document.getElementById('orderItemsDisplay').innerHTML = itemsHtml;
+            document.getElementById('orderTotalDisplay').textContent = formatPrice(order.total);
+            
+            modal.style.display = 'flex';
+            
+            // Auto close after 5 seconds
+            setTimeout(() => {
+                modal.style.display = 'none';
+            }, 5000);
+        }
+
+        function closeModal() {
+            document.getElementById('successModal').style.display = 'none';
         }
 
         function formatPrice(price) {
@@ -331,9 +448,10 @@
         window.filterCategory = filterCategory;
         window.clearSearch = clearSearch;
         window.toggleCart = toggleCart;
-        window.checkoutWhatsApp = checkoutWhatsApp;
+        window.checkoutToKitchen = checkoutToKitchen;
         window.addToCart = addToCart;
         window.removeFromCart = removeFromCart;
+        window.closeModal = closeModal;
     </script>
 </body>
 </html>
