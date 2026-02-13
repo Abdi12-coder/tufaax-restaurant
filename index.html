@@ -9,85 +9,79 @@
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
+        /* Responsive base */
+        html { font-size: 14px; }
+        @media (min-width: 640px) { html { font-size: 16px; } }
+        
         body {
-            font-family: 'Inter', sans-serif;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
             background: #f8fafc;
-            padding: 1rem;
-            padding-bottom: 100px;
         }
         
-        /* Header */
-        .header {
-            background: linear-gradient(135deg, #dc2626, #991b1b);
-            color: white;
-            padding: 1.5rem;
-            border-radius: 2rem;
-            margin-bottom: 1.5rem;
-            box-shadow: 0 10px 25px rgba(220, 38, 38, 0.2);
-        }
-        
-        /* Cart badge */
-        .cart-badge {
-            position: absolute;
-            top: -8px;
-            right: -8px;
-            background: #fbbf24;
-            color: black;
-            font-weight: 900;
-            min-width: 24px;
-            height: 24px;
-            border-radius: 999px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 12px;
-            border: 2px solid white;
+        /* Touch-friendly */
+        button, .item-card, .category-btn {
+            cursor: pointer;
+            -webkit-tap-highlight-color: transparent;
         }
         
         /* Category buttons */
         .category-btn {
+            transition: all 0.2s;
+            white-space: nowrap;
             padding: 0.75rem 1.5rem;
             border-radius: 999px;
             font-weight: bold;
             background: white;
             border: 2px solid #e2e8f0;
-            white-space: nowrap;
-            transition: all 0.2s;
         }
         
         .category-btn.active {
-            background: #dc2626;
-            color: white;
-            border-color: #dc2626;
+            background: #dc2626 !important;
+            color: white !important;
+            border-color: #dc2626 !important;
         }
         
         /* Item cards */
         .item-card {
             background: white;
             border-radius: 1.5rem;
-            padding: 1rem;
-            border: 1px solid #e2e8f0;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
             transition: all 0.2s;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid #e2e8f0;
         }
         
-        .item-card.hidden-item {
-            opacity: 0.7;
-            background: #f1f5f9;
-            border-color: #cbd5e1;
+        .item-card:active {
+            transform: scale(0.98);
         }
         
-        .hidden-badge {
-            background: #64748b;
-            color: white;
-            font-size: 10px;
-            padding: 2px 8px;
-            border-radius: 999px;
+        /* Cart badge */
+        .cart-badge {
             position: absolute;
-            top: 8px;
-            right: 8px;
+            top: -0.5rem;
+            right: -0.5rem;
+            min-width: 1.5rem;
+            height: 1.5rem;
+            background: #fbbf24;
+            color: black;
+            font-weight: 800;
+            border-radius: 999px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            border: 2px solid white;
         }
         
-        /* Menu grid */
+        /* Hide scrollbar */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        
+        /* Responsive grid */
         .menu-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
@@ -97,6 +91,7 @@
         @media (min-width: 640px) {
             .menu-grid {
                 grid-template-columns: repeat(3, 1fr);
+                gap: 1.5rem;
             }
         }
         
@@ -112,60 +107,18 @@
             bottom: 0;
             left: 0;
             right: 0;
-            background: white;
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(10px);
+            border-top: 1px solid #e2e8f0;
             padding: 1rem;
-            border-top: 2px solid #e2e8f0;
+            z-index: 40;
             box-shadow: 0 -4px 10px rgba(0,0,0,0.05);
             transform: translateY(100%);
-            transition: transform 0.3s;
-            z-index: 40;
+            transition: transform 0.3s ease-out;
         }
         
         .cart-bar.visible {
             transform: translateY(0);
-        }
-        
-        /* Quantity buttons */
-        .qty-btn {
-            width: 36px;
-            height: 36px;
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            border: 2px solid #e2e8f0;
-            background: white;
-        }
-        
-        .qty-btn.primary {
-            background: #dc2626;
-            color: white;
-            border: none;
-        }
-        
-        .qty-btn:disabled {
-            opacity: 0.3;
-            pointer-events: none;
-        }
-        
-        /* Show Hidden Button - NEW */
-        .show-hidden-btn {
-            background: #64748b;
-            color: white;
-            padding: 0.75rem 1.5rem;
-            border-radius: 999px;
-            font-weight: bold;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            border: none;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        
-        .show-hidden-btn.active {
-            background: #f59e0b;
         }
         
         /* Success modal */
@@ -186,25 +139,95 @@
             padding: 2rem;
             max-width: 400px;
             width: 100%;
+            animation: slideUp 0.3s ease-out;
+        }
+        
+        @keyframes slideUp {
+            from { transform: translateY(50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        
+        /* Live indicator */
+        .live-badge {
+            background: #22c55e;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        
+        /* Quantity buttons */
+        .quantity-btn {
+            min-width: 2.5rem;
+            height: 2.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 0.75rem;
+            font-weight: bold;
+            transition: all 0.2s;
+            border: 2px solid transparent;
+        }
+        
+        .quantity-btn.minus {
+            background: white;
+            border: 2px solid #e2e8f0;
+            color: #4b5563;
+        }
+        
+        .quantity-btn.minus:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+        
+        .quantity-btn.plus {
+            background: #dc2626;
+            color: white;
+        }
+        
+        .quantity-btn.plus:hover {
+            background: #b91c1c;
+        }
+        
+        /* Header */
+        .customer-header {
+            background: linear-gradient(135deg, #dc2626, #991b1b);
+            border-bottom: 4px solid #fbbf24;
+        }
+        
+        /* Price tag */
+        .price-tag {
+            font-size: 1.25rem;
+            font-weight: 800;
+            color: #dc2626;
         }
     </style>
 </head>
-<body>
+<body class="pb-32">
 
-    <!-- Success Modal -->
+    <!-- Success Modal - Shows when order is placed -->
     <div id="successModal" class="modal">
         <div class="modal-content">
             <div class="text-center">
                 <div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
                     <i class="fas fa-check-circle text-4xl text-green-600"></i>
                 </div>
-                <h3 class="text-2xl font-black mb-2">Order Sent!</h3>
+                <h3 class="text-2xl font-black text-gray-800 mb-2">Order Sent!</h3>
                 <p class="text-gray-500 mb-4">Your order has been sent to the kitchen</p>
-                <div class="bg-orange-50 rounded-xl p-4 mb-4">
-                    <p class="text-sm text-gray-600">Table</p>
-                    <p id="modal-table" class="text-3xl font-black text-orange-600">#1</p>
+                
+                <div class="bg-orange-50 rounded-2xl p-4 mb-4">
+                    <p class="text-sm text-gray-600 mb-1">Order Number</p>
+                    <p id="orderNumberDisplay" class="text-3xl font-black text-orange-600">#123</p>
                 </div>
-                <button onclick="closeModal()" class="w-full bg-red-600 text-white py-4 rounded-xl font-bold">
+                
+                <div class="border-t border-gray-200 pt-4 mb-4">
+                    <p class="font-bold text-gray-700 mb-2">Your Items:</p>
+                    <div id="orderItemsDisplay" class="space-y-2 text-left"></div>
+                </div>
+                
+                <button onclick="closeModal()" class="w-full bg-red-600 text-white py-4 rounded-2xl font-bold text-lg hover:bg-red-700 transition-all">
                     OK
                 </button>
             </div>
@@ -212,74 +235,104 @@
     </div>
 
     <!-- Header -->
-    <div class="header">
-        <div class="flex justify-between items-center">
-            <div>
-                <h1 class="text-3xl font-black">🍎 TUFAAX</h1>
-                <p id="display-table" class="text-sm bg-white/20 px-3 py-1 rounded-full mt-2 hidden">
-                    Table <span></span>
-                </p>
-            </div>
-            <button onclick="toggleCart()" class="relative bg-white p-3 rounded-xl">
-                <i class="fas fa-shopping-basket text-red-600 text-xl"></i>
-                <span id="cart-count" class="cart-badge">0</span>
-            </button>
-        </div>
-    </div>
-
-    <!-- Search and Filter Row -->
-    <div class="flex flex-col sm:flex-row gap-3 mb-4">
-        <!-- Search -->
-        <div class="flex-1 bg-white rounded-full px-4 py-2 flex items-center border">
-            <i class="fas fa-search text-gray-400 mr-2"></i>
-            <input type="text" id="custSearch" oninput="updateUI()" placeholder="Search food..." class="w-full outline-none">
-        </div>
-        
-        <!-- SHOW HIDDEN BUTTON - NEW -->
-        <button id="showHiddenBtn" onclick="toggleHidden()" class="show-hidden-btn">
-            <i class="fas fa-eye-slash"></i>
-            <span>Show Hidden</span>
-        </button>
-    </div>
-
-    <!-- Categories -->
-    <div class="overflow-x-auto mb-4 pb-2">
-        <div class="flex gap-2">
-            <button onclick="filterCategory('Dhammaan', this)" class="category-btn active">All</button>
-            <button onclick="filterCategory('Quraac', this)" class="category-btn">Breakfast</button>
-            <button onclick="filterCategory('Qado', this)" class="category-btn">Lunch</button>
-            <button onclick="filterCategory('Casho', this)" class="category-btn">Dinner</button>
-            <button onclick="filterCategory('Coffee', this)" class="category-btn">Coffee</button>
-            <button onclick="filterCategory('Shaah', this)" class="category-btn">Tea</button>
-            <button onclick="filterCategory('Cabitaan', this)" class="category-btn">Drinks</button>
-        </div>
-    </div>
-
-    <!-- Menu Grid -->
-    <div id="menu-items" class="menu-grid">
-        <!-- Loading -->
-        <div class="bg-gray-200 h-48 rounded-2xl animate-pulse"></div>
-        <div class="bg-gray-200 h-48 rounded-2xl animate-pulse"></div>
-        <div class="bg-gray-200 h-48 rounded-2xl animate-pulse"></div>
-    </div>
-
-    <!-- Empty State -->
-    <div id="empty-state" class="hidden text-center py-12">
-        <i class="fas fa-search text-5xl text-gray-300 mb-3"></i>
-        <p class="text-gray-500">No items found</p>
-    </div>
-
-    <!-- Cart Bar -->
-    <div id="checkout-bar" class="cart-bar">
-        <div class="max-w-4xl mx-auto">
-            <div id="cart-summary" class="mb-3"></div>
+    <header class="customer-header text-white sticky top-0 z-30 shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 py-4">
             <div class="flex justify-between items-center">
                 <div>
-                    <p class="text-xs text-gray-500">Total</p>
-                    <p id="total-price" class="text-2xl font-black text-red-600">$0.00</p>
+                    <h1 class="text-2xl sm:text-3xl font-black flex items-center gap-2">
+                        🍎 TUFAAX
+                        <span id="live-indicator" class="live-badge text-xs px-2 py-1 rounded-full text-green-900">LIVE</span>
+                    </h1>
+                    <p id="display-table" class="text-xs bg-black/20 px-3 py-1 rounded-full mt-2 hidden w-fit">
+                        📍 Table: <span class="font-black"></span>
+                    </p>
                 </div>
-                <button onclick="sendOrder()" class="bg-green-600 text-white px-8 py-3 rounded-xl font-bold text-lg">
-                    <i class="fas fa-paper-plane mr-2"></i>Order
+                <button onclick="toggleCart()" class="relative bg-white p-3 rounded-2xl text-red-600 shadow-lg active:scale-95 transition-all">
+                    <i class="fas fa-shopping-basket text-xl"></i>
+                    <span id="cart-count" class="cart-badge">0</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 py-6 space-y-6">
+        
+        <!-- Search Bar -->
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-200 flex items-center px-4 py-2">
+            <i class="fas fa-search text-gray-400 mr-3"></i>
+            <input 
+                type="text" 
+                id="custSearch" 
+                oninput="updateUI()" 
+                placeholder="Search for food..." 
+                class="w-full py-3 outline-none bg-transparent text-sm"
+            >
+            <button onclick="clearSearch()" id="clear-search" class="hidden text-gray-400 hover:text-gray-600">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+
+        <!-- Categories - Horizontal Scroll (NO ADMIN BUTTONS) -->
+        <div class="overflow-x-auto no-scrollbar pb-2">
+            <div class="flex space-x-2 min-w-max">
+                <button onclick="filterCategory('Dhammaan', this)" class="category-btn active">
+                    <i class="fas fa-th mr-1"></i> All
+                </button>
+                <button onclick="filterCategory('Quraac', this)" class="category-btn">
+                    <i class="fas fa-egg mr-1"></i> Breakfast
+                </button>
+                <button onclick="filterCategory('Qado', this)" class="category-btn">
+                    <i class="fas fa-utensils mr-1"></i> Lunch
+                </button>
+                <button onclick="filterCategory('Casho', this)" class="category-btn">
+                    <i class="fas fa-drumstick-bite mr-1"></i> Dinner
+                </button>
+                <button onclick="filterCategory('Coffee', this)" class="category-btn">
+                    <i class="fas fa-coffee mr-1"></i> Coffee
+                </button>
+                <button onclick="filterCategory('Shaah', this)" class="category-btn">
+                    <i class="fas fa-mug-hot mr-1"></i> Tea
+                </button>
+                <button onclick="filterCategory('Cabitaan', this)" class="category-btn">
+                    <i class="fas fa-glass-water mr-1"></i> Drinks
+                </button>
+                <button onclick="filterCategory('Macmacaan', this)" class="category-btn">
+                    <i class="fas fa-ice-cream mr-1"></i> Desserts
+                </button>
+            </div>
+        </div>
+
+        <!-- Menu Grid - NO ADMIN BUTTONS VISIBLE -->
+        <div id="menu-items" class="menu-grid">
+            <!-- Loading skeletons -->
+            <div class="bg-gray-200 rounded-2xl h-64 animate-pulse"></div>
+            <div class="bg-gray-200 rounded-2xl h-64 animate-pulse"></div>
+            <div class="bg-gray-200 rounded-2xl h-64 animate-pulse"></div>
+        </div>
+
+        <!-- Empty State -->
+        <div id="empty-state" class="hidden text-center py-12">
+            <i class="fas fa-search text-5xl text-gray-300 mb-3"></i>
+            <p class="text-gray-500">No items found</p>
+        </div>
+    </main>
+
+    <!-- Cart Bar - Only shows when items are in cart -->
+    <div id="checkout-bar" class="cart-bar">
+        <div class="max-w-7xl mx-auto">
+            <!-- Cart Items Summary -->
+            <div id="cart-summary" class="mb-3 max-h-32 overflow-y-auto no-scrollbar space-y-2"></div>
+            
+            <!-- Total and Checkout -->
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-xs text-gray-500">Total</p>
+                    <p id="total-price" class="text-2xl sm:text-3xl font-black text-red-600">$0.00</p>
+                    <p id="item-count-text" class="text-xs text-gray-400">0 items</p>
+                </div>
+                <button onclick="checkoutToKitchen()" class="bg-gradient-to-r from-green-500 to-green-600 text-white px-8 py-4 rounded-2xl font-bold shadow-lg active:scale-95 transition-all flex items-center gap-2 text-lg">
+                    <i class="fas fa-paper-plane"></i>
+                    <span>Order Now</span>
                 </button>
             </div>
         </div>
@@ -287,17 +340,18 @@
 
     <script>
         // Configuration
-        const GOOGLE_URL = "https://script.google.com/macros/s/AKfycbwyQGcd5Sp-jg1vzseWKacgsm13rglK5t0gdt7DfO1gd_x9NMpRsBlYvxQgzlaxdgom2Q/exec";
+        const GOOGLE_URL = "YOUR_DEPLOYED_SCRIPT_URL_HERE"; // Replace with your Apps Script URL
         let menuData = JSON.parse(localStorage.getItem('tufaax_cache')) || [];
         let cart = JSON.parse(localStorage.getItem('tufaax_cart')) || [];
         let currentCategory = 'Dhammaan';
-        let showHidden = false; // NEW: toggle for hidden items
+        let isLoading = false;
 
         // Initialize
         document.addEventListener('DOMContentLoaded', () => {
-            const table = new URLSearchParams(window.location.search).get('table');
-            if (table) {
-                document.getElementById('display-table').querySelector('span').textContent = table;
+            const urlParams = new URLSearchParams(window.location.search);
+            const tableId = urlParams.get('table') || '';
+            if (tableId) {
+                document.getElementById('display-table').querySelector('span').textContent = tableId;
                 document.getElementById('display-table').classList.remove('hidden');
             }
             
@@ -306,84 +360,75 @@
             setInterval(loadMenu, 1000);
         });
 
-        // Load menu
+        // Load menu from server
         async function loadMenu() {
+            if (isLoading) return;
             try {
+                isLoading = true;
                 const res = await fetch(GOOGLE_URL);
+                if (!res.ok) throw new Error();
                 const data = await res.json();
-                if (JSON.stringify(data) !== JSON.stringify(menuData)) {
-                    menuData = data;
+                // Only show visible items to customers
+                const visibleItems = data.filter(item => item.status !== 'hidden');
+                
+                if (JSON.stringify(visibleItems) !== JSON.stringify(menuData)) {
+                    menuData = visibleItems;
                     localStorage.setItem('tufaax_cache', JSON.stringify(menuData));
                     updateUI();
                 }
-            } catch (e) {
-                console.log('Load error');
+            } catch (error) {
+                console.error('Load error:', error);
+            } finally {
+                isLoading = false;
             }
         }
 
-        // Toggle hidden items - NEW FUNCTION
-        function toggleHidden() {
-            showHidden = !showHidden;
-            const btn = document.getElementById('showHiddenBtn');
-            if (showHidden) {
-                btn.classList.add('active');
-                btn.innerHTML = '<i class="fas fa-eye"></i><span>Show All</span>';
-            } else {
-                btn.classList.remove('active');
-                btn.innerHTML = '<i class="fas fa-eye-slash"></i><span>Show Hidden</span>';
-            }
-            updateUI();
-        }
-
-        // Update UI
+        // Update UI - NO ADMIN BUTTONS HERE
         function updateUI() {
             const container = document.getElementById('menu-items');
             const searchTerm = document.getElementById('custSearch').value.toLowerCase();
+            document.getElementById('clear-search').classList.toggle('hidden', !searchTerm);
 
-            // Filter by category
+            // Filter by category and search
             let filtered = currentCategory === 'Dhammaan' ? menuData : menuData.filter(i => i.category === currentCategory);
             
-            // Filter by hidden/show
-            if (!showHidden) {
-                filtered = filtered.filter(i => i.status !== 'hidden');
-            }
-            
-            // Filter by search
             if (searchTerm) {
-                filtered = filtered.filter(i => i.name.toLowerCase().includes(searchTerm));
+                filtered = filtered.filter(item => 
+                    item.name.toLowerCase().includes(searchTerm) ||
+                    (item.description && item.description.toLowerCase().includes(searchTerm))
+                );
             }
 
+            // Empty state
             if (filtered.length === 0) {
                 container.innerHTML = '';
                 document.getElementById('empty-state').classList.remove('hidden');
                 return;
+            } else {
+                document.getElementById('empty-state').classList.add('hidden');
             }
 
-            document.getElementById('empty-state').classList.add('hidden');
-
+            // Render items - NO ADMIN BUTTONS, ONLY CUSTOMER CONTROLS
             container.innerHTML = filtered.map(item => {
                 const count = cart.filter(c => String(c.id) === String(item.id)).length;
-                const isHidden = item.status === 'hidden';
-                
                 return `
-                <div class="item-card ${isHidden ? 'hidden-item' : ''}">
+                <div class="item-card">
                     <div class="relative">
-                        <img src="${item.img}" class="w-full h-32 object-cover rounded-xl" onerror="this.src='https://via.placeholder.com/200'">
-                        ${isHidden ? '<span class="hidden-badge"><i class="fas fa-eye-slash mr-1"></i>Hidden</span>' : ''}
-                        ${count > 0 ? `<span class="absolute top-2 left-2 bg-red-600 text-white text-xs px-2 py-1 rounded-full">${count}</span>` : ''}
+                        <img src="${item.img}" class="w-full h-36 sm:h-40 object-cover" onerror="this.src='https://via.placeholder.com/300/dc2626/ffffff?text=Tufaax'">
+                        ${count > 0 ? `<div class="absolute top-2 right-2 bg-red-600 text-white text-xs font-bold px-2 py-1 rounded-full">${count}</div>` : ''}
                     </div>
-                    <div class="mt-2">
-                        <h3 class="font-bold">${item.name}</h3>
-                        <p class="text-xs text-gray-400 mb-2">${item.description || ''}</p>
-                        <div class="flex justify-between items-center">
-                            <span class="text-red-600 font-black">$${parseFloat(item.price).toFixed(2)}</span>
+                    <div class="p-3 flex-1 flex flex-col">
+                        <h3 class="font-black text-gray-800 text-sm mb-1">${item.name}</h3>
+                        <p class="text-xs text-gray-400 line-clamp-2 mb-2 flex-1">${item.description || 'Delicious food'}</p>
+                        <div class="flex items-center justify-between mt-2">
+                            <span class="price-tag">$${parseFloat(item.price).toFixed(2)}</span>
                             <div class="flex items-center gap-1">
-                                <button onclick="removeFromCart('${item.id}')" class="qty-btn" ${count === 0 ? 'disabled' : ''}>
-                                    <i class="fas fa-minus"></i>
+                                <button onclick="removeFromCart('${item.id}')" class="quantity-btn minus" ${count === 0 ? 'disabled' : ''}>
+                                    <i class="fas fa-minus text-xs"></i>
                                 </button>
                                 <span class="font-bold w-6 text-center">${count}</span>
-                                <button onclick="addToCart('${item.id}')" class="qty-btn primary">
-                                    <i class="fas fa-plus"></i>
+                                <button onclick="addToCart('${item.id}')" class="quantity-btn plus">
+                                    <i class="fas fa-plus text-xs"></i>
                                 </button>
                             </div>
                         </div>
@@ -391,7 +436,7 @@
                 </div>`;
             }).join('');
             
-            updateCart();
+            updateCartDisplay();
         }
 
         // Cart functions
@@ -411,92 +456,124 @@
             }
         }
 
-        function updateCart() {
+        function updateCartDisplay() {
             document.getElementById('cart-count').textContent = cart.length;
             const total = cart.reduce((sum, i) => sum + i.price, 0);
             document.getElementById('total-price').textContent = `$${total.toFixed(2)}`;
             
+            const uniqueItems = new Set(cart.map(i => i.id)).size;
+            document.getElementById('item-count-text').textContent = `${cart.length} item${cart.length !== 1 ? 's' : ''}`;
+            
+            const cartBar = document.getElementById('checkout-bar');
             if (cart.length > 0) {
-                document.getElementById('checkout-bar').classList.add('visible');
+                cartBar.classList.add('visible');
                 
                 // Group items for summary
-                const grouped = {};
-                cart.forEach(i => grouped[i.name] = (grouped[i.name] || 0) + 1);
+                const grouped = cart.reduce((acc, item) => {
+                    acc[item.name] = (acc[item.name] || 0) + 1;
+                    return acc;
+                }, {});
                 
                 document.getElementById('cart-summary').innerHTML = Object.entries(grouped)
                     .map(([name, qty]) => `
-                        <div class="flex justify-between text-sm bg-gray-50 p-2 rounded">
-                            <span>${qty}x ${name}</span>
+                        <div class="flex justify-between text-sm bg-gray-50 rounded-lg px-3 py-2">
+                            <span class="font-medium">${qty}x ${name}</span>
                         </div>
                     `).join('');
             } else {
-                document.getElementById('checkout-bar').classList.remove('visible');
+                cartBar.classList.remove('visible');
             }
             
             localStorage.setItem('tufaax_cart', JSON.stringify(cart));
         }
 
-        // Send order to kitchen
-        function sendOrder() {
-            if (cart.length === 0) return;
+        // Filter by category
+        function filterCategory(category, btn) {
+            currentCategory = category;
+            document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            document.getElementById('custSearch').value = '';
+            updateUI();
+        }
+
+        function clearSearch() {
+            document.getElementById('custSearch').value = '';
+            updateUI();
+        }
+
+        function toggleCart() {
+            const cartBar = document.getElementById('checkout-bar');
+            if (cartBar.classList.contains('visible')) {
+                cartBar.scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+
+        // Checkout to kitchen
+        function checkoutToKitchen() {
+            if (cart.length === 0) {
+                alert('Please add items to your cart');
+                return;
+            }
             
-            const table = new URLSearchParams(window.location.search).get('table') || '1';
+            const tableId = new URLSearchParams(window.location.search).get('table') || '1';
             
             // Group items
-            const grouped = {};
-            cart.forEach(i => grouped[i.name] = (grouped[i.name] || 0) + 1);
+            const groupedItems = cart.reduce((acc, item) => {
+                const key = item.name;
+                if (!acc[key]) {
+                    acc[key] = { name: item.name, quantity: 1 };
+                } else {
+                    acc[key].quantity += 1;
+                }
+                return acc;
+            }, {});
+
+            const itemsWithQuantity = Object.values(groupedItems);
             
-            const items = Object.entries(grouped).map(([name, qty]) => ({ name, quantity: qty }));
-            
-            const order = {
+            const orderData = {
                 id: 'ORD-' + Date.now(),
-                table: table,
-                items: items,
+                table: tableId,
+                items: itemsWithQuantity,
                 itemsString: JSON.stringify(cart),
+                status: 'active',
                 timestamp: new Date().toISOString(),
+                orderNumber: Math.floor(Math.random() * 9000) + 1000,
                 timeReceived: new Date().toLocaleTimeString()
             };
             
-            // Save to kitchen
+            // Save to kitchen (admin panel will pick this up)
             const kitchenOrders = JSON.parse(localStorage.getItem('tufaax_kitchen_orders')) || [];
-            kitchenOrders.unshift(order);
+            kitchenOrders.unshift(orderData);
             localStorage.setItem('tufaax_kitchen_orders', JSON.stringify(kitchenOrders));
             
-            // Show modal
-            document.getElementById('modal-table').textContent = `Table ${table}`;
+            // Show success modal
+            document.getElementById('orderNumberDisplay').textContent = '#' + orderData.orderNumber;
+            document.getElementById('orderItemsDisplay').innerHTML = itemsWithQuantity
+                .map(item => `<div class="flex justify-between"><span>${item.quantity}x ${item.name}</span></div>`).join('');
+            
             document.getElementById('successModal').style.display = 'flex';
             
             // Clear cart
             cart = [];
             updateUI();
             
-            setTimeout(closeModal, 3000);
-        }
-
-        function filterCategory(category, btn) {
-            currentCategory = category;
-            document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            updateUI();
-        }
-
-        function toggleCart() {
-            document.getElementById('checkout-bar').scrollIntoView({ behavior: 'smooth' });
+            // Auto close modal after 4 seconds
+            setTimeout(closeModal, 4000);
         }
 
         function closeModal() {
             document.getElementById('successModal').style.display = 'none';
         }
 
-        // Expose functions
+        // Expose functions globally
         window.updateUI = updateUI;
         window.filterCategory = filterCategory;
+        window.clearSearch = clearSearch;
         window.toggleCart = toggleCart;
-        window.sendOrder = sendOrder;
+        window.checkoutToKitchen = checkoutToKitchen;
         window.addToCart = addToCart;
         window.removeFromCart = removeFromCart;
         window.closeModal = closeModal;
-        window.toggleHidden = toggleHidden;
     </script>
 </body>
 </html>
