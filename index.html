@@ -30,7 +30,6 @@
         
         .category-btn { 
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            text-shadow: none;
         }
         
         .category-btn.active { 
@@ -39,21 +38,6 @@
             border-color: #dc2626; 
             transform: scale(1.05);
             box-shadow: 0 4px 15px rgba(220, 38, 38, 0.4);
-        }
-        
-        .fade-in { 
-            animation: fadeIn 0.5s ease-out forwards;
-        }
-        
-        @keyframes fadeIn { 
-            from { 
-                opacity: 0; 
-                transform: translateY(20px); 
-            } 
-            to { 
-                opacity: 1; 
-                transform: translateY(0); 
-            } 
         }
         
         .no-scrollbar::-webkit-scrollbar { display: none; }
@@ -65,19 +49,8 @@
             -webkit-backdrop-filter: blur(20px);
         }
         
-        .skeleton { 
-            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-            background-size: 200% 100%;
-            animation: shimmer 1.5s infinite;
-        }
-        
-        @keyframes shimmer {
-            0% { background-position: 200% 0; }
-            100% { background-position: -200% 0; }
-        }
-        
         .item-card {
-            transition: all 0.3s ease;
+            transition: transform 0.2s ease;
         }
         
         .item-card:active {
@@ -107,16 +80,6 @@
             transform: scale(0.85);
         }
         
-        .error-message {
-            animation: shake 0.5s;
-        }
-        
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-10px); }
-            75% { transform: translateX(10px); }
-        }
-        
         .loading-spinner {
             border: 3px solid #f3f4f6;
             border-top: 3px solid #dc2626;
@@ -131,17 +94,55 @@
             100% { transform: rotate(360deg); }
         }
         
-        .empty-state {
-            opacity: 0;
-            animation: fadeInSlow 1s ease-out forwards;
+        /* Success Popup */
+        .success-popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            background: white;
+            padding: 2rem;
+            border-radius: 1.5rem;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+            transition: transform 0.3s ease;
         }
         
-        @keyframes fadeInSlow {
-            to { opacity: 1; }
+        .success-popup.show {
+            transform: translate(-50%, -50%) scale(1);
+        }
+        
+        .success-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+        }
+        
+        .success-overlay.show {
+            opacity: 1;
+            pointer-events: auto;
         }
     </style>
 </head>
 <body class="bg-gradient-to-br from-gray-50 to-gray-100 pb-32">
+
+    <!-- Success Overlay -->
+    <div id="success-overlay" class="success-overlay"></div>
+    
+    <!-- Success Popup -->
+    <div id="success-popup" class="success-popup">
+        <div class="text-center">
+            <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i class="fas fa-check text-green-600 text-2xl"></i>
+            </div>
+            <h3 class="text-xl font-bold text-gray-800 mb-2">Guul!</h3>
+            <p id="success-message" class="text-gray-600 text-sm">Waa lagu daray!</p>
+        </div>
+    </div>
 
     <!-- Header -->
     <header class="bg-gradient-to-r from-red-600 to-red-700 text-white p-6 rounded-b-[3rem] sticky top-0 z-50 shadow-2xl">
@@ -209,21 +210,21 @@
 
         <!-- Menu Items Grid -->
         <div id="menu-items" class="grid grid-cols-2 md:grid-cols-3 gap-4">
-            <!-- Loading Skeletons -->
-            <div class="skeleton rounded-[2rem] h-64"></div>
-            <div class="skeleton rounded-[2rem] h-64"></div>
-            <div class="skeleton rounded-[2rem] h-64"></div>
+            <div class="text-center py-16 col-span-full">
+                <div class="loading-spinner mx-auto mb-4"></div>
+                <p class="text-gray-500 font-bold">Soo dejinaya menu...</p>
+            </div>
         </div>
 
         <!-- Empty State -->
-        <div id="empty-state" class="hidden empty-state text-center py-16">
+        <div id="empty-state" class="hidden text-center py-16">
             <i class="fas fa-search text-6xl text-gray-300 mb-4"></i>
             <h3 class="text-xl font-bold text-gray-600 mb-2">Lama Helin</h3>
             <p class="text-gray-400 text-sm">Fadlan isku day eray kale ama dooro qayb kale</p>
         </div>
 
         <!-- Error State -->
-        <div id="error-state" class="hidden error-message bg-red-50 border-2 border-red-200 rounded-2xl p-6 text-center">
+        <div id="error-state" class="hidden bg-red-50 border-2 border-red-200 rounded-2xl p-6 text-center">
             <i class="fas fa-exclamation-triangle text-4xl text-red-500 mb-3"></i>
             <h3 class="text-lg font-bold text-red-700 mb-2">Khalad ayaa dhacay</h3>
             <p class="text-red-600 text-sm mb-4">Internet-ka hubi ama dib u riix halkan</p>
@@ -239,7 +240,6 @@
         <div class="max-w-4xl mx-auto">
             <!-- Cart Items Summary -->
             <div id="cart-summary" class="mb-4 max-h-32 overflow-y-auto no-scrollbar space-y-2">
-                <!-- Cart items will be inserted here -->
             </div>
             
             <!-- Total and Checkout -->
@@ -259,25 +259,18 @@
         </div>
     </div>
 
-    <!-- Loading Overlay -->
-    <div id="loading-overlay" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-[100] hidden flex items-center justify-center">
-        <div class="bg-white rounded-3xl p-8 text-center shadow-2xl">
-            <div class="loading-spinner mx-auto mb-4"></div>
-            <p class="text-gray-600 font-bold">Soo dejinaya...</p>
-        </div>
-    </div>
-
     <script>
         // Configuration
-        const GOOGLE_URL = "https://script.google.com/macros/s/AKfycbwOXK0H3RicHlPQSCM_6zEPN8IxZhv-uoCQYyg1wok2S0SYPXyhA6h445VWk3X8ttjr_w/exec"; // Replace with your deployed URL
-        const WHATSAPP_PHONE = "252617054480"; // Kitchen/Restaurant phone number
-        const REFRESH_INTERVAL = 500; // milliseconds
+        const GOOGLE_URL = "https://script.google.com/macros/s/AKfycbwOXK0H3RicHlPQSCM_6zEPN8IxZhv-uoCQYyg1wok2S0SYPXyhA6h445VWk3X8ttjr_w/exec";
+        const WHATSAPP_PHONE = "252617054480";
+        const REFRESH_INTERVAL = 1000; // 1 second refresh
         
         // State Management
         let menuData = JSON.parse(localStorage.getItem('tufaax_cache')) || [];
         let cart = JSON.parse(localStorage.getItem('tufaax_cart')) || [];
         let currentCategory = 'Dhammaan';
         let isLoading = false;
+        let lastDataHash = '';
 
         // Initialize
         document.addEventListener('DOMContentLoaded', () => {
@@ -285,7 +278,6 @@
         });
 
         function initializeApp() {
-            // Get table number from URL
             const urlParams = new URLSearchParams(window.location.search);
             const tableId = urlParams.get('table') || 'Lama aqoon';
             
@@ -295,77 +287,62 @@
                 display.classList.remove('hidden');
             }
             
-            // Load initial data
             if (menuData.length > 0) {
                 updateUI();
             }
             
             loadMenu();
-            
-            // Start auto-refresh
             setInterval(loadMenu, REFRESH_INTERVAL);
         }
 
-        /**
-         * Load Menu from Google Sheets
-         */
+        function hashData(data) {
+            return JSON.stringify(data);
+        }
+
         async function loadMenu() {
             if (isLoading) return;
             
             try {
                 isLoading = true;
-                document.getElementById('live-indicator').classList.add('animate-pulse');
                 
-                const res = await fetch(GOOGLE_URL);
-                
+                const res = await fetch(GOOGLE_URL + '?t=' + Date.now());
                 if (!res.ok) throw new Error('Network response was not ok');
                 
                 const data = await res.json();
-                
-                // Filter only visible items
                 const visibleItems = data.filter(item => item.status !== 'hidden');
+                const newHash = hashData(visibleItems);
                 
-                // Only update if data changed
-                if (JSON.stringify(visibleItems) !== JSON.stringify(menuData)) {
+                if (newHash !== lastDataHash) {
                     menuData = visibleItems;
+                    lastDataHash = newHash;
                     localStorage.setItem('tufaax_cache', JSON.stringify(menuData));
                     updateUI();
                 }
                 
-                // Hide error state if it was showing
                 document.getElementById('error-state').classList.add('hidden');
                 
             } catch (error) {
                 console.error('Menu load error:', error);
-                
-                // Show error only if no cached data
                 if (menuData.length === 0) {
                     document.getElementById('menu-items').innerHTML = '';
                     document.getElementById('error-state').classList.remove('hidden');
                 }
             } finally {
                 isLoading = false;
-                document.getElementById('live-indicator').classList.remove('animate-pulse');
             }
         }
 
-        /**
-         * Update UI with filtered menu items
-         */
         function updateUI() {
             const container = document.getElementById('menu-items');
             const searchTerm = document.getElementById('custSearch').value.toLowerCase();
             const searchBtn = document.getElementById('clear-search');
             
-            // Show/hide clear search button
             searchBtn.classList.toggle('hidden', !searchTerm);
             
-            // Filter by category
             let filtered = currentCategory === 'Dhammaan' 
                 ? menuData 
                 : menuData.filter(i => i.category === currentCategory);
             
-            // Filter by search term
             if (searchTerm) {
                 filtered = filtered.filter(item => 
                     item.name.toLowerCase().includes(searchTerm) ||
@@ -374,7 +351,6 @@
                 );
             }
             
-            // Show empty state if no results
             if (filtered.length === 0) {
                 container.innerHTML = '';
                 document.getElementById('empty-state').classList.remove('hidden');
@@ -383,12 +359,11 @@
                 document.getElementById('empty-state').classList.add('hidden');
             }
             
-            // Render menu items
-            container.innerHTML = filtered.map((item, index) => {
+            container.innerHTML = filtered.map(item => {
                 const count = cart.filter(c => String(c.id) === String(item.id)).length;
                 
                 return `
-                <div class="item-card bg-white rounded-[2rem] overflow-hidden shadow-md hover:shadow-xl border border-gray-100 p-4 flex flex-col transition-all fade-in" style="animation-delay: ${index * 0.05}s">
+                <div class="item-card bg-white rounded-[2rem] overflow-hidden shadow-md hover:shadow-xl border border-gray-100 p-4 flex flex-col">
                     <div class="relative mb-3">
                         <img 
                             src="${item.img}" 
@@ -416,7 +391,7 @@
                         <div class="flex items-center gap-2 bg-gray-50 p-1.5 rounded-xl shadow-inner">
                             <button 
                                 onclick="removeFromCart('${item.id}')" 
-                                class="quantity-button w-9 h-9 bg-white border-2 border-gray-200 rounded-lg font-black active:scale-90 transition-all ${count === 0 ? 'opacity-30 cursor-not-allowed' : 'hover:border-red-300'}"
+                                class="quantity-button w-9 h-9 bg-white border-2 border-gray-200 rounded-lg font-black ${count === 0 ? 'opacity-30 cursor-not-allowed' : 'hover:border-red-300'}"
                                 ${count === 0 ? 'disabled' : ''}
                             >
                                 <i class="fas fa-minus text-xs text-gray-600"></i>
@@ -426,7 +401,7 @@
                             
                             <button 
                                 onclick="addToCart('${item.id}')" 
-                                class="quantity-button w-9 h-9 bg-gradient-to-br from-red-600 to-red-700 text-white rounded-lg font-black active:scale-90 transition-all shadow-md hover:shadow-lg"
+                                class="quantity-button w-9 h-9 bg-gradient-to-br from-red-600 to-red-700 text-white rounded-lg font-black shadow-md hover:shadow-lg"
                             >
                                 <i class="fas fa-plus text-xs"></i>
                             </button>
@@ -438,9 +413,6 @@
             updateCartDisplay();
         }
 
-        /**
-         * Update Cart Display
-         */
         function updateCartDisplay() {
             const cartCount = document.getElementById('cart-count');
             const totalPrice = document.getElementById('total-price');
@@ -448,21 +420,16 @@
             const cartSummary = document.getElementById('cart-summary');
             const itemCountText = document.getElementById('item-count-text');
             
-            // Update cart count
             cartCount.innerText = cart.length;
             
-            // Calculate total
             const total = cart.reduce((sum, item) => sum + item.price, 0);
             totalPrice.innerText = formatPrice(total);
             
-            // Update item count text
             const uniqueItems = [...new Set(cart.map(i => i.id))].length;
             itemCountText.innerText = `${cart.length} shay (${uniqueItems} nooc)`;
             
-            // Show/hide checkout bar
             checkoutBar.classList.toggle('hidden', cart.length === 0);
             
-            // Update cart summary
             if (cart.length > 0) {
                 const groupedCart = cart.reduce((acc, item) => {
                     acc[item.name] = (acc[item.name] || 0) + 1;
@@ -478,13 +445,9 @@
                     `).join('');
             }
             
-            // Save cart to localStorage
             localStorage.setItem('tufaax_cart', JSON.stringify(cart));
         }
 
-        /**
-         * Add Item to Cart
-         */
         function addToCart(id) {
             const item = menuData.find(m => String(m.id) === String(id));
             if (item) {
@@ -494,7 +457,8 @@
                     price: parseFloat(item.price) 
                 });
                 
-                // Visual feedback
+                showSuccessPopup('Waa lagu daray!');
+                
                 const cartIcon = document.querySelector('.fa-shopping-basket').parentElement;
                 cartIcon.classList.add('animate-bounce');
                 setTimeout(() => cartIcon.classList.remove('animate-bounce'), 500);
@@ -503,44 +467,30 @@
             }
         }
 
-        /**
-         * Remove Item from Cart
-         */
         function removeFromCart(id) {
             const idx = cart.findLastIndex(c => String(c.id) === String(id));
             if (idx > -1) {
                 cart.splice(idx, 1);
+                showSuccessPopup('Waa laga saaray!');
                 updateUI();
             }
         }
 
-        /**
-         * Filter by Category
-         */
         function filterCategory(category, btn) {
             currentCategory = category;
             
-            // Update active button
             document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
             
-            // Clear search
             document.getElementById('custSearch').value = '';
-            
             updateUI();
         }
 
-        /**
-         * Clear Search
-         */
         function clearSearch() {
             document.getElementById('custSearch').value = '';
             updateUI();
         }
 
-        /**
-         * Toggle Cart View
-         */
         function toggleCart() {
             const checkoutBar = document.getElementById('checkout-bar');
             if (!checkoutBar.classList.contains('hidden')) {
@@ -548,9 +498,6 @@
             }
         }
 
-        /**
-         * Checkout via WhatsApp
-         */
         function checkoutWhatsApp() {
             if (cart.length === 0) {
                 alert('Fadlan soo dar cunto ka hor intaanad dalbanin!');
@@ -560,13 +507,11 @@
             const urlParams = new URLSearchParams(window.location.search);
             const tableId = urlParams.get('table') || 'Lama aqoon';
             
-            // Build WhatsApp message
             let msg = "🍎 *DALAB CUSUB - TUFAAX*%0A%0A";
             msg += `📍 *Miiska:* ${tableId}%0A`;
             msg += `🕐 *Waqtiga:* ${new Date().toLocaleString('so-SO')}%0A`;
             msg += "─────────────────────%0A%0A";
             
-            // Group items
             const itemsGrouped = cart.reduce((acc, item) => {
                 if (!acc[item.name]) {
                     acc[item.name] = { qty: 0, price: item.price };
@@ -575,7 +520,6 @@
                 return acc;
             }, {});
 
-            // Add items to message
             for (const [name, data] of Object.entries(itemsGrouped)) {
                 const itemTotal = data.qty * data.price;
                 msg += `✅ ${data.qty}x *${name}*%0A`;
@@ -588,35 +532,27 @@
             msg += "📞 Fadlan noogu soo wac hadii aad wax bedel ah rabto.%0A";
             msg += "🙏 Mahadsanid!";
             
-            // Open WhatsApp
             window.open(`https://wa.me/${WHATSAPP_PHONE}?text=${msg}`, '_blank');
-            
-            // Optional: Clear cart after order
-            // setTimeout(() => {
-            //     cart = [];
-            //     updateUI();
-            // }, 2000);
         }
 
-        /**
-         * Format Price
-         */
         function formatPrice(price) {
             return `$${parseFloat(price || 0).toFixed(2)}`;
         }
 
-        /**
-         * Service Worker for offline support (optional)
-         */
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                // navigator.serviceWorker.register('/sw.js'); // Uncomment if you create a service worker
-            });
+        function showSuccessPopup(message) {
+            const popup = document.getElementById('success-popup');
+            const overlay = document.getElementById('success-overlay');
+            const messageEl = document.getElementById('success-message');
+            
+            messageEl.textContent = message;
+            overlay.classList.add('show');
+            popup.classList.add('show');
+            
+            setTimeout(() => {
+                popup.classList.remove('show');
+                overlay.classList.remove('show');
+            }, 1500);
         }
     </script>
 </body>
 </html>
-
-
-
-
