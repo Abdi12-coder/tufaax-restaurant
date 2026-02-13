@@ -2,36 +2,190 @@
 <html lang="so">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🍎 Tufaax Admin Panel</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>🍎 Tufaax Admin</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Inter', system-ui, sans-serif; background: #f1f5f9; }
         
-        .processing { opacity: 0.6; pointer-events: none; }
-        #custom-popup { display: none; }
-        .popup-card { animation: popup-slide 0.2s ease-out; }
-        @keyframes popup-slide { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        /* Responsive base */
+        html { font-size: 14px; }
+        @media (min-width: 640px) { html { font-size: 15px; } }
+        @media (min-width: 1024px) { html { font-size: 16px; } }
         
-        .toast-success {
-            position: fixed; top: 20px; right: 20px; z-index: 9999;
-            background: #22c55e; color: white; padding: 1rem 2rem;
-            border-radius: 999px; font-weight: bold; box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-            display: none; align-items: center; gap: 0.75rem;
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #f1f5f9;
         }
         
-        .filter-btn.active { background: #dc2626 !important; color: white !important; }
-        .no-scrollbar::-webkit-scrollbar { display: none; }
+        /* Processing state */
+        .processing { opacity: 0.6; pointer-events: none; position: relative; }
+        .processing::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: rgba(255,255,255,0.5);
+            border-radius: inherit;
+        }
         
+        /* Custom Popup */
+        #custom-popup { display: none; }
+        .popup-card { animation: popupSlide 0.2s ease-out; }
+        @keyframes popupSlide {
+            from { transform: scale(0.95); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+        
+        /* Toast */
+        .toast-success {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            background: #10b981;
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 999px;
+            font-weight: bold;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            z-index: 9999;
+            display: none;
+            align-items: center;
+            gap: 0.75rem;
+            animation: slideDown 0.3s ease-out;
+        }
+        
+        @keyframes slideDown {
+            from { transform: translateY(-100px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        
+        /* Filter buttons */
+        .filter-btn {
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+        .filter-btn.active {
+            background: #dc2626 !important;
+            color: white !important;
+            border-color: #dc2626 !important;
+        }
+        
+        /* Hide scrollbar */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        /* Admin cards */
+        .admin-card {
+            background: white;
+            border-radius: 1.5rem;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+            border: 1px solid #e2e8f0;
+        }
+        
+        /* Stats cards */
+        .stats-card {
+            background: white;
+            border-radius: 1.5rem;
+            padding: 1.5rem;
+            border: 1px solid #e2e8f0;
+            transition: all 0.2s;
+        }
+        .stats-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1);
+        }
+        
+        /* Kitchen link */
         .kitchen-link {
             background: linear-gradient(135deg, #f59e0b, #d97706);
-            transition: all 0.3s;
+            transition: all 0.2s;
         }
         .kitchen-link:hover {
             transform: translateY(-2px);
             box-shadow: 0 10px 25px rgba(245, 158, 11, 0.3);
+        }
+        
+        /* Form inputs */
+        .form-input {
+            width: 100%;
+            padding: 1rem;
+            background: #f8fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 1rem;
+            outline: none;
+            transition: all 0.2s;
+        }
+        .form-input:focus {
+            border-color: #dc2626;
+            box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
+        }
+        
+        /* Item row */
+        .item-row {
+            background: white;
+            border: 2px solid #e2e8f0;
+            border-radius: 1rem;
+            padding: 1rem;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+        .item-row:hover {
+            border-color: #dc2626;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+        .item-row.hidden-item {
+            background: #fef2f2;
+            border-color: #fecaca;
+        }
+        
+        /* Action buttons */
+        .action-btn {
+            min-width: 2.5rem;
+            height: 2.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 0.75rem;
+            font-weight: bold;
+            transition: all 0.2s;
+            border: 2px solid transparent;
+        }
+        .action-btn:active {
+            transform: scale(0.95);
+        }
+        
+        /* Fixed hide button - now working properly */
+        .hide-btn.visible {
+            background: #fee2e2;
+            color: #dc2626;
+            border-color: #fecaca;
+        }
+        .hide-btn.hidden {
+            background: #dcfce7;
+            color: #166534;
+            border-color: #bbf7d0;
+        }
+        
+        /* Responsive grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+        @media (min-width: 768px) {
+            .stats-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+        
+        /* Image preview */
+        .image-preview {
+            max-height: 200px;
+            border-radius: 1rem;
+            border: 2px solid #e2e8f0;
+            object-fit: cover;
         }
     </style>
 </head>
@@ -39,118 +193,154 @@
 
     <!-- Custom Popup -->
     <div id="custom-popup" class="fixed inset-0 bg-black/60 z-[200] flex items-center justify-center p-4 backdrop-blur-sm">
-        <div class="popup-card bg-white rounded-[2.5rem] p-8 max-w-sm w-full shadow-2xl text-center">
-            <div id="popup-icon-box" class="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-5 bg-red-50 text-red-600 border-4 border-red-100">
-                <i id="popup-icon" class="fas fa-trash-alt text-3xl"></i>
+        <div class="popup-card bg-white rounded-[2rem] p-6 max-w-sm w-full shadow-2xl">
+            <div id="popup-icon-box" class="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl bg-red-50 text-red-600 border-4 border-red-100">
+                <i id="popup-icon" class="fas fa-question"></i>
             </div>
-            <h3 id="popup-title" class="font-black text-xl mb-2">Xaqiiji</h3>
-            <p id="popup-msg" class="text-gray-500 text-sm leading-relaxed mb-6"></p>
+            <h3 id="popup-title" class="font-black text-xl text-center mb-2">Confirm</h3>
+            <p id="popup-msg" class="text-gray-500 text-sm text-center mb-6"></p>
             <div class="flex gap-3">
-                <button onclick="closePopup()" class="flex-1 bg-gray-100 hover:bg-gray-200 p-4 rounded-2xl font-bold transition-all">Xir</button>
-                <button id="popup-confirm-btn" class="flex-1 p-4 rounded-2xl font-bold text-white shadow-lg bg-red-600 hover:bg-red-700">Haa</button>
+                <button onclick="closePopup()" class="flex-1 bg-gray-100 hover:bg-gray-200 py-3 rounded-xl font-bold transition-all">
+                    Cancel
+                </button>
+                <button id="popup-confirm-btn" class="flex-1 text-white py-3 rounded-xl font-bold shadow-md transition-all">
+                    Confirm
+                </button>
             </div>
         </div>
     </div>
 
     <!-- Success Toast -->
     <div id="success-toast" class="toast-success">
-        <i class="fas fa-check-circle text-2xl"></i>
-        <div>
-            <p class="font-bold">Guul!</p>
-            <p class="text-sm opacity-90">Waa la kaydiyey</p>
-        </div>
+        <i class="fas fa-check-circle text-xl"></i>
+        <span>Saved successfully!</span>
     </div>
 
-    <div class="max-w-6xl mx-auto space-y-6">
+    <div class="max-w-7xl mx-auto space-y-6">
         
-        <!-- Header with Kitchen Link -->
-        <header class="bg-gradient-to-r from-gray-800 to-gray-900 text-white p-6 rounded-[2rem] shadow-2xl border-b-4 border-red-500">
-            <div class="flex justify-between items-center">
+        <!-- Header -->
+        <div class="bg-gradient-to-r from-gray-800 to-gray-900 text-white p-6 rounded-[2rem] shadow-xl">
+            <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
                 <div>
-                    <h1 class="text-3xl font-black italic tracking-tight flex items-center gap-3">
+                    <h1 class="text-2xl sm:text-3xl font-black flex items-center gap-3">
                         🍎 TUFAAX ADMIN
-                        <span class="text-xs bg-red-500 px-3 py-1 rounded-full font-bold animate-pulse">DASHBOARD</span>
+                        <span class="text-xs bg-red-500 px-3 py-1 rounded-full animate-pulse">DASHBOARD</span>
                     </h1>
-                    <p class="text-xs text-gray-400 font-bold uppercase tracking-widest mt-1">Maamulka Menu-ga - Live System</p>
+                    <p class="text-xs text-gray-400 mt-1">Menu Management - Live System</p>
                 </div>
                 <div class="flex items-center gap-3">
-                    <!-- Kitchen Link - New -->
+                    <!-- Kitchen Link -->
                     <a href="kitchen.html" target="_blank" class="kitchen-link text-white px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2">
                         <i class="fas fa-utensils"></i>
-                        <span>Kitchen View</span>
+                        <span class="hidden sm:inline">Kitchen</span>
                     </a>
                     
-                    <div class="bg-green-500/20 text-green-400 px-4 py-2 rounded-full text-xs flex items-center gap-2 border border-green-500/30">
+                    <!-- Live Indicator -->
+                    <div class="bg-green-500/20 text-green-400 px-3 py-2 rounded-full text-xs flex items-center gap-2">
                         <span class="relative flex h-2 w-2">
-                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                            <span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                            <span class="animate-ping absolute h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                            <span class="relative h-2 w-2 rounded-full bg-green-500"></span>
                         </span>
-                        LIVE
+                        <span class="hidden sm:inline">LIVE</span>
                     </div>
-                    <button onclick="location.reload()" class="bg-white/10 hover:bg-white/20 p-3 rounded-xl transition-all" title="Cusbooneysii">
+                    
+                    <!-- Refresh Button -->
+                    <button onclick="location.reload()" class="bg-white/10 hover:bg-white/20 p-3 rounded-xl transition-all">
                         <i class="fas fa-sync-alt"></i>
                     </button>
                 </div>
             </div>
-        </header>
+        </div>
 
         <!-- Statistics Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div class="bg-gradient-to-br from-blue-500 to-blue-600 text-white p-6 rounded-2xl shadow-lg">
-                <p class="text-3xl font-black" id="stat-total">0</p>
-                <p class="text-sm opacity-90 font-semibold">Wadarta Items</p>
+        <div class="stats-grid">
+            <div class="stats-card">
+                <div class="flex items-center gap-3 mb-2">
+                    <div class="bg-blue-100 p-3 rounded-xl">
+                        <i class="fas fa-utensils text-blue-600"></i>
+                    </div>
+                    <p class="text-sm text-gray-500">Total Items</p>
+                </div>
+                <p id="stat-total" class="text-3xl font-black text-gray-800">0</p>
             </div>
-            <div class="bg-gradient-to-br from-green-500 to-green-600 text-white p-6 rounded-2xl shadow-lg">
-                <p class="text-3xl font-black" id="stat-visible">0</p>
-                <p class="text-sm opacity-90 font-semibold">Visible Items</p>
+            
+            <div class="stats-card">
+                <div class="flex items-center gap-3 mb-2">
+                    <div class="bg-green-100 p-3 rounded-xl">
+                        <i class="fas fa-eye text-green-600"></i>
+                    </div>
+                    <p class="text-sm text-gray-500">Visible</p>
+                </div>
+                <p id="stat-visible" class="text-3xl font-black text-gray-800">0</p>
             </div>
-            <div class="bg-gradient-to-br from-red-500 to-red-600 text-white p-6 rounded-2xl shadow-lg">
-                <p class="text-3xl font-black" id="stat-hidden">0</p>
-                <p class="text-sm opacity-90 font-semibold">Hidden Items</p>
+            
+            <div class="stats-card">
+                <div class="flex items-center gap-3 mb-2">
+                    <div class="bg-red-100 p-3 rounded-xl">
+                        <i class="fas fa-eye-slash text-red-600"></i>
+                    </div>
+                    <p class="text-sm text-gray-500">Hidden</p>
+                </div>
+                <p id="stat-hidden" class="text-3xl font-black text-gray-800">0</p>
             </div>
-            <div class="bg-gradient-to-br from-purple-500 to-purple-600 text-white p-6 rounded-2xl shadow-lg">
-                <p class="text-3xl font-black" id="stat-categories">0</p>
-                <p class="text-sm opacity-90 font-semibold">Categories</p>
+            
+            <div class="stats-card">
+                <div class="flex items-center gap-3 mb-2">
+                    <div class="bg-purple-100 p-3 rounded-xl">
+                        <i class="fas fa-tags text-purple-600"></i>
+                    </div>
+                    <p class="text-sm text-gray-500">Categories</p>
+                </div>
+                <p id="stat-categories" class="text-3xl font-black text-gray-800">0</p>
             </div>
         </div>
 
-        <!-- Order Summary Card - New -->
+        <!-- Kitchen Order Summary -->
         <div class="bg-gradient-to-r from-orange-500 to-orange-600 text-white p-6 rounded-2xl shadow-lg">
-            <div class="flex justify-between items-center">
-                <div>
-                    <p class="text-sm opacity-90 mb-1">Dalabka maanta</p>
-                    <p class="text-3xl font-black" id="today-orders">0</p>
+            <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
+                <div class="flex items-center gap-4">
+                    <div class="bg-white/20 p-3 rounded-xl">
+                        <i class="fas fa-clock text-2xl"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm opacity-90">Kitchen Orders</p>
+                        <p class="text-3xl font-black" id="today-orders">0</p>
+                    </div>
                 </div>
-                <div>
-                    <p class="text-sm opacity-90 mb-1">La sugayo</p>
-                    <p class="text-3xl font-black" id="pending-orders-count">0</p>
+                <div class="flex items-center gap-4">
+                    <div>
+                        <p class="text-sm opacity-90">Pending</p>
+                        <p class="text-2xl font-black" id="pending-orders-count">0</p>
+                    </div>
+                    <div>
+                        <p class="text-sm opacity-90">Ready</p>
+                        <p class="text-2xl font-black" id="ready-orders-count">0</p>
+                    </div>
+                    <a href="kitchen.html" target="_blank" class="bg-white/20 hover:bg-white/30 p-3 rounded-xl transition-all">
+                        <i class="fas fa-arrow-right text-xl"></i>
+                    </a>
                 </div>
-                <div>
-                    <p class="text-sm opacity-90 mb-1">Diyaar u ah</p>
-                    <p class="text-3xl font-black" id="ready-orders-count">0</p>
-                </div>
-                <a href="kitchen.html" target="_blank" class="bg-white/20 hover:bg-white/30 p-4 rounded-xl transition-all">
-                    <i class="fas fa-arrow-right text-2xl"></i>
-                </a>
             </div>
         </div>
 
         <!-- Search Bar -->
-        <div class="bg-white p-3 rounded-2xl shadow-md border border-gray-200 flex items-center px-5">
-            <i class="fas fa-search text-gray-400 mr-3 text-lg"></i>
-            <input type="text" id="adminSearch" oninput="renderAdminList()" placeholder="Raadi magaca, category-ga ama qiimaha..." class="w-full p-2 outline-none bg-transparent text-sm">
-            <button onclick="clearAdminSearch()" id="clear-admin-search" class="hidden text-gray-400 hover:text-gray-600"><i class="fas fa-times"></i></button>
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-200 flex items-center px-5 py-2">
+            <i class="fas fa-search text-gray-400 mr-3"></i>
+            <input type="text" id="adminSearch" oninput="renderAdminList()" placeholder="Search by name, category, price..." class="w-full py-3 outline-none bg-transparent text-sm">
+            <button onclick="clearAdminSearch()" id="clear-admin-search" class="hidden text-gray-400 hover:text-gray-600">
+                <i class="fas fa-times"></i>
+            </button>
         </div>
 
         <!-- Add/Edit Form -->
-        <div class="bg-white p-8 rounded-[2.5rem] shadow-xl border border-gray-200">
-            <div class="flex justify-between items-center mb-6">
-                <h2 id="form-title" class="text-2xl font-black text-gray-800 flex items-center gap-3">
-                    <i class="fas fa-plus-circle text-green-500"></i> 
-                    <span>Ku dar Cunto Cusub</span>
+        <div class="admin-card">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+                <h2 id="form-title" class="text-xl sm:text-2xl font-black text-gray-800 flex items-center gap-2">
+                    <i class="fas fa-plus-circle text-green-500"></i>
+                    <span>Add New Item</span>
                 </h2>
-                <button id="cancelBtn" onclick="resetForm()" class="hidden text-sm bg-red-50 hover:bg-red-100 text-red-600 px-5 py-2 rounded-full font-bold transition-all">
-                    <i class="fas fa-times mr-1"></i> Cancel
+                <button id="cancelBtn" onclick="resetForm()" class="hidden bg-red-50 hover:bg-red-100 text-red-600 px-4 py-2 rounded-full font-bold text-sm transition-all">
+                    <i class="fas fa-times mr-1"></i> Cancel Edit
                 </button>
             </div>
             
@@ -160,84 +350,91 @@
                 
                 <!-- Image Preview -->
                 <div id="image-preview-container" class="hidden">
-                    <img id="image-preview" class="w-full rounded-2xl border-2 border-gray-200 object-cover mb-4 max-h-48">
+                    <img id="image-preview" class="image-preview w-full max-h-48 object-cover">
                 </div>
                 
-                <!-- Name Input -->
+                <!-- Name -->
                 <div>
-                    <label class="text-xs font-bold text-gray-600 mb-2 block uppercase tracking-wide">Magaca Cuntada *</label>
-                    <input id="foodName" type="text" placeholder="e.g. Bariis iyo Hilib" class="w-full p-4 bg-gray-50 rounded-2xl border-2 border-gray-200 outline-none focus:ring-2 focus:ring-red-400">
+                    <label class="text-xs font-bold text-gray-600 mb-2 block">Item Name *</label>
+                    <input id="foodName" type="text" placeholder="e.g. Rice with Meat" class="form-input">
                 </div>
                 
                 <!-- Description -->
                 <div>
-                    <label class="text-xs font-bold text-gray-600 mb-2 block uppercase tracking-wide">Faahfaahinta</label>
-                    <textarea id="foodDesc" placeholder="Sharaxaad ku saabsan cuntada..." class="w-full p-4 bg-gray-50 rounded-2xl border-2 border-gray-200 outline-none focus:ring-2 focus:ring-red-400 h-24 resize-none"></textarea>
-                    <p class="text-xs text-gray-400 mt-1"><span id="desc-count">0</span>/200 xaraf</p>
+                    <label class="text-xs font-bold text-gray-600 mb-2 block">Description</label>
+                    <textarea id="foodDesc" placeholder="Description..." class="form-input h-24 resize-none"></textarea>
+                    <p class="text-xs text-gray-400 mt-1"><span id="desc-count">0</span>/200 characters</p>
                 </div>
 
                 <!-- Price and Category -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                        <label class="text-xs font-bold text-gray-600 mb-2 block uppercase tracking-wide">Qiimaha *</label>
+                        <label class="text-xs font-bold text-gray-600 mb-2 block">Price *</label>
                         <div class="relative">
-                            <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-bold text-lg">$</span>
-                            <input id="foodPrice" type="number" step="0.01" min="0" placeholder="0.00" class="w-full p-4 pl-10 bg-gray-50 rounded-2xl border-2 border-gray-200">
+                            <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-bold">$</span>
+                            <input id="foodPrice" type="number" step="0.01" min="0" placeholder="0.00" class="form-input pl-8">
                         </div>
                     </div>
                     <div>
-                        <label class="text-xs font-bold text-gray-600 mb-2 block uppercase tracking-wide">Category *</label>
-                        <select id="foodCat" class="w-full p-4 bg-gray-50 rounded-2xl border-2 border-gray-200 font-bold">
-                            <option value="Quraac">🍳 Quraac (Breakfast)</option>
-                            <option value="Qado">🍛 Qado (Lunch)</option>
-                            <option value="Casho">🍗 Casho (Dinner)</option>
+                        <label class="text-xs font-bold text-gray-600 mb-2 block">Category *</label>
+                        <select id="foodCat" class="form-input">
+                            <option value="Quraac">🍳 Breakfast (Quraac)</option>
+                            <option value="Qado">🍛 Lunch (Qado)</option>
+                            <option value="Casho">🍗 Dinner (Casho)</option>
                             <option value="Coffee">☕ Coffee</option>
-                            <option value="Shaah">🍵 Shaah (Tea)</option>
-                            <option value="Cabitaan">🥤 Cabitaan (Drinks)</option>
-                            <option value="Macmacaan">🍰 Macmacaan (Desserts)</option>
+                            <option value="Shaah">🍵 Tea (Shaah)</option>
+                            <option value="Cabitaan">🥤 Drinks (Cabitaan)</option>
+                            <option value="Macmacaan">🍰 Desserts (Macmacaan)</option>
                         </select>
                     </div>
                 </div>
 
                 <!-- Image URL -->
                 <div>
-                    <label class="text-xs font-bold text-gray-600 mb-2 block uppercase tracking-wide">Sawirka Cuntada (URL)</label>
-                    <input id="foodImg" type="url" placeholder="https://example.com/image.jpg" class="w-full p-4 bg-gray-50 rounded-2xl border-2 border-gray-200" oninput="previewImage(this.value)">
+                    <label class="text-xs font-bold text-gray-600 mb-2 block">Image URL</label>
+                    <input id="foodImg" type="url" placeholder="https://example.com/image.jpg" class="form-input" oninput="previewImage(this.value)">
                 </div>
 
                 <!-- Submit Button -->
-                <button id="saveBtn" onclick="saveFood()" class="w-full bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white p-5 rounded-[1.5rem] font-black shadow-lg shadow-red-200 hover:shadow-xl active:scale-98 transition-all uppercase tracking-widest text-lg">
-                    <i class="fas fa-save mr-2"></i> KEYDI XOGTA
+                <button id="saveBtn" onclick="saveFood()" class="w-full bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white py-4 rounded-xl font-bold text-lg shadow-lg transition-all">
+                    <i class="fas fa-save mr-2"></i> SAVE ITEM
                 </button>
             </div>
         </div>
 
         <!-- Menu Items List -->
-        <div class="bg-white p-8 rounded-[2.5rem] shadow-xl border border-gray-200">
-            <div class="flex justify-between items-center mb-6">
-                <h2 class="text-2xl font-black text-gray-800">📋 Cuntooyinka Jira</h2>
-                <span id="item-count" class="bg-gray-800 text-white text-sm px-4 py-2 rounded-full font-black">0 Items</span>
+        <div class="admin-card">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+                <h2 class="text-xl sm:text-2xl font-black text-gray-800">📋 Menu Items</h2>
+                <span id="item-count" class="bg-gray-800 text-white px-4 py-2 rounded-full text-sm font-bold">0 Items</span>
             </div>
             
             <!-- Filter Buttons -->
             <div class="flex gap-2 mb-6 overflow-x-auto pb-2 no-scrollbar">
-                <button onclick="filterStatus('all', this)" class="filter-btn active px-4 py-2 rounded-xl font-bold text-xs bg-gray-100 hover:bg-gray-200 transition-all">Dhammaan</button>
-                <button onclick="filterStatus('visible', this)" class="filter-btn px-4 py-2 rounded-xl font-bold text-xs bg-gray-100 hover:bg-gray-200"><i class="fas fa-eye mr-1"></i> Visible</button>
-                <button onclick="filterStatus('hidden', this)" class="filter-btn px-4 py-2 rounded-xl font-bold text-xs bg-gray-100 hover:bg-gray-200"><i class="fas fa-eye-slash mr-1"></i> Hidden</button>
+                <button onclick="filterStatus('all', this)" class="filter-btn active px-4 py-2 rounded-full text-sm font-bold bg-gray-100 hover:bg-gray-200 transition-all whitespace-nowrap">
+                    All
+                </button>
+                <button onclick="filterStatus('visible', this)" class="filter-btn px-4 py-2 rounded-full text-sm font-bold bg-gray-100 hover:bg-gray-200 transition-all whitespace-nowrap">
+                    <i class="fas fa-eye mr-1"></i> Visible
+                </button>
+                <button onclick="filterStatus('hidden', this)" class="filter-btn px-4 py-2 rounded-full text-sm font-bold bg-gray-100 hover:bg-gray-200 transition-all whitespace-nowrap">
+                    <i class="fas fa-eye-slash mr-1"></i> Hidden
+                </button>
             </div>
             
+            <!-- Items List -->
             <div id="admin-list" class="space-y-3">
-                <!-- Loading placeholders -->
-                <div class="bg-gray-200 h-24 rounded-2xl animate-pulse"></div>
-                <div class="bg-gray-200 h-24 rounded-2xl animate-pulse"></div>
-                <div class="bg-gray-200 h-24 rounded-2xl animate-pulse"></div>
+                <!-- Loading Skeletons -->
+                <div class="bg-gray-200 h-24 rounded-xl animate-pulse"></div>
+                <div class="bg-gray-200 h-24 rounded-xl animate-pulse"></div>
+                <div class="bg-gray-200 h-24 rounded-xl animate-pulse"></div>
             </div>
         </div>
     </div>
 
     <script>
         // Configuration
-        const GOOGLE_URL = "https://script.google.com/macros/s/AKfycbzvLBr8LpmByUWsanFFqUei_7ANXlh4IYgpV52KQ2LgF_e907Oo-gGhfYxhIS7hC7BRmw/exec"; // Replace with your Apps Script URL
+        const GOOGLE_URL = "YOUR_DEPLOYED_SCRIPT_URL_HERE"; // Replace with your Apps Script URL
         let menu = [];
         let currentFilter = 'all';
         let isProcessing = false;
@@ -245,33 +442,27 @@
         // Initialize
         document.addEventListener('DOMContentLoaded', () => {
             loadAdminMenu();
-            setInterval(loadAdminMenu, 500); // Auto-refresh every 0.5 sec
-            updateOrderStats(); // Update kitchen order stats
+            setInterval(loadAdminMenu, 1000); // Refresh every second
+            updateKitchenStats();
+            setInterval(updateKitchenStats, 1000);
             
+            // Description counter
             document.getElementById('foodDesc').addEventListener('input', (e) => {
                 document.getElementById('desc-count').textContent = e.target.value.length;
-                if (e.target.value.length > 200) e.target.value = e.target.value.substring(0, 200);
+                if (e.target.value.length > 200) {
+                    e.target.value = e.target.value.substring(0, 200);
+                }
             });
-            
-            // Update order stats every second
-            setInterval(updateOrderStats, 1000);
         });
 
-        // Update kitchen order statistics
-        function updateOrderStats() {
+        // Update kitchen statistics
+        function updateKitchenStats() {
             const kitchenOrders = JSON.parse(localStorage.getItem('tufaax_kitchen_orders')) || [];
             
-            // Today's orders
             const today = new Date().toDateString();
-            const todayOrders = kitchenOrders.filter(order => 
-                new Date(order.timestamp).toDateString() === today
-            ).length;
-            
-            // Pending orders
-            const pendingOrders = kitchenOrders.filter(order => order.status === 'pending').length;
-            
-            // Ready orders
-            const readyOrders = kitchenOrders.filter(order => order.status === 'ready').length;
+            const todayOrders = kitchenOrders.filter(o => new Date(o.timestamp).toDateString() === today).length;
+            const pendingOrders = kitchenOrders.filter(o => o.status === 'new').length;
+            const readyOrders = kitchenOrders.filter(o => o.status === 'completed').length;
             
             document.getElementById('today-orders').textContent = todayOrders;
             document.getElementById('pending-orders-count').textContent = pendingOrders;
@@ -282,7 +473,7 @@
         function previewImage(url) {
             const preview = document.getElementById('image-preview');
             const container = document.getElementById('image-preview-container');
-            if (url) {
+            if (url && url.trim()) {
                 preview.src = url;
                 preview.onload = () => container.classList.remove('hidden');
                 preview.onerror = () => container.classList.add('hidden');
@@ -291,7 +482,7 @@
             }
         }
 
-        // Load Menu Data
+        // Load menu from Google Sheets
         async function loadAdminMenu() {
             if (isProcessing) return;
             try {
@@ -308,10 +499,10 @@
                 if (menu.length === 0) {
                     document.getElementById('admin-list').innerHTML = `
                         <div class="text-center py-12">
-                            <i class="fas fa-exclamation-triangle text-5xl text-red-400 mb-4"></i>
-                            <p class="text-gray-600 font-bold mb-2">Xiriirka Internet-ka ayaa khaldan</p>
-                            <button onclick="loadAdminMenu()" class="bg-red-600 text-white px-6 py-2 rounded-xl font-bold mt-4">
-                                <i class="fas fa-sync-alt mr-2"></i> Isku Day Mar Kale
+                            <i class="fas fa-exclamation-triangle text-4xl text-red-400 mb-3"></i>
+                            <p class="text-gray-600 font-bold">Connection Error</p>
+                            <button onclick="loadAdminMenu()" class="mt-4 bg-red-600 text-white px-6 py-2 rounded-full font-bold">
+                                <i class="fas fa-sync-alt mr-2"></i> Retry
                             </button>
                         </div>
                     `;
@@ -319,7 +510,7 @@
             }
         }
 
-        // Update Statistics
+        // Update statistics
         function updateStatistics() {
             document.getElementById('stat-total').textContent = menu.length;
             document.getElementById('stat-visible').textContent = menu.filter(i => i.status !== 'hidden').length;
@@ -328,14 +519,17 @@
             document.getElementById('item-count').textContent = `${menu.length} Items`;
         }
 
-        // Render Admin List
+        // Render admin list with FIXED HIDE BUTTON
         function renderAdminList() {
             const searchTerm = document.getElementById('adminSearch').value.toLowerCase();
             document.getElementById('clear-admin-search').classList.toggle('hidden', !searchTerm);
             
             let filtered = menu;
-            if (currentFilter === 'visible') filtered = filtered.filter(i => i.status !== 'hidden');
-            else if (currentFilter === 'hidden') filtered = filtered.filter(i => i.status === 'hidden');
+            if (currentFilter === 'visible') {
+                filtered = filtered.filter(i => i.status !== 'hidden');
+            } else if (currentFilter === 'hidden') {
+                filtered = filtered.filter(i => i.status === 'hidden');
+            }
             
             if (searchTerm) {
                 filtered = filtered.filter(i => 
@@ -347,135 +541,171 @@
             }
 
             if (filtered.length === 0) {
-                document.getElementById('admin-list').innerHTML = `<div class="text-center py-12"><i class="fas fa-search text-5xl text-gray-300 mb-4"></i><p class="text-gray-600 font-bold">Lama helin wax natiiijo ah</p></div>`;
+                document.getElementById('admin-list').innerHTML = `
+                    <div class="text-center py-12">
+                        <i class="fas fa-search text-4xl text-gray-300 mb-3"></i>
+                        <p class="text-gray-500">No items found</p>
+                    </div>
+                `;
                 return;
             }
 
-            document.getElementById('admin-list').innerHTML = filtered.map((item, index) => `
-                <div id="row-${item.id}" class="flex items-center justify-between p-4 ${item.status === 'hidden' ? 'bg-red-50 border-red-200' : 'bg-gray-50 border-gray-200'} rounded-2xl border-2 transition-all hover:shadow-md">
-                    <div class="flex items-center gap-4 flex-1 cursor-pointer" onclick="prepareEdit('${item.id}')">
-                        <div class="relative">
-                            <img src="${item.img}" class="w-16 h-16 rounded-xl object-cover shadow-md border-2 border-white" onerror="this.src='https://via.placeholder.com/150/dc2626/ffffff?text=No+Image'">
-                            ${item.status === 'hidden' ? '<div class="absolute inset-0 bg-black/40 rounded-xl flex items-center justify-center"><i class="fas fa-eye-slash text-white text-xl"></i></div>' : ''}
-                        </div>
-                        <div class="overflow-hidden flex-1">
-                            <p class="font-black text-base text-gray-800 truncate">${item.name}</p>
-                            <div class="flex items-center gap-2 mt-1">
-                                <span class="text-xs text-white bg-red-500 px-2 py-0.5 rounded-full font-bold uppercase">${item.category}</span>
-                                <span class="text-sm font-black text-red-600">$${parseFloat(item.price || 0).toFixed(2)}</span>
+            document.getElementById('admin-list').innerHTML = filtered.map((item, index) => {
+                const isHidden = item.status === 'hidden';
+                return `
+                <div id="row-${item.id}" class="item-row ${isHidden ? 'hidden-item' : ''}">
+                    <div class="flex flex-col sm:flex-row sm:items-center gap-4">
+                        <!-- Clickable area for edit -->
+                        <div onclick="prepareEdit('${item.id}')" class="flex items-center gap-4 flex-1 cursor-pointer">
+                            <img src="${item.img}" class="w-16 h-16 rounded-xl object-cover border-2 border-white shadow-sm" onerror="this.src='https://via.placeholder.com/100/dc2626/ffffff?text=No+Image'">
+                            <div class="flex-1 min-w-0">
+                                <p class="font-black text-gray-800 truncate">${item.name}</p>
+                                <div class="flex flex-wrap items-center gap-2 mt-1">
+                                    <span class="text-xs bg-red-500 text-white px-2 py-0.5 rounded-full">${item.category}</span>
+                                    <span class="text-sm font-black text-red-600">$${parseFloat(item.price).toFixed(2)}</span>
+                                    ${isHidden ? '<span class="text-xs bg-gray-500 text-white px-2 py-0.5 rounded-full">Hidden</span>' : ''}
+                                </div>
+                                ${item.description ? `<p class="text-xs text-gray-400 truncate mt-1">${item.description}</p>` : ''}
                             </div>
-                            ${item.description ? `<p class="text-xs text-gray-400 truncate mt-1 italic">${item.description}</p>` : ''}
+                        </div>
+                        
+                        <!-- Action Buttons - FIXED HIDE BUTTON -->
+                        <div class="flex items-center gap-2 ml-auto">
+                            <!-- Hide/Show Button - Now working properly -->
+                            <button onclick="toggleVisibility('${item.id}')" 
+                                class="action-btn ${isHidden ? 'hide-btn hidden' : 'hide-btn visible'}"
+                                title="${isHidden ? 'Show item' : 'Hide item'}">
+                                <i class="fas fa-${isHidden ? 'eye' : 'eye-slash'}"></i>
+                            </button>
+                            
+                            <!-- Delete Button -->
+                            <button onclick="triggerDelete('${item.id}')" 
+                                class="action-btn bg-red-50 text-red-600 border-2 border-red-200 hover:bg-red-100"
+                                title="Delete item">
+                                <i class="fas fa-trash-alt"></i>
+                            </button>
                         </div>
                     </div>
-                    <div class="flex items-center gap-2">
-                        <button onclick="triggerPopup('status', '${item.id}')" class="px-4 py-2 text-xs font-black border-2 rounded-xl ${item.status === 'hidden' ? 'bg-green-50 border-green-500 text-green-600' : 'bg-gray-50 border-gray-300 text-gray-600'} hover:shadow-md active:scale-95">
-                            <i class="fas fa-${item.status === 'hidden' ? 'eye' : 'eye-slash'}"></i>
-                        </button>
-                        <button onclick="triggerPopup('delete', '${item.id}')" class="w-10 h-10 flex items-center justify-center text-red-600 bg-red-50 border-2 border-red-200 rounded-xl hover:bg-red-100 active:scale-95">
-                            <i class="fas fa-trash-alt"></i>
-                        </button>
-                    </div>
-                </div>
-            `).join('');
+                </div>`;
+            }).join('');
         }
 
-        // Prepare Edit
-        function prepareEdit(id) {
+        // FIXED: Toggle visibility function
+        async function toggleVisibility(id) {
             const item = menu.find(i => String(i.id) === String(id));
             if (!item) return;
             
-            document.getElementById('foodId').value = item.id;
-            document.getElementById('foodName').value = item.name;
-            document.getElementById('foodDesc').value = item.description || "";
-            document.getElementById('foodPrice').value = item.price;
-            document.getElementById('foodCat').value = item.category;
-            document.getElementById('foodImg').value = item.img;
-            document.getElementById('foodStatus').value = item.status || "visible";
-            document.getElementById('desc-count').textContent = (item.description || "").length;
-            previewImage(item.img);
+            const newStatus = item.status === 'hidden' ? 'visible' : 'hidden';
+            const action = newStatus === 'hidden' ? 'Hide' : 'Show';
             
-            document.getElementById('form-title').innerHTML = `<i class="fas fa-edit text-orange-500"></i> <span>Bedel: ${item.name}</span>`;
-            document.getElementById('cancelBtn').classList.remove('hidden');
-            document.getElementById('saveBtn').innerHTML = '<i class="fas fa-save mr-2"></i> CUSBOONEYSII';
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+            // Show confirmation popup
+            const confirmed = await showConfirmPopup(
+                `${action} Item?`,
+                `Are you sure you want to ${action.toLowerCase()} "${item.name}"?`,
+                newStatus === 'hidden' ? 'eye-slash' : 'eye',
+                'Yes'
+            );
+            
+            if (confirmed) {
+                await adminAction({
+                    ...item,
+                    action: 'update',
+                    status: newStatus
+                });
+            }
         }
 
-        // Reset Form
-        function resetForm() {
-            document.getElementById('foodId').value = "";
-            document.getElementById('foodName').value = "";
-            document.getElementById('foodDesc').value = "";
-            document.getElementById('foodPrice').value = "";
-            document.getElementById('foodImg').value = "";
-            document.getElementById('foodStatus').value = "visible";
-            document.getElementById('desc-count').textContent = "0";
-            document.getElementById('cancelBtn').classList.add('hidden');
-            document.getElementById('image-preview-container').classList.add('hidden');
-            document.getElementById('form-title').innerHTML = `<i class="fas fa-plus-circle text-green-500"></i> <span>Ku dar Cunto Cusub</span>`;
-            document.getElementById('saveBtn').innerHTML = '<i class="fas fa-save mr-2"></i> KEYDI XOGTA';
+        // Trigger delete with confirmation
+        async function triggerDelete(id) {
+            const item = menu.find(i => String(i.id) === String(id));
+            if (!item) return;
+            
+            const confirmed = await showConfirmPopup(
+                'Delete Item?',
+                `Are you sure you want to delete "${item.name}"? This cannot be undone.`,
+                'trash',
+                'Delete'
+            );
+            
+            if (confirmed) {
+                await adminAction({ action: 'delete', id: String(id) });
+            }
         }
 
-        // Popup Handling
-        let popupResolve = null;
-        function closePopup() { 
-            document.getElementById('custom-popup').style.display = 'none'; 
-            if (popupResolve) popupResolve(false);
-        }
-
-        async function showConfirmPopup(title, msg, icon = 'trash', confirmText = 'Haa') {
+        // Show confirmation popup
+        function showConfirmPopup(title, message, icon = 'question', confirmText = 'Confirm') {
             return new Promise((resolve) => {
-                popupResolve = resolve;
-                document.getElementById('popup-title').innerText = title;
-                document.getElementById('popup-msg').innerText = msg;
-                document.getElementById('popup-icon').className = `fas fa-${icon} text-3xl`;
-                document.getElementById('popup-icon-box').className = `w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-5 ${icon==='trash'?'bg-red-50 text-red-600 border-red-100':'bg-gray-100 text-gray-800 border-gray-200'}`;
-                document.getElementById('popup-confirm-btn').innerText = confirmText;
-                document.getElementById('popup-confirm-btn').className = `flex-1 p-4 rounded-2xl font-bold text-white shadow-lg ${icon==='trash'?'bg-red-600 hover:bg-red-700':'bg-gray-700 hover:bg-gray-800'}`;
-                document.getElementById('popup-confirm-btn').onclick = () => { closePopup(); resolve(true); };
-                document.getElementById('custom-popup').style.display = 'flex';
+                const popup = document.getElementById('custom-popup');
+                document.getElementById('popup-title').textContent = title;
+                document.getElementById('popup-msg').textContent = message;
+                document.getElementById('popup-icon').className = `fas fa-${icon} text-2xl`;
+                
+                const iconBox = document.getElementById('popup-icon-box');
+                if (icon === 'trash') {
+                    iconBox.className = 'w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl bg-red-50 text-red-600 border-4 border-red-100';
+                } else {
+                    iconBox.className = 'w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl bg-gray-100 text-gray-600 border-4 border-gray-200';
+                }
+                
+                const confirmBtn = document.getElementById('popup-confirm-btn');
+                confirmBtn.textContent = confirmText;
+                confirmBtn.className = `flex-1 text-white py-3 rounded-xl font-bold shadow-md transition-all ${icon === 'trash' ? 'bg-red-600 hover:bg-red-700' : 'bg-gray-700 hover:bg-gray-800'}`;
+                
+                confirmBtn.onclick = () => {
+                    closePopup();
+                    resolve(true);
+                };
+                
+                popup.style.display = 'flex';
             });
         }
 
-        // Trigger Popup Actions
-        window.triggerPopup = async (type, id) => {
-            const item = menu.find(i => String(i.id) === String(id));
-            if (type === 'delete') {
-                const ok = await showConfirmPopup('Ma tirtirtaa?', `"${item.name}" ayaa la tiridoonaa. Xogtan dib looma soo celin karo.`, 'trash', 'Haa tirtir');
-                if (ok) await adminAction({ action: 'delete', id: String(id) });
-            } else {
-                const newStatus = item.status === 'hidden' ? 'visible' : 'hidden';
-                const ok = await showConfirmPopup('Badal muuqaalka?', `"${item.name}" ${newStatus==='hidden'?'laga qarin doonaa macaamiisha':'loo muujin doonaa macaamiisha'}`, newStatus==='hidden'?'eye-slash':'eye', 'Haa');
-                if (ok) await adminAction({ ...item, action: 'update', status: newStatus });
-            }
-        };
+        // Close popup
+        function closePopup() {
+            document.getElementById('custom-popup').style.display = 'none';
+        }
 
-        // Admin POST Action
+        // Admin POST action
         async function adminAction(payload) {
             if (isProcessing) return;
             isProcessing = true;
+            
             const row = document.getElementById(`row-${payload.id}`);
             if (row) row.classList.add('processing');
             
+            const saveBtn = document.getElementById('saveBtn');
+            const originalText = saveBtn.innerHTML;
+            saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Processing...';
+            
             try {
-                await fetch(GOOGLE_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
+                await fetch(GOOGLE_URL, { 
+                    method: 'POST', 
+                    mode: 'no-cors', 
+                    body: JSON.stringify(payload) 
+                });
+                
                 setTimeout(() => {
                     loadAdminMenu();
                     showToast();
                     if (row) row.classList.remove('processing');
+                    saveBtn.innerHTML = originalText;
                     isProcessing = false;
                 }, 500);
-            } catch {
+            } catch (error) {
                 if (row) row.classList.remove('processing');
+                saveBtn.innerHTML = originalText;
                 isProcessing = false;
+                alert('Error saving changes');
             }
         }
 
-        // Save Food (Add/Update)
-        window.saveFood = async function() {
+        // Save food (add/update)
+        async function saveFood() {
             const name = document.getElementById('foodName').value.trim();
             const price = document.getElementById('foodPrice').value;
+            
             if (!name || !price || parseFloat(price) <= 0) {
-                alert('⚠️ Fadlan buuxi Magaca iyo Qiimaha!');
+                alert('Please enter name and valid price');
                 return;
             }
             
@@ -490,27 +720,56 @@
                 status: document.getElementById('foodStatus').value
             };
             
-            isProcessing = true;
-            const btn = document.getElementById('saveBtn');
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> KAYDINTA...';
-            
-            try {
-                await fetch(GOOGLE_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(data) });
-                setTimeout(() => {
-                    showToast();
-                    resetForm();
-                    loadAdminMenu();
-                    btn.innerHTML = '<i class="fas fa-save mr-2"></i> KEYDI XOGTA';
-                    isProcessing = false;
-                }, 500);
-            } catch {
-                btn.innerHTML = '<i class="fas fa-save mr-2"></i> KEYDI XOGTA';
-                isProcessing = false;
-            }
-        };
+            await adminAction(data);
+            resetForm();
+        }
 
-        // Filter by Status
-        window.filterStatus = function(status, btn) {
+        // Prepare edit
+        function prepareEdit(id) {
+            const item = menu.find(i => String(i.id) === String(id));
+            if (!item) return;
+            
+            document.getElementById('foodId').value = item.id;
+            document.getElementById('foodName').value = item.name;
+            document.getElementById('foodDesc').value = item.description || '';
+            document.getElementById('foodPrice').value = item.price;
+            document.getElementById('foodCat').value = item.category;
+            document.getElementById('foodImg').value = item.img;
+            document.getElementById('foodStatus').value = item.status || 'visible';
+            document.getElementById('desc-count').textContent = (item.description || '').length;
+            
+            previewImage(item.img);
+            
+            document.getElementById('form-title').innerHTML = `
+                <i class="fas fa-edit text-orange-500"></i>
+                <span>Edit: ${item.name}</span>
+            `;
+            document.getElementById('cancelBtn').classList.remove('hidden');
+            document.getElementById('saveBtn').innerHTML = '<i class="fas fa-save mr-2"></i> UPDATE ITEM';
+            
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Reset form
+        function resetForm() {
+            document.getElementById('foodId').value = '';
+            document.getElementById('foodName').value = '';
+            document.getElementById('foodDesc').value = '';
+            document.getElementById('foodPrice').value = '';
+            document.getElementById('foodImg').value = '';
+            document.getElementById('foodStatus').value = 'visible';
+            document.getElementById('desc-count').textContent = '0';
+            document.getElementById('cancelBtn').classList.add('hidden');
+            document.getElementById('image-preview-container').classList.add('hidden');
+            document.getElementById('form-title').innerHTML = `
+                <i class="fas fa-plus-circle text-green-500"></i>
+                <span>Add New Item</span>
+            `;
+            document.getElementById('saveBtn').innerHTML = '<i class="fas fa-save mr-2"></i> SAVE ITEM';
+        }
+
+        // Filter by status
+        function filterStatus(status, btn) {
             currentFilter = status;
             document.querySelectorAll('.filter-btn').forEach(b => {
                 b.classList.remove('active', 'bg-red-600', 'text-white');
@@ -518,15 +777,15 @@
             });
             btn.classList.add('active', 'bg-red-600', 'text-white');
             renderAdminList();
-        };
+        }
 
-        // Clear Search
-        window.clearAdminSearch = function() {
+        // Clear search
+        function clearAdminSearch() {
             document.getElementById('adminSearch').value = '';
             renderAdminList();
-        };
+        }
 
-        // Show Toast
+        // Show toast
         function showToast() {
             const toast = document.getElementById('success-toast');
             toast.style.display = 'flex';
@@ -537,6 +796,12 @@
         window.closePopup = closePopup;
         window.previewImage = previewImage;
         window.resetForm = resetForm;
+        window.toggleVisibility = toggleVisibility;
+        window.triggerDelete = triggerDelete;
+        window.filterStatus = filterStatus;
+        window.clearAdminSearch = clearAdminSearch;
+        window.saveFood = saveFood;
+        window.prepareEdit = prepareEdit;
     </script>
 </body>
 </html>
