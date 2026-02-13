@@ -8,141 +8,21 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', system-ui, sans-serif; background: #f9fafb; }
         
-        body { 
-            -webkit-tap-highlight-color: transparent; 
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            overflow-x: hidden;
-        }
-        
-        .cart-badge { 
-            position: absolute; 
-            top: -8px; 
-            right: -8px; 
-            font-size: 11px;
-            animation: pulse 2s infinite;
-        }
-        
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.1); }
-        }
-        
-        .category-btn { 
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        
-        .category-btn.active { 
-            background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
-            color: white; 
-            border-color: #dc2626; 
-            transform: scale(1.05);
-            box-shadow: 0 4px 15px rgba(220, 38, 38, 0.4);
-        }
-        
+        .cart-badge { position: absolute; top: -8px; right: -8px; font-size: 11px; }
+        .category-btn.active { background: #dc2626 !important; color: white; border-color: #dc2626; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
-        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         
-        .glass-effect { 
-            background: rgba(255, 255, 255, 0.95); 
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-        }
+        /* No white fade animations - instant updates */
+        #menu-items { transition: none; }
+        .item-card { transition: none; }
         
-        .item-card {
-            transition: transform 0.2s ease;
-        }
-        
-        .item-card:active {
-            transform: scale(0.98);
-        }
-        
-        .floating-cart {
-            animation: slideUp 0.4s ease-out;
-        }
-        
-        @keyframes slideUp {
-            from {
-                transform: translateY(100%);
-                opacity: 0;
-            }
-            to {
-                transform: translateY(0);
-                opacity: 1;
-            }
-        }
-        
-        .quantity-button {
-            transition: all 0.2s ease;
-        }
-        
-        .quantity-button:active {
-            transform: scale(0.85);
-        }
-        
-        .loading-spinner {
-            border: 3px solid #f3f4f6;
-            border-top: 3px solid #dc2626;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
-        }
-        
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        
-        /* Success Popup */
-        .success-popup {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%) scale(0);
-            background: white;
-            padding: 2rem;
-            border-radius: 1.5rem;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            z-index: 1000;
-            transition: transform 0.3s ease;
-        }
-        
-        .success-popup.show {
-            transform: translate(-50%, -50%) scale(1);
-        }
-        
-        .success-overlay {
-            position: fixed;
-            inset: 0;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 999;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-            pointer-events: none;
-        }
-        
-        .success-overlay.show {
-            opacity: 1;
-            pointer-events: auto;
-        }
+        .live-badge { background: #22c55e; animation: soft-pulse 1.5s infinite; }
+        @keyframes soft-pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
     </style>
 </head>
-<body class="bg-gradient-to-br from-gray-50 to-gray-100 pb-32">
-
-    <!-- Success Overlay -->
-    <div id="success-overlay" class="success-overlay"></div>
-    
-    <!-- Success Popup -->
-    <div id="success-popup" class="success-popup">
-        <div class="text-center">
-            <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <i class="fas fa-check text-green-600 text-2xl"></i>
-            </div>
-            <h3 class="text-xl font-bold text-gray-800 mb-2">Guul!</h3>
-            <p id="success-message" class="text-gray-600 text-sm">Waa lagu daray!</p>
-        </div>
-    </div>
+<body class="pb-32">
 
     <!-- Header -->
     <header class="bg-gradient-to-r from-red-600 to-red-700 text-white p-6 rounded-b-[3rem] sticky top-0 z-50 shadow-2xl">
@@ -150,7 +30,7 @@
             <div>
                 <h1 class="text-3xl font-black italic tracking-tighter flex items-center gap-2">
                     🍎 TUFAAX
-                    <span id="live-indicator" class="text-xs bg-green-400 text-green-900 px-2 py-1 rounded-full font-bold animate-pulse">LIVE</span>
+                    <span id="live-indicator" class="live-badge text-xs text-green-900 px-2 py-1 rounded-full font-bold">LIVE</span>
                 </h1>
                 <p id="display-table" class="text-xs font-bold bg-black/20 px-3 py-1 rounded-full mt-2 hidden w-fit backdrop-blur-sm">
                     📍 Miiska: 1
@@ -168,16 +48,8 @@
         <!-- Search Bar -->
         <div class="bg-white p-3 rounded-2xl shadow-md border border-gray-200 flex items-center px-5 transition-all focus-within:ring-2 focus-within:ring-red-300">
             <i class="fas fa-search text-gray-400 mr-3 text-lg"></i>
-            <input 
-                type="text" 
-                id="custSearch" 
-                oninput="updateUI()" 
-                placeholder="Raadi cuntada aad rabto..." 
-                class="w-full outline-none bg-transparent text-sm placeholder-gray-400"
-            >
-            <button onclick="clearSearch()" id="clear-search" class="hidden text-gray-400 hover:text-gray-600">
-                <i class="fas fa-times"></i>
-            </button>
+            <input type="text" id="custSearch" oninput="updateUI()" placeholder="Raadi cuntada aad rabto..." class="w-full outline-none bg-transparent text-sm">
+            <button onclick="clearSearch()" id="clear-search" class="hidden text-gray-400 hover:text-gray-600"><i class="fas fa-times"></i></button>
         </div>
 
         <!-- Category Filter -->
@@ -185,35 +57,35 @@
             <button onclick="filterCategory('Dhammaan', this)" class="category-btn active px-6 py-2.5 rounded-full font-bold bg-white border-2 border-gray-200 whitespace-nowrap shadow-sm text-sm">
                 <i class="fas fa-th mr-1"></i> Dhammaan
             </button>
-            <button onclick="filterCategory('Quraac', this)" class="category-btn px-6 py-2.5 rounded-full font-bold bg-white border-2 border-gray-200 whitespace-nowrap shadow-sm text-sm">
+            <button onclick="filterCategory('Quraac', this)" class="category-btn px-6 py-2.5 rounded-full font-bold bg-white border-2 border-gray-200 whitespace-nowrap text-sm">
                 <i class="fas fa-egg mr-1"></i> Quraac
             </button>
-            <button onclick="filterCategory('Qado', this)" class="category-btn px-6 py-2.5 rounded-full font-bold bg-white border-2 border-gray-200 whitespace-nowrap shadow-sm text-sm">
+            <button onclick="filterCategory('Qado', this)" class="category-btn px-6 py-2.5 rounded-full font-bold bg-white border-2 border-gray-200 whitespace-nowrap text-sm">
                 <i class="fas fa-utensils mr-1"></i> Qado
             </button>
-            <button onclick="filterCategory('Casho', this)" class="category-btn px-6 py-2.5 rounded-full font-bold bg-white border-2 border-gray-200 whitespace-nowrap shadow-sm text-sm">
+            <button onclick="filterCategory('Casho', this)" class="category-btn px-6 py-2.5 rounded-full font-bold bg-white border-2 border-gray-200 whitespace-nowrap text-sm">
                 <i class="fas fa-drumstick-bite mr-1"></i> Casho
             </button>
-            <button onclick="filterCategory('Coffee', this)" class="category-btn px-6 py-2.5 rounded-full font-bold bg-white border-2 border-gray-200 whitespace-nowrap shadow-sm text-sm">
+            <button onclick="filterCategory('Coffee', this)" class="category-btn px-6 py-2.5 rounded-full font-bold bg-white border-2 border-gray-200 whitespace-nowrap text-sm">
                 <i class="fas fa-coffee mr-1"></i> Coffee
             </button>
-            <button onclick="filterCategory('Shaah', this)" class="category-btn px-6 py-2.5 rounded-full font-bold bg-white border-2 border-gray-200 whitespace-nowrap shadow-sm text-sm">
+            <button onclick="filterCategory('Shaah', this)" class="category-btn px-6 py-2.5 rounded-full font-bold bg-white border-2 border-gray-200 whitespace-nowrap text-sm">
                 <i class="fas fa-mug-hot mr-1"></i> Shaah
             </button>
-            <button onclick="filterCategory('Cabitaan', this)" class="category-btn px-6 py-2.5 rounded-full font-bold bg-white border-2 border-gray-200 whitespace-nowrap shadow-sm text-sm">
+            <button onclick="filterCategory('Cabitaan', this)" class="category-btn px-6 py-2.5 rounded-full font-bold bg-white border-2 border-gray-200 whitespace-nowrap text-sm">
                 <i class="fas fa-glass-water mr-1"></i> Cabitaan
             </button>
-            <button onclick="filterCategory('Macmacaan', this)" class="category-btn px-6 py-2.5 rounded-full font-bold bg-white border-2 border-gray-200 whitespace-nowrap shadow-sm text-sm">
+            <button onclick="filterCategory('Macmacaan', this)" class="category-btn px-6 py-2.5 rounded-full font-bold bg-white border-2 border-gray-200 whitespace-nowrap text-sm">
                 <i class="fas fa-ice-cream mr-1"></i> Macmacaan
             </button>
         </div>
 
         <!-- Menu Items Grid -->
         <div id="menu-items" class="grid grid-cols-2 md:grid-cols-3 gap-4">
-            <div class="text-center py-16 col-span-full">
-                <div class="loading-spinner mx-auto mb-4"></div>
-                <p class="text-gray-500 font-bold">Soo dejinaya menu...</p>
-            </div>
+            <!-- Loading Skeletons (simple gray boxes) -->
+            <div class="bg-gray-200 rounded-[2rem] h-64 animate-pulse"></div>
+            <div class="bg-gray-200 rounded-[2rem] h-64 animate-pulse"></div>
+            <div class="bg-gray-200 rounded-[2rem] h-64 animate-pulse"></div>
         </div>
 
         <!-- Empty State -->
@@ -222,34 +94,17 @@
             <h3 class="text-xl font-bold text-gray-600 mb-2">Lama Helin</h3>
             <p class="text-gray-400 text-sm">Fadlan isku day eray kale ama dooro qayb kale</p>
         </div>
-
-        <!-- Error State -->
-        <div id="error-state" class="hidden bg-red-50 border-2 border-red-200 rounded-2xl p-6 text-center">
-            <i class="fas fa-exclamation-triangle text-4xl text-red-500 mb-3"></i>
-            <h3 class="text-lg font-bold text-red-700 mb-2">Khalad ayaa dhacay</h3>
-            <p class="text-red-600 text-sm mb-4">Internet-ka hubi ama dib u riix halkan</p>
-            <button onclick="loadMenu()" class="bg-red-600 text-white px-6 py-2 rounded-xl font-bold">
-                <i class="fas fa-refresh mr-2"></i> Dib u riix
-            </button>
-        </div>
-
     </main>
 
     <!-- Floating Cart Bar -->
-    <div id="checkout-bar" class="fixed bottom-0 left-0 right-0 p-5 glass-effect border-t-2 border-gray-200 shadow-2xl hidden z-50 rounded-t-[2.5rem] floating-cart">
+    <div id="checkout-bar" class="fixed bottom-0 left-0 right-0 p-5 bg-white/95 backdrop-blur-sm border-t-2 border-gray-200 shadow-2xl hidden z-50 rounded-t-[2.5rem]">
         <div class="max-w-4xl mx-auto">
-            <!-- Cart Items Summary -->
-            <div id="cart-summary" class="mb-4 max-h-32 overflow-y-auto no-scrollbar space-y-2">
-            </div>
-            
-            <!-- Total and Checkout -->
+            <div id="cart-summary" class="mb-4 max-h-32 overflow-y-auto no-scrollbar space-y-2"></div>
             <div class="flex justify-between items-center">
                 <div>
                     <p class="text-gray-400 text-xs font-black uppercase tracking-wider">Wadarta Guud</p>
                     <p id="total-price" class="text-3xl font-black text-red-600">$0.00</p>
-                    <p class="text-gray-400 text-xs mt-1">
-                        <span id="item-count-text">0 shay</span>
-                    </p>
+                    <p id="item-count-text" class="text-gray-400 text-xs mt-1">0 shay</p>
                 </div>
                 <button onclick="checkoutWhatsApp()" class="bg-gradient-to-r from-green-500 to-green-600 text-white px-10 py-4 rounded-2xl font-black shadow-lg active:scale-95 transition-all flex items-center gap-3">
                     <i class="fab fa-whatsapp text-2xl"></i> 
@@ -261,96 +116,72 @@
 
     <script>
         // Configuration
-        const GOOGLE_URL = "https://script.google.com/macros/s/AKfycbyOxtl4Y7a8mRw92E6TXXcZlYUWNlMs9wSnsWoGEzkZC-uJa3WS5qCnR2Umz7F7XDG7Bw/exec";
+        const GOOGLE_URL = "https://script.google.com/macros/s/AKfycbzVMUruRAnuRcUqfV0CqgiSK1yDSDJo_UTYIE7mNabudjfIMl_H1ZHl58ymhmu97pTzcw/exec"; // Replace with your Apps Script URL
         const WHATSAPP_PHONE = "252617054480";
-        const REFRESH_INTERVAL = 1000; // 1 second refresh
-        
-        // State Management
+        const REFRESH_INTERVAL = 500; // 0.5 seconds
+
+        // State
         let menuData = JSON.parse(localStorage.getItem('tufaax_cache')) || [];
         let cart = JSON.parse(localStorage.getItem('tufaax_cart')) || [];
         let currentCategory = 'Dhammaan';
         let isLoading = false;
-        let lastDataHash = '';
 
         // Initialize
         document.addEventListener('DOMContentLoaded', () => {
-            initializeApp();
-        });
-
-        function initializeApp() {
             const urlParams = new URLSearchParams(window.location.search);
-            const tableId = urlParams.get('table') || 'Lama aqoon';
-            
-            if (urlParams.has('table')) {
-                const display = document.getElementById('display-table');
-                display.innerHTML = `📍 Miiska: <span class="font-black">${tableId}</span>`;
-                display.classList.remove('hidden');
+            const tableId = urlParams.get('table') || '';
+            if (tableId) {
+                document.getElementById('display-table').innerHTML = `📍 Miiska: <span class="font-black">${tableId}</span>`;
+                document.getElementById('display-table').classList.remove('hidden');
             }
             
-            if (menuData.length > 0) {
-                updateUI();
-            }
-            
+            if (menuData.length > 0) updateUI();
             loadMenu();
             setInterval(loadMenu, REFRESH_INTERVAL);
-        }
+        });
 
-        function hashData(data) {
-            return JSON.stringify(data);
-        }
-
+        // Load Menu from Google Sheets
         async function loadMenu() {
             if (isLoading) return;
-            
             try {
                 isLoading = true;
-                
-                const res = await fetch(GOOGLE_URL + '?t=' + Date.now());
-                if (!res.ok) throw new Error('Network response was not ok');
-                
+                const res = await fetch(GOOGLE_URL);
+                if (!res.ok) throw new Error('Network error');
                 const data = await res.json();
+                // Only show visible items to customers
                 const visibleItems = data.filter(item => item.status !== 'hidden');
-                const newHash = hashData(visibleItems);
                 
-                if (newHash !== lastDataHash) {
+                if (JSON.stringify(visibleItems) !== JSON.stringify(menuData)) {
                     menuData = visibleItems;
-                    lastDataHash = newHash;
                     localStorage.setItem('tufaax_cache', JSON.stringify(menuData));
                     updateUI();
                 }
-                
-                document.getElementById('error-state').classList.add('hidden');
-                
             } catch (error) {
                 console.error('Menu load error:', error);
-                if (menuData.length === 0) {
-                    document.getElementById('menu-items').innerHTML = '';
-                    document.getElementById('error-state').classList.remove('hidden');
-                }
             } finally {
                 isLoading = false;
             }
         }
 
+        // Update UI with filtered items
         function updateUI() {
             const container = document.getElementById('menu-items');
             const searchTerm = document.getElementById('custSearch').value.toLowerCase();
             const searchBtn = document.getElementById('clear-search');
-            
             searchBtn.classList.toggle('hidden', !searchTerm);
+
+            // Filter by category
+            let filtered = currentCategory === 'Dhammaan' ? menuData : menuData.filter(i => i.category === currentCategory);
             
-            let filtered = currentCategory === 'Dhammaan' 
-                ? menuData 
-                : menuData.filter(i => i.category === currentCategory);
-            
+            // Filter by search
             if (searchTerm) {
                 filtered = filtered.filter(item => 
                     item.name.toLowerCase().includes(searchTerm) ||
-                    item.description.toLowerCase().includes(searchTerm) ||
-                    item.category.toLowerCase().includes(searchTerm)
+                    (item.description && item.description.toLowerCase().includes(searchTerm))
                 );
             }
-            
+
+            // Empty state
             if (filtered.length === 0) {
                 container.innerHTML = '';
                 document.getElementById('empty-state').classList.remove('hidden');
@@ -358,29 +189,20 @@
             } else {
                 document.getElementById('empty-state').classList.add('hidden');
             }
-            
-            container.innerHTML = filtered.map(item => {
+
+            // Render items
+            container.innerHTML = filtered.map((item, index) => {
                 const count = cart.filter(c => String(c.id) === String(item.id)).length;
-                
                 return `
                 <div class="item-card bg-white rounded-[2rem] overflow-hidden shadow-md hover:shadow-xl border border-gray-100 p-4 flex flex-col">
                     <div class="relative mb-3">
-                        <img 
-                            src="${item.img}" 
-                            class="w-full h-40 object-cover rounded-[1rem] bg-gradient-to-br from-gray-100 to-gray-200" 
-                            onerror="this.src='https://via.placeholder.com/300/dc2626/ffffff?text=Tufaax'"
-                            loading="lazy"
-                        >
+                        <img src="${item.img}" class="w-full h-40 object-cover rounded-[1.5rem] bg-gray-200" onerror="this.src='https://via.placeholder.com/300/dc2626/ffffff?text=Tufaax'">
                         ${count > 0 ? `<div class="absolute top-2 right-2 bg-red-600 text-white text-xs font-black px-2 py-1 rounded-full shadow-lg">${count}x</div>` : ''}
                     </div>
                     
-                    <h3 class="font-black text-gray-800 text-sm mb-1 px-1 uppercase tracking-tight leading-tight">
-                        ${item.name}
-                    </h3>
+                    <h3 class="font-black text-gray-800 text-sm mb-1 px-1 uppercase tracking-tight">${item.name}</h3>
                     
-                    <p class="text-xs text-gray-500 line-clamp-2 px-1 mb-3 leading-snug h-10 italic">
-                        ${item.description || 'Cunto fiican oo dhadhan macaan leh'}
-                    </p>
+                    <p class="text-xs text-gray-500 line-clamp-2 px-1 mb-3 h-10 italic">${item.description || 'Cunto fiican oo dhadhan macaan leh'}</p>
 
                     <div class="mt-auto flex justify-between items-center pt-2 border-t border-gray-100">
                         <div>
@@ -389,20 +211,13 @@
                         </div>
                         
                         <div class="flex items-center gap-2 bg-gray-50 p-1.5 rounded-xl shadow-inner">
-                            <button 
-                                onclick="removeFromCart('${item.id}')" 
-                                class="quantity-button w-9 h-9 bg-white border-2 border-gray-200 rounded-lg font-black ${count === 0 ? 'opacity-30 cursor-not-allowed' : 'hover:border-red-300'}"
-                                ${count === 0 ? 'disabled' : ''}
-                            >
+                            <button onclick="removeFromCart('${item.id}')" class="w-9 h-9 bg-white border-2 border-gray-200 rounded-lg font-black active:scale-90 transition-all ${count === 0 ? 'opacity-30 cursor-not-allowed' : ''}" ${count === 0 ? 'disabled' : ''}>
                                 <i class="fas fa-minus text-xs text-gray-600"></i>
                             </button>
                             
                             <span class="text-sm font-black w-6 text-center ${count > 0 ? 'text-red-600' : 'text-gray-400'}">${count}</span>
                             
-                            <button 
-                                onclick="addToCart('${item.id}')" 
-                                class="quantity-button w-9 h-9 bg-gradient-to-br from-red-600 to-red-700 text-white rounded-lg font-black shadow-md hover:shadow-lg"
-                            >
+                            <button onclick="addToCart('${item.id}')" class="w-9 h-9 bg-gradient-to-br from-red-600 to-red-700 text-white rounded-lg font-black active:scale-90 transition-all shadow-md">
                                 <i class="fas fa-plus text-xs"></i>
                             </button>
                         </div>
@@ -413,56 +228,11 @@
             updateCartDisplay();
         }
 
-        function updateCartDisplay() {
-            const cartCount = document.getElementById('cart-count');
-            const totalPrice = document.getElementById('total-price');
-            const checkoutBar = document.getElementById('checkout-bar');
-            const cartSummary = document.getElementById('cart-summary');
-            const itemCountText = document.getElementById('item-count-text');
-            
-            cartCount.innerText = cart.length;
-            
-            const total = cart.reduce((sum, item) => sum + item.price, 0);
-            totalPrice.innerText = formatPrice(total);
-            
-            const uniqueItems = [...new Set(cart.map(i => i.id))].length;
-            itemCountText.innerText = `${cart.length} shay (${uniqueItems} nooc)`;
-            
-            checkoutBar.classList.toggle('hidden', cart.length === 0);
-            
-            if (cart.length > 0) {
-                const groupedCart = cart.reduce((acc, item) => {
-                    acc[item.name] = (acc[item.name] || 0) + 1;
-                    return acc;
-                }, {});
-                
-                cartSummary.innerHTML = Object.entries(groupedCart)
-                    .map(([name, qty]) => `
-                        <div class="flex justify-between items-center text-xs bg-gray-50 rounded-lg px-3 py-2">
-                            <span class="font-bold text-gray-700">${qty}x ${name}</span>
-                            <span class="text-gray-500">${formatPrice(cart.filter(i => i.name === name).reduce((s, i) => s + i.price, 0))}</span>
-                        </div>
-                    `).join('');
-            }
-            
-            localStorage.setItem('tufaax_cart', JSON.stringify(cart));
-        }
-
+        // Cart Functions
         function addToCart(id) {
             const item = menuData.find(m => String(m.id) === String(id));
             if (item) {
-                cart.push({ 
-                    id: item.id, 
-                    name: item.name, 
-                    price: parseFloat(item.price) 
-                });
-                
-                showSuccessPopup('Waa lagu daray!');
-                
-                const cartIcon = document.querySelector('.fa-shopping-basket').parentElement;
-                cartIcon.classList.add('animate-bounce');
-                setTimeout(() => cartIcon.classList.remove('animate-bounce'), 500);
-                
+                cart.push({ id: item.id, name: item.name, price: parseFloat(item.price) });
                 updateUI();
             }
         }
@@ -471,17 +241,42 @@
             const idx = cart.findLastIndex(c => String(c.id) === String(id));
             if (idx > -1) {
                 cart.splice(idx, 1);
-                showSuccessPopup('Waa laga saaray!');
                 updateUI();
             }
         }
 
+        function updateCartDisplay() {
+            document.getElementById('cart-count').innerText = cart.length;
+            const total = cart.reduce((sum, item) => sum + item.price, 0);
+            document.getElementById('total-price').innerText = formatPrice(total);
+            
+            const uniqueItems = [...new Set(cart.map(i => i.id))].length;
+            document.getElementById('item-count-text').innerText = `${cart.length} shay (${uniqueItems} nooc)`;
+            
+            document.getElementById('checkout-bar').classList.toggle('hidden', cart.length === 0);
+            
+            // Cart summary
+            if (cart.length > 0) {
+                const grouped = cart.reduce((acc, item) => {
+                    acc[item.name] = (acc[item.name] || 0) + 1;
+                    return acc;
+                }, {});
+                
+                document.getElementById('cart-summary').innerHTML = Object.entries(grouped)
+                    .map(([name, qty]) => `
+                        <div class="flex justify-between items-center text-xs bg-gray-50 rounded-lg px-3 py-2">
+                            <span class="font-bold text-gray-700">${qty}x ${name}</span>
+                        </div>
+                    `).join('');
+            }
+            
+            localStorage.setItem('tufaax_cart', JSON.stringify(cart));
+        }
+
         function filterCategory(category, btn) {
             currentCategory = category;
-            
             document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
-            
             document.getElementById('custSearch').value = '';
             updateUI();
         }
@@ -492,10 +287,7 @@
         }
 
         function toggleCart() {
-            const checkoutBar = document.getElementById('checkout-bar');
-            if (!checkoutBar.classList.contains('hidden')) {
-                checkoutBar.scrollIntoView({ behavior: 'smooth', block: 'end' });
-            }
+            document.getElementById('checkout-bar').scrollIntoView({ behavior: 'smooth', block: 'end' });
         }
 
         function checkoutWhatsApp() {
@@ -504,23 +296,19 @@
                 return;
             }
             
-            const urlParams = new URLSearchParams(window.location.search);
-            const tableId = urlParams.get('table') || 'Lama aqoon';
+            const tableId = new URLSearchParams(window.location.search).get('table') || 'Lama aqoon';
             
             let msg = "🍎 *DALAB CUSUB - TUFAAX*%0A%0A";
             msg += `📍 *Miiska:* ${tableId}%0A`;
-            msg += `🕐 *Waqtiga:* ${new Date().toLocaleString('so-SO')}%0A`;
             msg += "─────────────────────%0A%0A";
             
-            const itemsGrouped = cart.reduce((acc, item) => {
-                if (!acc[item.name]) {
-                    acc[item.name] = { qty: 0, price: item.price };
-                }
+            const grouped = cart.reduce((acc, item) => {
+                if (!acc[item.name]) acc[item.name] = { qty: 0, price: item.price };
                 acc[item.name].qty += 1;
                 return acc;
             }, {});
 
-            for (const [name, data] of Object.entries(itemsGrouped)) {
+            for (const [name, data] of Object.entries(grouped)) {
                 const itemTotal = data.qty * data.price;
                 msg += `✅ ${data.qty}x *${name}*%0A`;
                 msg += `   ${formatPrice(data.price)} × ${data.qty} = ${formatPrice(itemTotal)}%0A%0A`;
@@ -529,7 +317,6 @@
             const total = cart.reduce((sum, i) => sum + i.price, 0);
             msg += "─────────────────────%0A";
             msg += `💰 *WADARTA GUUD:* ${formatPrice(total)}%0A%0A`;
-            msg += "📞 Fadlan noogu soo wac hadii aad wax bedel ah rabto.%0A";
             msg += "🙏 Mahadsanid!";
             
             window.open(`https://wa.me/${WHATSAPP_PHONE}?text=${msg}`, '_blank');
@@ -539,23 +326,14 @@
             return `$${parseFloat(price || 0).toFixed(2)}`;
         }
 
-        function showSuccessPopup(message) {
-            const popup = document.getElementById('success-popup');
-            const overlay = document.getElementById('success-overlay');
-            const messageEl = document.getElementById('success-message');
-            
-            messageEl.textContent = message;
-            overlay.classList.add('show');
-            popup.classList.add('show');
-            
-            setTimeout(() => {
-                popup.classList.remove('show');
-                overlay.classList.remove('show');
-            }, 1500);
-        }
+        // Expose functions globally
+        window.updateUI = updateUI;
+        window.filterCategory = filterCategory;
+        window.clearSearch = clearSearch;
+        window.toggleCart = toggleCart;
+        window.checkoutWhatsApp = checkoutWhatsApp;
+        window.addToCart = addToCart;
+        window.removeFromCart = removeFromCart;
     </script>
 </body>
 </html>
-
-
-
