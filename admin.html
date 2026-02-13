@@ -8,116 +8,43 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', system-ui, sans-serif; background: #f1f5f9; }
         
-        body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        .processing { opacity: 0.6; pointer-events: none; }
+        #custom-popup { display: none; }
+        .popup-card { animation: popup-slide 0.2s ease-out; }
+        @keyframes popup-slide { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        
+        .toast-success {
+            position: fixed; top: 20px; right: 20px; z-index: 9999;
+            background: #22c55e; color: white; padding: 1rem 2rem;
+            border-radius: 999px; font-weight: bold; box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            display: none; align-items: center; gap: 0.75rem;
         }
         
-        .processing { 
-            opacity: 0.6; 
-            pointer-events: none;
-        }
-        
-        #custom-popup { 
-            display: none;
-            animation: fadeIn 0.3s ease-out;
-        }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-        
-        .popup-content {
-            animation: slideUp 0.3s ease-out;
-        }
-        
-        @keyframes slideUp {
-            from { 
-                opacity: 0;
-                transform: translateY(50px) scale(0.9); 
-            }
-            to { 
-                opacity: 1;
-                transform: translateY(0) scale(1); 
-            }
-        }
-        
-        .image-preview {
-            max-height: 200px;
-            transition: all 0.3s ease;
-        }
-        
-        .stats-card {
-            transition: all 0.3s ease;
-        }
-        
-        .stats-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-        }
-        
-        .tooltip {
-            position: relative;
-        }
-        
-        .tooltip::after {
-            content: attr(data-tooltip);
-            position: absolute;
-            bottom: 100%;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(0, 0, 0, 0.8);
-            color: white;
-            padding: 0.5rem;
-            border-radius: 0.5rem;
-            font-size: 0.75rem;
-            white-space: nowrap;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.3s;
-        }
-        
-        .tooltip:hover::after {
-            opacity: 1;
-        }
-        
-        .success-animation {
-            animation: successPulse 0.6s ease-out;
-        }
-        
-        @keyframes successPulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-        }
-        
+        .filter-btn.active { background: #dc2626 !important; color: white !important; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
-        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
 </head>
-<body class="bg-gradient-to-br from-slate-50 to-slate-100 p-4 pb-20">
+<body class="p-4 pb-20">
 
     <!-- Custom Popup -->
-    <div id="custom-popup" class="fixed inset-0 bg-black/60 z-[100] flex items-center justify-center p-4 backdrop-blur-sm">
-        <div class="popup-content bg-white rounded-[2.5rem] p-8 max-w-sm w-full shadow-2xl text-center">
-            <div id="popup-icon-box" class="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-5">
-                <i id="popup-icon" class="fas text-3xl"></i>
+    <div id="custom-popup" class="fixed inset-0 bg-black/60 z-[200] flex items-center justify-center p-4 backdrop-blur-sm">
+        <div class="popup-card bg-white rounded-[2.5rem] p-8 max-w-sm w-full shadow-2xl text-center">
+            <div id="popup-icon-box" class="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-5 bg-red-50 text-red-600 border-4 border-red-100">
+                <i id="popup-icon" class="fas fa-trash-alt text-3xl"></i>
             </div>
-            <h3 id="popup-title" class="font-black text-xl mb-2"></h3>
-            <p id="popup-msg" class="text-gray-500 text-sm leading-relaxed"></p>
-            <div class="flex gap-3 mt-8">
-                <button onclick="closePopup()" class="flex-1 bg-gray-100 hover:bg-gray-200 p-4 rounded-2xl font-bold text-gray-600 transition-all">
-                    Xir
-                </button>
-                <button id="popup-confirm-btn" class="flex-1 p-4 rounded-2xl font-bold text-white shadow-lg transition-all hover:shadow-xl">
-                    Haa
-                </button>
+            <h3 id="popup-title" class="font-black text-xl mb-2">Xaqiiji</h3>
+            <p id="popup-msg" class="text-gray-500 text-sm leading-relaxed mb-6"></p>
+            <div class="flex gap-3">
+                <button onclick="closePopup()" class="flex-1 bg-gray-100 hover:bg-gray-200 p-4 rounded-2xl font-bold transition-all">Xir</button>
+                <button id="popup-confirm-btn" class="flex-1 p-4 rounded-2xl font-bold text-white shadow-lg bg-red-600 hover:bg-red-700">Haa</button>
             </div>
         </div>
     </div>
 
     <!-- Success Toast -->
-    <div id="success-toast" class="fixed top-4 right-4 bg-green-500 text-white px-6 py-4 rounded-2xl shadow-2xl hidden z-50 flex items-center gap-3">
+    <div id="success-toast" class="toast-success">
         <i class="fas fa-check-circle text-2xl"></i>
         <div>
             <p class="font-bold">Guul!</p>
@@ -135,9 +62,7 @@
                         🍎 TUFAAX ADMIN
                         <span class="text-xs bg-red-500 px-3 py-1 rounded-full font-bold animate-pulse">DASHBOARD</span>
                     </h1>
-                    <p class="text-xs text-gray-400 font-bold uppercase tracking-widest mt-1">
-                        Maamulka Menu-ga - Live System
-                    </p>
+                    <p class="text-xs text-gray-400 font-bold uppercase tracking-widest mt-1">Maamulka Menu-ga - Live System</p>
                 </div>
                 <div class="flex items-center gap-3">
                     <div class="bg-green-500/20 text-green-400 px-4 py-2 rounded-full text-xs flex items-center gap-2 border border-green-500/30">
@@ -147,7 +72,7 @@
                         </span>
                         LIVE
                     </div>
-                    <button onclick="location.reload()" class="tooltip bg-white/10 hover:bg-white/20 p-3 rounded-xl transition-all" data-tooltip="Cusbooneysii">
+                    <button onclick="location.reload()" class="bg-white/10 hover:bg-white/20 p-3 rounded-xl transition-all" title="Cusbooneysii">
                         <i class="fas fa-sync-alt"></i>
                     </button>
                 </div>
@@ -156,42 +81,19 @@
 
         <!-- Statistics Cards -->
         <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div class="stats-card bg-gradient-to-br from-blue-500 to-blue-600 text-white p-6 rounded-2xl shadow-lg">
-                <div class="flex justify-between items-start mb-3">
-                    <div class="bg-white/20 p-3 rounded-xl">
-                        <i class="fas fa-utensils text-2xl"></i>
-                    </div>
-                </div>
+            <div class="bg-gradient-to-br from-blue-500 to-blue-600 text-white p-6 rounded-2xl shadow-lg">
                 <p class="text-3xl font-black" id="stat-total">0</p>
                 <p class="text-sm opacity-90 font-semibold">Wadarta Items</p>
             </div>
-            
-            <div class="stats-card bg-gradient-to-br from-green-500 to-green-600 text-white p-6 rounded-2xl shadow-lg">
-                <div class="flex justify-between items-start mb-3">
-                    <div class="bg-white/20 p-3 rounded-xl">
-                        <i class="fas fa-eye text-2xl"></i>
-                    </div>
-                </div>
+            <div class="bg-gradient-to-br from-green-500 to-green-600 text-white p-6 rounded-2xl shadow-lg">
                 <p class="text-3xl font-black" id="stat-visible">0</p>
                 <p class="text-sm opacity-90 font-semibold">Visible Items</p>
             </div>
-            
-            <div class="stats-card bg-gradient-to-br from-red-500 to-red-600 text-white p-6 rounded-2xl shadow-lg">
-                <div class="flex justify-between items-start mb-3">
-                    <div class="bg-white/20 p-3 rounded-xl">
-                        <i class="fas fa-eye-slash text-2xl"></i>
-                    </div>
-                </div>
+            <div class="bg-gradient-to-br from-red-500 to-red-600 text-white p-6 rounded-2xl shadow-lg">
                 <p class="text-3xl font-black" id="stat-hidden">0</p>
                 <p class="text-sm opacity-90 font-semibold">Hidden Items</p>
             </div>
-            
-            <div class="stats-card bg-gradient-to-br from-purple-500 to-purple-600 text-white p-6 rounded-2xl shadow-lg">
-                <div class="flex justify-between items-start mb-3">
-                    <div class="bg-white/20 p-3 rounded-xl">
-                        <i class="fas fa-th text-2xl"></i>
-                    </div>
-                </div>
+            <div class="bg-gradient-to-br from-purple-500 to-purple-600 text-white p-6 rounded-2xl shadow-lg">
                 <p class="text-3xl font-black" id="stat-categories">0</p>
                 <p class="text-sm opacity-90 font-semibold">Categories</p>
             </div>
@@ -200,16 +102,8 @@
         <!-- Search Bar -->
         <div class="bg-white p-3 rounded-2xl shadow-md border border-gray-200 flex items-center px-5">
             <i class="fas fa-search text-gray-400 mr-3 text-lg"></i>
-            <input 
-                type="text" 
-                id="adminSearch" 
-                oninput="renderAdminList()" 
-                placeholder="Raadi magaca, category-ga ama qiimaha..." 
-                class="w-full p-2 outline-none bg-transparent text-sm placeholder-gray-400"
-            >
-            <button onclick="clearAdminSearch()" id="clear-admin-search" class="hidden text-gray-400 hover:text-gray-600 transition-colors">
-                <i class="fas fa-times"></i>
-            </button>
+            <input type="text" id="adminSearch" oninput="renderAdminList()" placeholder="Raadi magaca, category-ga ama qiimaha..." class="w-full p-2 outline-none bg-transparent text-sm">
+            <button onclick="clearAdminSearch()" id="clear-admin-search" class="hidden text-gray-400 hover:text-gray-600"><i class="fas fa-times"></i></button>
         </div>
 
         <!-- Add/Edit Form -->
@@ -230,29 +124,19 @@
                 
                 <!-- Image Preview -->
                 <div id="image-preview-container" class="hidden">
-                    <img id="image-preview" class="image-preview w-full rounded-2xl border-2 border-gray-200 object-cover mb-4">
+                    <img id="image-preview" class="w-full rounded-2xl border-2 border-gray-200 object-cover mb-4 max-h-48">
                 </div>
                 
                 <!-- Name Input -->
                 <div>
                     <label class="text-xs font-bold text-gray-600 mb-2 block uppercase tracking-wide">Magaca Cuntada *</label>
-                    <input 
-                        id="foodName" 
-                        type="text" 
-                        placeholder="e.g. Bariis iyo Hilib" 
-                        class="w-full p-4 bg-gray-50 rounded-2xl border-2 border-gray-200 outline-none focus:ring-2 focus:ring-red-400 focus:border-transparent transition-all"
-                        required
-                    >
+                    <input id="foodName" type="text" placeholder="e.g. Bariis iyo Hilib" class="w-full p-4 bg-gray-50 rounded-2xl border-2 border-gray-200 outline-none focus:ring-2 focus:ring-red-400">
                 </div>
                 
                 <!-- Description -->
                 <div>
-                    <label class="text-xs font-bold text-gray-600 mb-2 block uppercase tracking-wide">Faahfaahinta (Description)</label>
-                    <textarea 
-                        id="foodDesc" 
-                        placeholder="Sharaxaad ku saabsan cuntada..." 
-                        class="w-full p-4 bg-gray-50 rounded-2xl border-2 border-gray-200 outline-none focus:ring-2 focus:ring-red-400 focus:border-transparent transition-all h-24 resize-none"
-                    ></textarea>
+                    <label class="text-xs font-bold text-gray-600 mb-2 block uppercase tracking-wide">Faahfaahinta</label>
+                    <textarea id="foodDesc" placeholder="Sharaxaad ku saabsan cuntada..." class="w-full p-4 bg-gray-50 rounded-2xl border-2 border-gray-200 outline-none focus:ring-2 focus:ring-red-400 h-24 resize-none"></textarea>
                     <p class="text-xs text-gray-400 mt-1"><span id="desc-count">0</span>/200 xaraf</p>
                 </div>
 
@@ -262,24 +146,12 @@
                         <label class="text-xs font-bold text-gray-600 mb-2 block uppercase tracking-wide">Qiimaha *</label>
                         <div class="relative">
                             <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-bold text-lg">$</span>
-                            <input 
-                                id="foodPrice" 
-                                type="number" 
-                                step="0.01" 
-                                min="0"
-                                placeholder="0.00" 
-                                class="w-full p-4 pl-10 bg-gray-50 rounded-2xl border-2 border-gray-200 outline-none focus:ring-2 focus:ring-red-400 focus:border-transparent transition-all"
-                                required
-                            >
+                            <input id="foodPrice" type="number" step="0.01" min="0" placeholder="0.00" class="w-full p-4 pl-10 bg-gray-50 rounded-2xl border-2 border-gray-200">
                         </div>
                     </div>
-                    
                     <div>
                         <label class="text-xs font-bold text-gray-600 mb-2 block uppercase tracking-wide">Category *</label>
-                        <select 
-                            id="foodCat" 
-                            class="w-full p-4 bg-gray-50 rounded-2xl border-2 border-gray-200 outline-none focus:ring-2 focus:ring-red-400 focus:border-transparent font-bold text-gray-700 cursor-pointer transition-all"
-                        >
+                        <select id="foodCat" class="w-full p-4 bg-gray-50 rounded-2xl border-2 border-gray-200 font-bold">
                             <option value="Quraac">🍳 Quraac (Breakfast)</option>
                             <option value="Qado">🍛 Qado (Lunch)</option>
                             <option value="Casho">🍗 Casho (Dinner)</option>
@@ -291,41 +163,14 @@
                     </div>
                 </div>
 
-                <!-- Image Upload -->
-                <div class="space-y-3">
-                    <label class="text-xs font-bold text-gray-600 mb-2 block uppercase tracking-wide">Sawirka Cuntada</label>
-                    
-                    <input 
-                        id="foodImg" 
-                        type="url" 
-                        placeholder="https://example.com/image.jpg" 
-                        class="w-full p-4 bg-gray-50 rounded-2xl border-2 border-gray-200 outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all"
-                        oninput="previewImage(this.value)"
-                    >
-                    
-                    <div class="text-center text-gray-400 text-xs font-bold">— AMA —</div>
-                    
-                    <label class="bg-gradient-to-r from-blue-50 to-blue-100 hover:from-blue-100 hover:to-blue-200 text-blue-600 p-5 rounded-2xl border-2 border-dashed border-blue-300 cursor-pointer transition-all text-center font-bold block">
-                        <i class="fas fa-cloud-upload-alt text-2xl mb-2"></i>
-                        <div>
-                            <span id="uploadStatus">Upload Sawir (Base64)</span>
-                            <p class="text-xs font-normal mt-1 opacity-75">JPG, PNG, GIF - Max 2MB</p>
-                        </div>
-                        <input 
-                            type="file" 
-                            accept="image/*" 
-                            class="hidden" 
-                            onchange="uploadImage(this)"
-                        >
-                    </label>
+                <!-- Image URL -->
+                <div>
+                    <label class="text-xs font-bold text-gray-600 mb-2 block uppercase tracking-wide">Sawirka Cuntada (URL)</label>
+                    <input id="foodImg" type="url" placeholder="https://example.com/image.jpg" class="w-full p-4 bg-gray-50 rounded-2xl border-2 border-gray-200" oninput="previewImage(this.value)">
                 </div>
 
                 <!-- Submit Button -->
-                <button 
-                    id="saveBtn" 
-                    onclick="saveFood()" 
-                    class="w-full bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white p-5 rounded-[1.5rem] font-black shadow-lg shadow-red-200 hover:shadow-xl active:scale-98 transition-all uppercase tracking-widest text-lg"
-                >
+                <button id="saveBtn" onclick="saveFood()" class="w-full bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white p-5 rounded-[1.5rem] font-black shadow-lg shadow-red-200 hover:shadow-xl active:scale-98 transition-all uppercase tracking-widest text-lg">
                     <i class="fas fa-save mr-2"></i> KEYDI XOGTA
                 </button>
             </div>
@@ -340,122 +185,60 @@
             
             <!-- Filter Buttons -->
             <div class="flex gap-2 mb-6 overflow-x-auto pb-2 no-scrollbar">
-                <button onclick="filterStatus('all')" class="filter-btn active px-4 py-2 rounded-xl font-bold text-xs bg-gray-100 hover:bg-gray-200 transition-all whitespace-nowrap">
-                    Dhammaan
-                </button>
-                <button onclick="filterStatus('visible')" class="filter-btn px-4 py-2 rounded-xl font-bold text-xs bg-gray-100 hover:bg-gray-200 transition-all whitespace-nowrap">
-                    <i class="fas fa-eye mr-1"></i> Visible
-                </button>
-                <button onclick="filterStatus('hidden')" class="filter-btn px-4 py-2 rounded-xl font-bold text-xs bg-gray-100 hover:bg-gray-200 transition-all whitespace-nowrap">
-                    <i class="fas fa-eye-slash mr-1"></i> Hidden
-                </button>
+                <button onclick="filterStatus('all', this)" class="filter-btn active px-4 py-2 rounded-xl font-bold text-xs bg-gray-100 hover:bg-gray-200 transition-all">Dhammaan</button>
+                <button onclick="filterStatus('visible', this)" class="filter-btn px-4 py-2 rounded-xl font-bold text-xs bg-gray-100 hover:bg-gray-200"><i class="fas fa-eye mr-1"></i> Visible</button>
+                <button onclick="filterStatus('hidden', this)" class="filter-btn px-4 py-2 rounded-xl font-bold text-xs bg-gray-100 hover:bg-gray-200"><i class="fas fa-eye-slash mr-1"></i> Hidden</button>
             </div>
             
             <div id="admin-list" class="space-y-3">
-                <div class="text-center py-12">
-                    <div class="inline-block animate-spin rounded-full h-12 w-12 border-4 border-gray-200 border-t-red-600 mb-4"></div>
-                    <p class="text-gray-500 font-bold">Soo dejinaya...</p>
-                </div>
+                <!-- Loading placeholders -->
+                <div class="bg-gray-200 h-24 rounded-2xl animate-pulse"></div>
+                <div class="bg-gray-200 h-24 rounded-2xl animate-pulse"></div>
+                <div class="bg-gray-200 h-24 rounded-2xl animate-pulse"></div>
             </div>
         </div>
     </div>
 
     <script>
-        const GOOGLE_URL = "https://script.google.com/macros/s/AKfycbyOxtl4Y7a8mRw92E6TXXcZlYUWNlMs9wSnsWoGEzkZC-uJa3WS5qCnR2Umz7F7XDG7Bw/exec";
+        // Configuration
+        const GOOGLE_URL = "https://script.google.com/macros/s/AKfycbzVMUruRAnuRcUqfV0CqgiSK1yDSDJo_UTYIE7mNabudjfIMl_H1ZHl58ymhmu97pTzcw/exec"; // Replace with your deployed Apps Script URL
         let menu = [];
         let currentFilter = 'all';
         let isProcessing = false;
-        let lastDataHash = '';
 
+        // Initialize
         document.addEventListener('DOMContentLoaded', () => {
             loadAdminMenu();
-            setInterval(loadAdminMenu, 1000); // 1 second refresh
+            setInterval(loadAdminMenu, 500); // Auto-refresh every 0.5 sec
             
             document.getElementById('foodDesc').addEventListener('input', (e) => {
-                const count = e.target.value.length;
-                document.getElementById('desc-count').textContent = count;
-                if (count > 200) {
-                    e.target.value = e.target.value.substring(0, 200);
-                }
+                document.getElementById('desc-count').textContent = e.target.value.length;
+                if (e.target.value.length > 200) e.target.value = e.target.value.substring(0, 200);
             });
         });
 
-        function hashData(data) {
-            return JSON.stringify(data);
-        }
-
-        function uploadImage(input) {
-            const file = input.files[0];
-            if (!file) return;
-            
-            if (file.size > 2 * 1024 * 1024) {
-                alert('Sawirku aad buu u weyn yahay! Fadlan dooro sawir ka yar 2MB');
-                input.value = '';
-                return;
-            }
-            
-            if (!file.type.startsWith('image/')) {
-                alert('Fadlan dooro sawir keliya (JPG, PNG, GIF)');
-                input.value = '';
-                return;
-            }
-            
-            const reader = new FileReader();
-            const statusEl = document.getElementById('uploadStatus');
-            
-            statusEl.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Diyaarinta sawirka...';
-            
-            reader.onload = e => {
-                const base64 = e.target.result;
-                document.getElementById('foodImg').value = base64;
-                previewImage(base64);
-                statusEl.innerHTML = '<i class="fas fa-check-circle mr-2"></i> Sawirka waa diyaar ✅';
-                
-                setTimeout(() => {
-                    statusEl.innerHTML = 'Upload Sawir (Base64)';
-                }, 3000);
-            };
-            
-            reader.onerror = () => {
-                alert('Khalad ayaa dhacay markii la akhriyay sawirka');
-                statusEl.innerHTML = 'Upload Sawir (Base64)';
-            };
-            
-            reader.readAsDataURL(file);
-        }
-
+        // Preview Image
         function previewImage(url) {
             const preview = document.getElementById('image-preview');
             const container = document.getElementById('image-preview-container');
-            
             if (url) {
                 preview.src = url;
-                preview.onerror = () => {
-                    container.classList.add('hidden');
-                };
-                preview.onload = () => {
-                    container.classList.remove('hidden');
-                };
+                preview.onload = () => container.classList.remove('hidden');
+                preview.onerror = () => container.classList.add('hidden');
             } else {
                 container.classList.add('hidden');
             }
         }
 
+        // Load Menu Data
         async function loadAdminMenu() {
             if (isProcessing) return;
-            
             try {
-                isProcessing = true;
-                
-                const res = await fetch(GOOGLE_URL + '?t=' + Date.now());
+                const res = await fetch(GOOGLE_URL);
                 if (!res.ok) throw new Error('Network error');
-                
                 const newData = await res.json();
-                const newHash = hashData(newData);
-                
-                if (newHash !== lastDataHash) {
+                if (JSON.stringify(menu) !== JSON.stringify(newData)) {
                     menu = newData;
-                    lastDataHash = newHash;
                     updateStatistics();
                     renderAdminList();
                 }
@@ -466,44 +249,32 @@
                         <div class="text-center py-12">
                             <i class="fas fa-exclamation-triangle text-5xl text-red-400 mb-4"></i>
                             <p class="text-gray-600 font-bold mb-2">Xiriirka Internet-ka ayaa khaldan</p>
-                            <button onclick="loadAdminMenu()" class="bg-red-600 text-white px-6 py-2 rounded-xl font-bold mt-4 hover:bg-red-700 transition-all">
+                            <button onclick="loadAdminMenu()" class="bg-red-600 text-white px-6 py-2 rounded-xl font-bold mt-4">
                                 <i class="fas fa-sync-alt mr-2"></i> Isku Day Mar Kale
                             </button>
                         </div>
                     `;
                 }
-            } finally {
-                isProcessing = false;
             }
         }
 
+        // Update Statistics
         function updateStatistics() {
-            const total = menu.length;
-            const visible = menu.filter(i => i.status !== 'hidden').length;
-            const hidden = menu.filter(i => i.status === 'hidden').length;
-            const categories = [...new Set(menu.map(i => i.category))].length;
-            
-            document.getElementById('stat-total').textContent = total;
-            document.getElementById('stat-visible').textContent = visible;
-            document.getElementById('stat-hidden').textContent = hidden;
-            document.getElementById('stat-categories').textContent = categories;
-            document.getElementById('item-count').textContent = `${total} Items`;
+            document.getElementById('stat-total').textContent = menu.length;
+            document.getElementById('stat-visible').textContent = menu.filter(i => i.status !== 'hidden').length;
+            document.getElementById('stat-hidden').textContent = menu.filter(i => i.status === 'hidden').length;
+            document.getElementById('stat-categories').textContent = [...new Set(menu.map(i => i.category))].length;
+            document.getElementById('item-count').textContent = `${menu.length} Items`;
         }
 
+        // Render Admin List
         function renderAdminList() {
             const searchTerm = document.getElementById('adminSearch').value.toLowerCase();
-            const searchBtn = document.getElementById('clear-admin-search');
-            const list = document.getElementById('admin-list');
-            
-            searchBtn.classList.toggle('hidden', !searchTerm);
+            document.getElementById('clear-admin-search').classList.toggle('hidden', !searchTerm);
             
             let filtered = menu;
-            
-            if (currentFilter === 'visible') {
-                filtered = filtered.filter(i => i.status !== 'hidden');
-            } else if (currentFilter === 'hidden') {
-                filtered = filtered.filter(i => i.status === 'hidden');
-            }
+            if (currentFilter === 'visible') filtered = filtered.filter(i => i.status !== 'hidden');
+            else if (currentFilter === 'hidden') filtered = filtered.filter(i => i.status === 'hidden');
             
             if (searchTerm) {
                 filtered = filtered.filter(i => 
@@ -515,50 +286,31 @@
             }
 
             if (filtered.length === 0) {
-                list.innerHTML = `
-                    <div class="text-center py-12">
-                        <i class="fas fa-search text-5xl text-gray-300 mb-4"></i>
-                        <p class="text-gray-600 font-bold">Lama helin wax natiiijo ah</p>
-                        <p class="text-gray-400 text-sm mt-2">Isku day eray kale ama dooro filter kale</p>
-                    </div>
-                `;
+                document.getElementById('admin-list').innerHTML = `<div class="text-center py-12"><i class="fas fa-search text-5xl text-gray-300 mb-4"></i><p class="text-gray-600 font-bold">Lama helin wax natiiijo ah</p></div>`;
                 return;
             }
 
-            list.innerHTML = filtered.map(item => `
+            document.getElementById('admin-list').innerHTML = filtered.map((item, index) => `
                 <div id="row-${item.id}" class="flex items-center justify-between p-4 ${item.status === 'hidden' ? 'bg-red-50 border-red-200' : 'bg-gray-50 border-gray-200'} rounded-2xl border-2 transition-all hover:shadow-md">
-                    <div class="flex items-center gap-4 flex-1 cursor-pointer hover:opacity-80 transition-opacity" onclick="prepareEdit('${item.id}')">
+                    <div class="flex items-center gap-4 flex-1 cursor-pointer" onclick="prepareEdit('${item.id}')">
                         <div class="relative">
-                            <img 
-                                src="${item.img}" 
-                                class="w-16 h-16 rounded-xl object-cover shadow-md border-2 border-white" 
-                                onerror="this.src='https://via.placeholder.com/150/dc2626/ffffff?text=No+Image'"
-                            >
+                            <img src="${item.img}" class="w-16 h-16 rounded-xl object-cover shadow-md border-2 border-white" onerror="this.src='https://via.placeholder.com/150/dc2626/ffffff?text=No+Image'">
                             ${item.status === 'hidden' ? '<div class="absolute inset-0 bg-black/40 rounded-xl flex items-center justify-center"><i class="fas fa-eye-slash text-white text-xl"></i></div>' : ''}
                         </div>
                         <div class="overflow-hidden flex-1">
                             <p class="font-black text-base text-gray-800 truncate">${item.name}</p>
                             <div class="flex items-center gap-2 mt-1">
                                 <span class="text-xs text-white bg-red-500 px-2 py-0.5 rounded-full font-bold uppercase">${item.category}</span>
-                                <span class="text-xs text-gray-500">•</span>
                                 <span class="text-sm font-black text-red-600">$${parseFloat(item.price || 0).toFixed(2)}</span>
                             </div>
                             ${item.description ? `<p class="text-xs text-gray-400 truncate mt-1 italic">${item.description}</p>` : ''}
                         </div>
                     </div>
                     <div class="flex items-center gap-2">
-                        <button 
-                            onclick="triggerPopup('status', '${item.id}')" 
-                            class="tooltip px-4 py-2 text-xs font-black border-2 rounded-xl ${item.status === 'hidden' ? 'bg-green-50 border-green-500 text-green-600' : 'bg-gray-50 border-gray-300 text-gray-600'} hover:shadow-md transition-all active:scale-95"
-                            data-tooltip="${item.status === 'hidden' ? 'Muuji' : 'Qari'}"
-                        >
+                        <button onclick="triggerPopup('status', '${item.id}')" class="px-4 py-2 text-xs font-black border-2 rounded-xl ${item.status === 'hidden' ? 'bg-green-50 border-green-500 text-green-600' : 'bg-gray-50 border-gray-300 text-gray-600'} hover:shadow-md active:scale-95">
                             <i class="fas fa-${item.status === 'hidden' ? 'eye' : 'eye-slash'}"></i>
                         </button>
-                        <button 
-                            onclick="triggerPopup('delete', '${item.id}')" 
-                            class="tooltip w-10 h-10 flex items-center justify-center text-red-600 bg-red-50 border-2 border-red-200 rounded-xl hover:bg-red-100 active:scale-95 transition-all"
-                            data-tooltip="Tirtir"
-                        >
+                        <button onclick="triggerPopup('delete', '${item.id}')" class="w-10 h-10 flex items-center justify-center text-red-600 bg-red-50 border-2 border-red-200 rounded-xl hover:bg-red-100 active:scale-95">
                             <i class="fas fa-trash-alt"></i>
                         </button>
                     </div>
@@ -566,56 +318,7 @@
             `).join('');
         }
 
-        async function saveFood() {
-            const btn = document.getElementById('saveBtn');
-            const name = document.getElementById('foodName').value.trim();
-            const price = document.getElementById('foodPrice').value;
-            
-            if (!name || !price) {
-                alert('⚠️ Fadlan buuxi Magaca iyo Qiimaha!');
-                return;
-            }
-            
-            if (parseFloat(price) <= 0) {
-                alert('⚠️ Qiimahu waa inuu ka weyn yahay 0!');
-                return;
-            }
-            
-            const data = {
-                action: "update",
-                id: document.getElementById('foodId').value || "ID-" + Date.now(),
-                name: name,
-                description: document.getElementById('foodDesc').value.trim(),
-                price: parseFloat(price),
-                category: document.getElementById('foodCat').value,
-                img: document.getElementById('foodImg').value || 'https://via.placeholder.com/300/dc2626/ffffff?text=Tufaax',
-                status: document.getElementById('foodStatus').value
-            };
-            
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> KAYDINTA...';
-            btn.classList.add('processing');
-            
-            try {
-                await fetch(GOOGLE_URL, { 
-                    method: 'POST', 
-                    mode: 'no-cors', 
-                    body: JSON.stringify(data) 
-                });
-                
-                setTimeout(() => {
-                    showSuccessToast();
-                    resetForm();
-                    loadAdminMenu();
-                    btn.innerHTML = '<i class="fas fa-save mr-2"></i> KEYDI XOGTA';
-                    btn.classList.remove('processing');
-                }, 800);
-            } catch (error) {
-                alert('❌ Khalad ayaa dhacay! Isku day mar kale.');
-                btn.innerHTML = '<i class="fas fa-save mr-2"></i> KEYDI XOGTA';
-                btn.classList.remove('processing');
-            }
-        }
-
+        // Prepare Edit
         function prepareEdit(id) {
             const item = menu.find(i => String(i.id) === String(id));
             if (!item) return;
@@ -627,20 +330,16 @@
             document.getElementById('foodCat').value = item.category;
             document.getElementById('foodImg').value = item.img;
             document.getElementById('foodStatus').value = item.status || "visible";
-            
             document.getElementById('desc-count').textContent = (item.description || "").length;
             previewImage(item.img);
             
-            document.getElementById('form-title').innerHTML = `
-                <i class="fas fa-edit text-orange-500"></i> 
-                <span>Bedel: ${item.name}</span>
-            `;
+            document.getElementById('form-title').innerHTML = `<i class="fas fa-edit text-orange-500"></i> <span>Bedel: ${item.name}</span>`;
             document.getElementById('cancelBtn').classList.remove('hidden');
             document.getElementById('saveBtn').innerHTML = '<i class="fas fa-save mr-2"></i> CUSBOONEYSII';
-            
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
+        // Reset Form
         function resetForm() {
             document.getElementById('foodId').value = "";
             document.getElementById('foodName').value = "";
@@ -648,121 +347,134 @@
             document.getElementById('foodPrice').value = "";
             document.getElementById('foodImg').value = "";
             document.getElementById('foodStatus').value = "visible";
-            document.getElementById('foodCat').selectedIndex = 0;
             document.getElementById('desc-count').textContent = "0";
             document.getElementById('cancelBtn').classList.add('hidden');
-            document.getElementById('uploadStatus').innerHTML = 'Upload Sawir (Base64)';
             document.getElementById('image-preview-container').classList.add('hidden');
-            document.getElementById('form-title').innerHTML = `
-                <i class="fas fa-plus-circle text-green-500"></i> 
-                <span>Ku dar Cunto Cusub</span>
-            `;
+            document.getElementById('form-title').innerHTML = `<i class="fas fa-plus-circle text-green-500"></i> <span>Ku dar Cunto Cusub</span>`;
             document.getElementById('saveBtn').innerHTML = '<i class="fas fa-save mr-2"></i> KEYDI XOGTA';
         }
 
-        function triggerPopup(type, id) {
-            const popup = document.getElementById('custom-popup');
-            const confirmBtn = document.getElementById('popup-confirm-btn');
-            const iconBox = document.getElementById('popup-icon-box');
-            const item = menu.find(i => String(i.id) === String(id));
-            
-            popup.style.display = 'flex';
-
-            if (type === 'delete') {
-                document.getElementById('popup-title').innerText = "Ma tirtirtaa?";
-                document.getElementById('popup-msg').innerText = `"${item.name}" ayaa la tiridoonaa. Xogtan dib looma soo celin karo.`;
-                confirmBtn.className = "flex-1 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 p-4 rounded-2xl font-bold text-white transition-all";
-                iconBox.className = "w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-5 bg-red-50 text-red-600 border-4 border-red-100";
-                document.getElementById('popup-icon').className = "fas fa-trash-alt text-3xl";
-                
-                confirmBtn.onclick = async () => { 
-                    closePopup();
-                    const row = document.getElementById(`row-${id}`);
-                    if (row) row.classList.add('processing');
-                    
-                    await fetch(GOOGLE_URL, { 
-                        method: 'POST', 
-                        mode: 'no-cors', 
-                        body: JSON.stringify({ action: "delete", id: String(id) }) 
-                    });
-                    
-                    setTimeout(() => {
-                        loadAdminMenu();
-                        showSuccessToast();
-                    }, 1000);
-                };
-            } else {
-                const newStatus = item.status === 'hidden' ? 'visible' : 'hidden';
-                document.getElementById('popup-title').innerText = "Badal Muuqaalka?";
-                document.getElementById('popup-msg').innerText = newStatus === 'hidden' 
-                    ? `"${item.name}" laga qarin doonaa macaamiisha.` 
-                    : `"${item.name}" loo muujin doonaa macaamiisha.`;
-                confirmBtn.className = "flex-1 bg-gradient-to-r from-gray-700 to-gray-800 hover:from-gray-800 hover:to-gray-900 p-4 rounded-2xl font-bold text-white transition-all";
-                iconBox.className = "w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-5 bg-gray-100 text-gray-800 border-4 border-gray-200";
-                document.getElementById('popup-icon').className = `fas fa-${newStatus === 'hidden' ? 'eye-slash' : 'eye'} text-3xl`;
-                
-                confirmBtn.onclick = async () => { 
-                    closePopup();
-                    const row = document.getElementById(`row-${id}`);
-                    if (row) row.classList.add('processing');
-                    
-                    await fetch(GOOGLE_URL, { 
-                        method: 'POST', 
-                        mode: 'no-cors', 
-                        body: JSON.stringify({ ...item, action: "update", status: newStatus }) 
-                    });
-                    
-                    setTimeout(() => {
-                        loadAdminMenu();
-                        showSuccessToast();
-                    }, 1000);
-                };
-            }
-        }
-
+        // Popup Handling
+        let popupResolve = null;
         function closePopup() { 
             document.getElementById('custom-popup').style.display = 'none'; 
+            if (popupResolve) popupResolve(false);
         }
 
-        function filterStatus(status) {
-            currentFilter = status;
-            
-            document.querySelectorAll('.filter-btn').forEach(btn => {
-                btn.classList.remove('active', 'bg-red-600', 'text-white');
-                btn.classList.add('bg-gray-100', 'hover:bg-gray-200');
+        async function showConfirmPopup(title, msg, icon = 'trash', confirmText = 'Haa') {
+            return new Promise((resolve) => {
+                popupResolve = resolve;
+                document.getElementById('popup-title').innerText = title;
+                document.getElementById('popup-msg').innerText = msg;
+                document.getElementById('popup-icon').className = `fas fa-${icon} text-3xl`;
+                document.getElementById('popup-icon-box').className = `w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-5 ${icon==='trash'?'bg-red-50 text-red-600 border-red-100':'bg-gray-100 text-gray-800 border-gray-200'}`;
+                document.getElementById('popup-confirm-btn').innerText = confirmText;
+                document.getElementById('popup-confirm-btn').className = `flex-1 p-4 rounded-2xl font-bold text-white shadow-lg ${icon==='trash'?'bg-red-600 hover:bg-red-700':'bg-gray-700 hover:bg-gray-800'}`;
+                document.getElementById('popup-confirm-btn').onclick = () => { closePopup(); resolve(true); };
+                document.getElementById('custom-popup').style.display = 'flex';
             });
-            
-            event.target.classList.add('active', 'bg-red-600', 'text-white');
-            event.target.classList.remove('bg-gray-100', 'hover:bg-gray-200');
-            
-            renderAdminList();
         }
 
-        function clearAdminSearch() {
+        // Trigger Popup Actions
+        window.triggerPopup = async (type, id) => {
+            const item = menu.find(i => String(i.id) === String(id));
+            if (type === 'delete') {
+                const ok = await showConfirmPopup('Ma tirtirtaa?', `"${item.name}" ayaa la tiridoonaa. Xogtan dib looma soo celin karo.`, 'trash', 'Haa tirtir');
+                if (ok) await adminAction({ action: 'delete', id: String(id) });
+            } else {
+                const newStatus = item.status === 'hidden' ? 'visible' : 'hidden';
+                const ok = await showConfirmPopup('Badal muuqaalka?', `"${item.name}" ${newStatus==='hidden'?'laga qarin doonaa macaamiisha':'loo muujin doonaa macaamiisha'}`, newStatus==='hidden'?'eye-slash':'eye', 'Haa');
+                if (ok) await adminAction({ ...item, action: 'update', status: newStatus });
+            }
+        };
+
+        // Admin POST Action
+        async function adminAction(payload) {
+            if (isProcessing) return;
+            isProcessing = true;
+            const row = document.getElementById(`row-${payload.id}`);
+            if (row) row.classList.add('processing');
+            
+            try {
+                await fetch(GOOGLE_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
+                setTimeout(() => {
+                    loadAdminMenu();
+                    showToast();
+                    if (row) row.classList.remove('processing');
+                    isProcessing = false;
+                }, 500);
+            } catch {
+                if (row) row.classList.remove('processing');
+                isProcessing = false;
+            }
+        }
+
+        // Save Food (Add/Update)
+        window.saveFood = async function() {
+            const name = document.getElementById('foodName').value.trim();
+            const price = document.getElementById('foodPrice').value;
+            if (!name || !price || parseFloat(price) <= 0) {
+                alert('⚠️ Fadlan buuxi Magaca iyo Qiimaha!');
+                return;
+            }
+            
+            const data = {
+                action: 'update',
+                id: document.getElementById('foodId').value || 'ID-' + Date.now(),
+                name: name,
+                description: document.getElementById('foodDesc').value.trim(),
+                price: parseFloat(price),
+                category: document.getElementById('foodCat').value,
+                img: document.getElementById('foodImg').value || 'https://via.placeholder.com/300/dc2626/ffffff?text=Tufaax',
+                status: document.getElementById('foodStatus').value
+            };
+            
+            isProcessing = true;
+            const btn = document.getElementById('saveBtn');
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> KAYDINTA...';
+            
+            try {
+                await fetch(GOOGLE_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(data) });
+                setTimeout(() => {
+                    showToast();
+                    resetForm();
+                    loadAdminMenu();
+                    btn.innerHTML = '<i class="fas fa-save mr-2"></i> KEYDI XOGTA';
+                    isProcessing = false;
+                }, 500);
+            } catch {
+                btn.innerHTML = '<i class="fas fa-save mr-2"></i> KEYDI XOGTA';
+                isProcessing = false;
+            }
+        };
+
+        // Filter by Status
+        window.filterStatus = function(status, btn) {
+            currentFilter = status;
+            document.querySelectorAll('.filter-btn').forEach(b => {
+                b.classList.remove('active', 'bg-red-600', 'text-white');
+                b.classList.add('bg-gray-100');
+            });
+            btn.classList.add('active', 'bg-red-600', 'text-white');
+            renderAdminList();
+        };
+
+        // Clear Search
+        window.clearAdminSearch = function() {
             document.getElementById('adminSearch').value = '';
             renderAdminList();
-        }
+        };
 
-        function showSuccessToast() {
+        // Show Toast
+        function showToast() {
             const toast = document.getElementById('success-toast');
-            toast.classList.remove('hidden');
-            toast.classList.add('success-animation');
-            
-            setTimeout(() => {
-                toast.classList.add('hidden');
-                toast.classList.remove('success-animation');
-            }, 3000);
+            toast.style.display = 'flex';
+            setTimeout(() => toast.style.display = 'none', 2000);
         }
 
-        const style = document.createElement('style');
-        style.textContent = `
-            .filter-btn.active {
-                background: linear-gradient(135deg, #dc2626, #991b1b) !important;
-                color: white !important;
-            }
-        `;
-        document.head.appendChild(style);
+        // Expose functions globally
+        window.closePopup = closePopup;
+        window.previewImage = previewImage;
     </script>
 </body>
 </html>
-
