@@ -9,34 +9,26 @@
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
-        /* Responsive base */
-        html { font-size: 16px; }
-        @media (max-width: 640px) { html { font-size: 14px; } }
-        
+        /* Same theme as index and admin */
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: #f1f5f9;
-            padding: 1rem;
+            background: #f8fafc;
         }
         
-        /* Kitchen header */
+        /* Kitchen Header - matches admin theme */
         .kitchen-header {
-            background: white;
-            border-radius: 2rem;
-            padding: 1.5rem;
-            margin-bottom: 1.5rem;
-            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
-            border: 1px solid #e2e8f0;
+            background: linear-gradient(135deg, #1e293b, #0f172a);
+            border-bottom: 4px solid #f59e0b;
         }
         
-        /* Order card - SIMPLE: only shows table and items */
+        /* Order Cards */
         .order-card {
             background: white;
             border-radius: 1.5rem;
             padding: 1.5rem;
-            margin-bottom: 1rem;
-            border-left: 8px solid #f59e0b;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+            border: 1px solid #e2e8f0;
+            transition: all 0.2s;
             animation: slideIn 0.3s ease-out;
         }
         
@@ -45,122 +37,80 @@
             to { opacity: 1; transform: translateY(0); }
         }
         
-        /* Table number - LARGE and CLEAR */
-        .table-number {
-            background: #1e293b;
-            color: white;
-            font-size: 2.5rem;
-            font-weight: 900;
-            padding: 1rem 2rem;
-            border-radius: 2rem;
-            display: inline-block;
-            margin-bottom: 1rem;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        .order-card.new {
+            border-left: 8px solid #f59e0b;
+            background: #fffbeb;
         }
         
-        /* Item list */
+        /* Table Badge - Large and Clear */
+        .table-badge {
+            background: #1e293b;
+            color: white;
+            font-size: 2rem;
+            font-weight: 800;
+            padding: 1rem 2rem;
+            border-radius: 999px;
+            display: inline-flex;
+            align-items: center;
+            gap: 1rem;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+        }
+        
+        /* Item Row */
         .item-row {
             background: #f8fafc;
             border-radius: 1rem;
             padding: 1rem;
             margin-bottom: 0.75rem;
             border: 1px solid #e2e8f0;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 1.2rem;
+            font-size: 1.1rem;
         }
         
-        .item-name {
-            font-weight: 600;
-            color: #1e293b;
-        }
-        
-        .item-quantity {
-            background: #f59e0b;
-            color: white;
-            font-weight: 800;
-            padding: 0.25rem 1rem;
-            border-radius: 2rem;
-            font-size: 1.2rem;
-        }
-        
-        /* Complete button - BIG and GREEN */
-        .complete-btn {
+        /* Complete Button */
+        .btn-complete {
             background: #10b981;
             color: white;
-            font-weight: 800;
-            font-size: 1.3rem;
-            padding: 1rem;
-            border-radius: 2rem;
+            font-weight: bold;
+            padding: 1rem 2rem;
+            border-radius: 999px;
             width: 100%;
-            margin-top: 1rem;
+            font-size: 1.2rem;
+            transition: all 0.2s;
             border: none;
             cursor: pointer;
-            transition: all 0.2s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.5rem;
-            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
         }
         
-        .complete-btn:active {
-            transform: scale(0.98);
+        .btn-complete:hover {
             background: #059669;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(16, 185, 129, 0.3);
         }
         
-        /* Stats bar */
-        .stats-bar {
-            display: flex;
-            gap: 1rem;
-            margin-bottom: 1.5rem;
-            flex-wrap: wrap;
+        .btn-complete:active {
+            transform: translateY(0);
         }
         
-        .stat-item {
+        /* Stats Cards - matching admin */
+        .stats-card {
             background: white;
-            padding: 1rem 2rem;
-            border-radius: 2rem;
-            font-weight: 800;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            border-radius: 1.5rem;
+            padding: 1.5rem;
             border: 1px solid #e2e8f0;
-            flex: 1;
             text-align: center;
-            min-width: 120px;
         }
         
-        .stat-number {
-            font-size: 2rem;
-            display: block;
+        .stats-number {
+            font-size: 2.5rem;
+            font-weight: 800;
+            line-height: 1;
             color: #f59e0b;
         }
         
-        /* Notification */
-        .notification {
-            position: fixed;
-            top: 1rem;
-            right: 1rem;
-            background: #10b981;
-            color: white;
-            padding: 1rem 2rem;
-            border-radius: 999px;
-            font-weight: bold;
-            z-index: 9999;
-            display: none;
-            animation: slideDown 0.3s ease-out;
-        }
-        
-        @keyframes slideDown {
-            from { transform: translateY(-100px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
-        
-        /* Mobile responsive */
+        /* Responsive Grid */
         .orders-grid {
             display: grid;
             grid-template-columns: 1fr;
-            gap: 1rem;
+            gap: 1.5rem;
         }
         
         @media (min-width: 768px) {
@@ -175,19 +125,44 @@
             }
         }
         
-        /* Clear button */
-        .clear-btn {
-            background: #ef4444;
+        /* Notification */
+        .notification {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            background: #f59e0b;
             color: white;
-            padding: 0.75rem 1.5rem;
-            border-radius: 2rem;
+            padding: 1rem 2rem;
+            border-radius: 999px;
             font-weight: bold;
-            border: none;
-            cursor: pointer;
+            z-index: 9999;
+            display: none;
+            animation: slideDown 0.3s ease-out;
         }
+        
+        @keyframes slideDown {
+            from { transform: translateY(-100px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        
+        /* Mobile Tabs */
+        .tab-btn {
+            padding: 1rem 2rem;
+            border-radius: 999px;
+            font-weight: bold;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+        .tab-btn.active {
+            background: #f59e0b;
+            color: white;
+        }
+        
+        /* Hide scrollbar */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
     </style>
 </head>
-<body>
+<body class="min-h-screen">
 
     <!-- Notification -->
     <div id="notification" class="notification">
@@ -196,62 +171,127 @@
     </div>
 
     <!-- Header -->
-    <div class="kitchen-header">
-        <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
-            <div class="flex items-center gap-3">
-                <h1 class="text-3xl font-black text-gray-800">
-                    <i class="fas fa-utensils text-orange-500 mr-2"></i>
-                    KITCHEN
-                </h1>
-                <span class="bg-green-500 text-white text-xs px-3 py-1 rounded-full font-bold">LIVE</span>
+    <header class="kitchen-header text-white p-6 sticky top-0 z-50 shadow-xl">
+        <div class="max-w-7xl mx-auto">
+            <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
+                <div class="flex items-center gap-4">
+                    <h1 class="text-3xl font-black flex items-center gap-3">
+                        <i class="fas fa-utensils text-orange-400"></i>
+                        TUFAAX KITCHEN
+                    </h1>
+                    <span class="bg-green-500 text-xs px-3 py-1 rounded-full font-bold flex items-center gap-2">
+                        <span class="relative flex h-2 w-2">
+                            <span class="animate-ping absolute h-full w-full rounded-full bg-green-400"></span>
+                            <span class="relative h-2 w-2 rounded-full bg-green-500"></span>
+                        </span>
+                        LIVE
+                    </span>
+                </div>
+                
+                <div class="flex items-center gap-3">
+                    <button onclick="clearCompleted()" class="bg-white/10 hover:bg-white/20 px-4 py-2 rounded-full text-sm transition-all">
+                        <i class="fas fa-trash-alt mr-2"></i>Clear Completed
+                    </button>
+                </div>
+            </div>
+
+            <!-- Stats Row -->
+            <div class="grid grid-cols-3 gap-4 mt-6">
+                <div class="bg-white/10 rounded-2xl p-4 text-center">
+                    <p class="text-sm opacity-90">Active Orders</p>
+                    <p id="active-count" class="text-3xl font-black">0</p>
+                </div>
+                <div class="bg-white/10 rounded-2xl p-4 text-center">
+                    <p class="text-sm opacity-90">Today</p>
+                    <p id="today-count" class="text-3xl font-black">0</p>
+                </div>
+                <div class="bg-white/10 rounded-2xl p-4 text-center">
+                    <p class="text-sm opacity-90">Tables</p>
+                    <p id="tables-count" class="text-3xl font-black">0</p>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto p-6">
+        
+        <!-- Mobile Tabs (only show on small screens) -->
+        <div class="flex gap-2 mb-6 overflow-x-auto no-scrollbar sm:hidden">
+            <button onclick="showTab('active')" id="tab-active" class="tab-btn active flex-1">
+                <i class="fas fa-fire mr-1"></i> Active
+            </button>
+            <button onclick="showTab('completed')" id="tab-completed" class="tab-btn flex-1 bg-gray-200 text-gray-700">
+                <i class="fas fa-check-circle mr-1"></i> Completed
+            </button>
+        </div>
+
+        <!-- Desktop: Two Columns -->
+        <div class="hidden sm:grid sm:grid-cols-2 gap-6">
+            <!-- Active Orders Column -->
+            <div class="bg-white rounded-2xl p-6 border border-gray-200">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-xl font-bold text-orange-600 flex items-center gap-2">
+                        <i class="fas fa-clock"></i>
+                        Active Orders
+                    </h2>
+                    <span id="desktop-active-count" class="bg-orange-100 text-orange-600 px-4 py-1 rounded-full font-bold">0</span>
+                </div>
+                <div id="active-orders-desktop" class="space-y-4 max-h-[600px] overflow-y-auto pr-2">
+                    <!-- Active orders appear here -->
+                </div>
+            </div>
+
+            <!-- Completed Orders Column -->
+            <div class="bg-white rounded-2xl p-6 border border-gray-200">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-xl font-bold text-green-600 flex items-center gap-2">
+                        <i class="fas fa-check-circle"></i>
+                        Completed
+                    </h2>
+                    <span id="desktop-completed-count" class="bg-green-100 text-green-600 px-4 py-1 rounded-full font-bold">0</span>
+                </div>
+                <div id="completed-orders-desktop" class="space-y-4 max-h-[600px] overflow-y-auto pr-2">
+                    <!-- Completed orders appear here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile: Single Column with Tabs -->
+        <div class="sm:hidden">
+            <!-- Active Orders Tab -->
+            <div id="mobile-active-view" class="tab-view">
+                <div id="active-orders-mobile" class="space-y-4"></div>
             </div>
             
-            <div class="flex items-center gap-3">
-                <div class="bg-orange-100 px-4 py-2 rounded-full">
-                    <span id="order-count" class="font-black text-orange-600">0</span>
-                    <span class="text-gray-600 ml-1">Active</span>
-                </div>
-                <button onclick="clearCompleted()" class="clear-btn">
-                    <i class="fas fa-trash-alt mr-2"></i>Clear All
-                </button>
+            <!-- Completed Orders Tab -->
+            <div id="mobile-completed-view" class="tab-view hidden">
+                <div id="completed-orders-mobile" class="space-y-4"></div>
             </div>
         </div>
 
-        <!-- Simple Stats -->
-        <div class="stats-bar mt-4">
-            <div class="stat-item">
-                <span class="stat-number" id="total-tables">0</span>
-                <span class="text-gray-600">Tables</span>
-            </div>
-            <div class="stat-item">
-                <span class="stat-number" id="total-orders">0</span>
-                <span class="text-gray-600">Orders</span>
+        <!-- Empty State -->
+        <div id="empty-state" class="hidden text-center py-16">
+            <div class="bg-white rounded-3xl p-8 max-w-md mx-auto">
+                <i class="fas fa-utensils text-6xl text-gray-300 mb-4"></i>
+                <h3 class="text-xl font-bold text-gray-700 mb-2">No Orders</h3>
+                <p class="text-gray-500">Waiting for customers to place orders</p>
             </div>
         </div>
-    </div>
-
-    <!-- Active Orders Grid - ONLY ACTIVE ORDERS SHOWN -->
-    <div id="orders-container" class="orders-grid">
-        <!-- Orders will appear here -->
-    </div>
-
-    <!-- Empty State -->
-    <div id="empty-state" class="text-center py-16 bg-white rounded-3xl">
-        <i class="fas fa-utensils text-6xl text-gray-300 mb-4"></i>
-        <p class="text-xl text-gray-500">No active orders</p>
-        <p class="text-gray-400 mt-2">Waiting for new orders...</p>
-    </div>
+    </main>
 
     <script>
-        // Simple kitchen - ONLY ACTIVE ORDERS
+        // Configuration
         const STORAGE_KEY = 'tufaax_kitchen_orders';
         let orders = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+        let currentTab = 'active';
 
         // Initialize
         document.addEventListener('DOMContentLoaded', () => {
             renderOrders();
             checkForNewOrders();
             setInterval(checkForNewOrders, 1000);
+            updateStats();
         });
 
         // Check for new orders
@@ -263,63 +303,77 @@
                 const cartString = JSON.stringify(customerCart);
                 
                 if (!lastOrder || lastOrder.itemsString !== cartString) {
-                    createOrder(customerCart);
+                    createOrderFromCart(customerCart);
                 }
             }
         }
 
         // Create new order
-        function createOrder(cart) {
-            // Get table number from URL or random
+        function createOrderFromCart(cart) {
             const table = new URLSearchParams(window.location.search).get('table') || 
                          Math.floor(Math.random() * 20) + 1;
             
             // Group items
-            const items = [];
-            const grouped = {};
-            
-            cart.forEach(item => {
-                if (!grouped[item.name]) {
-                    grouped[item.name] = 1;
+            const groupedItems = cart.reduce((acc, item) => {
+                const key = item.name;
+                if (!acc[key]) {
+                    acc[key] = { name: item.name, quantity: 1 };
                 } else {
-                    grouped[item.name]++;
+                    acc[key].quantity += 1;
                 }
-            });
-            
-            for (let [name, quantity] of Object.entries(grouped)) {
-                items.push({ name, quantity });
-            }
+                return acc;
+            }, {});
+
+            const itemsWithQuantity = Object.values(groupedItems);
             
             const newOrder = {
                 id: 'ORD-' + Date.now(),
                 table: table,
-                items: items,
+                items: itemsWithQuantity,
                 itemsString: JSON.stringify(cart),
+                status: 'active', // Only active or completed
                 timestamp: new Date().toISOString(),
-                timeReceived: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                timeReceived: new Date().toLocaleTimeString('so-SO', { hour: '2-digit', minute: '2-digit' })
             };
 
-            orders.unshift(newOrder); // Add to beginning
+            orders.unshift(newOrder);
             saveOrders();
+            
             showNotification(`Table ${table} - New Order!`);
             localStorage.removeItem('tufaax_cart');
             renderOrders();
+            updateStats();
         }
 
-        // Complete order (remove from list)
+        // Complete order
         function completeOrder(orderId) {
-            orders = orders.filter(o => o.id !== orderId);
-            saveOrders();
-            renderOrders();
-            showNotification('Order completed', 'info');
+            const order = orders.find(o => o.id === orderId);
+            if (order) {
+                order.status = 'completed';
+                saveOrders();
+                showNotification(`Table ${order.table} completed`);
+                renderOrders();
+                updateStats();
+            }
         }
 
-        // Clear all orders
-        function clearCompleted() {
-            if (confirm('Clear all orders?')) {
-                orders = [];
+        // Delete order
+        function deleteOrder(orderId) {
+            if (confirm('Delete this order?')) {
+                orders = orders.filter(o => o.id !== orderId);
                 saveOrders();
                 renderOrders();
+                updateStats();
+            }
+        }
+
+        // Clear all completed
+        function clearCompleted() {
+            if (confirm('Clear all completed orders?')) {
+                orders = orders.filter(o => o.status !== 'completed');
+                saveOrders();
+                renderOrders();
+                updateStats();
             }
         }
 
@@ -333,65 +387,113 @@
             const notification = document.getElementById('notification');
             document.getElementById('notification-message').textContent = message;
             notification.style.display = 'flex';
-            setTimeout(() => notification.style.display = 'none', 2000);
+            setTimeout(() => notification.style.display = 'none', 3000);
         }
 
-        // Render ONLY ACTIVE ORDERS
-        function renderOrders() {
-            const container = document.getElementById('orders-container');
-            const emptyState = document.getElementById('empty-state');
-            
-            // Update stats
-            document.getElementById('total-orders').textContent = orders.length;
-            document.getElementById('order-count').textContent = orders.length;
-            
-            // Count unique tables
+        // Update statistics
+        function updateStats() {
+            const activeOrders = orders.filter(o => o.status === 'active').length;
+            const today = new Date().toDateString();
+            const todayOrders = orders.filter(o => new Date(o.timestamp).toDateString() === today).length;
             const uniqueTables = [...new Set(orders.map(o => o.table))].length;
-            document.getElementById('total-tables').textContent = uniqueTables;
 
-            if (orders.length === 0) {
-                container.innerHTML = '';
-                emptyState.style.display = 'block';
-                return;
-            }
+            document.getElementById('active-count').textContent = activeOrders;
+            document.getElementById('today-count').textContent = todayOrders;
+            document.getElementById('tables-count').textContent = uniqueTables;
+            
+            document.getElementById('desktop-active-count').textContent = activeOrders;
+            document.getElementById('desktop-completed-count').textContent = orders.filter(o => o.status === 'completed').length;
+        }
 
-            emptyState.style.display = 'none';
+        // Show tab (mobile)
+        function showTab(tab) {
+            currentTab = tab;
+            
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active', 'bg-orange-500', 'text-white');
+                btn.classList.add('bg-gray-200', 'text-gray-700');
+            });
+            document.getElementById(`tab-${tab}`).classList.add('active', 'bg-orange-500', 'text-white');
+            
+            document.querySelectorAll('.tab-view').forEach(view => view.classList.add('hidden'));
+            document.getElementById(`mobile-${tab}-view`).classList.remove('hidden');
+        }
 
-            // Show all active orders
-            container.innerHTML = orders.map(order => `
-                <div class="order-card">
-                    <!-- BIG TABLE NUMBER -->
-                    <div class="table-number">
-                        <i class="fas fa-chair mr-2"></i>TABLE ${order.table}
+        // Render order card
+        function renderOrderCard(order) {
+            const tableNum = order.table.toString().padStart(2, '0');
+            const isActive = order.status === 'active';
+            
+            return `
+                <div class="order-card ${isActive ? 'new' : ''}">
+                    <div class="flex justify-between items-start mb-4">
+                        <div class="table-badge">
+                            <i class="fas fa-chair"></i>
+                            Table ${tableNum}
+                        </div>
+                        <span class="text-sm text-gray-500">${order.timeReceived}</span>
                     </div>
                     
-                    <!-- Order Time -->
-                    <div class="text-sm text-gray-500 mb-3">
-                        <i class="far fa-clock mr-1"></i>${order.timeReceived}
-                    </div>
-                    
-                    <!-- Items List -->
-                    <div class="mb-4">
+                    <div class="mb-6">
                         ${order.items.map(item => `
-                            <div class="item-row">
-                                <span class="item-name">${item.name}</span>
-                                <span class="item-quantity">${item.quantity}</span>
+                            <div class="item-row flex justify-between items-center">
+                                <span class="font-bold text-gray-800">${item.quantity}x</span>
+                                <span class="text-gray-700">${item.name}</span>
                             </div>
                         `).join('')}
                     </div>
                     
-                    <!-- COMPLETE BUTTON - ONE CLICK -->
-                    <button onclick="completeOrder('${order.id}')" class="complete-btn">
-                        <i class="fas fa-check-circle"></i>
-                        COMPLETE ORDER
-                    </button>
+                    ${isActive ? `
+                        <button onclick="completeOrder('${order.id}')" class="btn-complete">
+                            <i class="fas fa-check-circle mr-2"></i> Complete Order
+                        </button>
+                    ` : `
+                        <button onclick="deleteOrder('${order.id}')" class="w-full bg-red-100 text-red-600 py-3 rounded-full font-bold hover:bg-red-200 transition-all">
+                            <i class="fas fa-trash-alt mr-2"></i> Delete
+                        </button>
+                    `}
                 </div>
-            `).join('');
+            `;
+        }
+
+        // Render all orders
+        function renderOrders() {
+            const activeOrders = orders.filter(o => o.status === 'active');
+            const completedOrders = orders.filter(o => o.status === 'completed');
+            
+            // Desktop views
+            document.getElementById('active-orders-desktop').innerHTML = activeOrders.length ? 
+                activeOrders.map(o => renderOrderCard(o)).join('') : 
+                '<div class="text-center text-gray-400 py-8 bg-gray-50 rounded-2xl"><i class="fas fa-clock text-3xl mb-2"></i><p>No active orders</p></div>';
+            
+            document.getElementById('completed-orders-desktop').innerHTML = completedOrders.length ? 
+                completedOrders.map(o => renderOrderCard(o)).join('') : 
+                '<div class="text-center text-gray-400 py-8 bg-gray-50 rounded-2xl"><i class="fas fa-check-circle text-3xl mb-2"></i><p>No completed orders</p></div>';
+            
+            // Mobile views
+            document.getElementById('active-orders-mobile').innerHTML = activeOrders.length ? 
+                activeOrders.map(o => renderOrderCard(o)).join('') : 
+                '<div class="text-center text-gray-400 py-8 bg-white rounded-2xl"><p>No active orders</p></div>';
+            
+            document.getElementById('completed-orders-mobile').innerHTML = completedOrders.length ? 
+                completedOrders.map(o => renderOrderCard(o)).join('') : 
+                '<div class="text-center text-gray-400 py-8 bg-white rounded-2xl"><p>No completed orders</p></div>';
+            
+            // Empty state
+            if (orders.length === 0) {
+                document.getElementById('empty-state').classList.remove('hidden');
+            } else {
+                document.getElementById('empty-state').classList.add('hidden');
+            }
+            
+            updateStats();
         }
 
         // Expose functions
         window.completeOrder = completeOrder;
+        window.deleteOrder = deleteOrder;
         window.clearCompleted = clearCompleted;
+        window.showTab = showTab;
     </script>
 </body>
 </html>
