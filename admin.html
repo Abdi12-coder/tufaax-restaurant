@@ -16,17 +16,6 @@
         .processing { 
             opacity: 0.6; 
             pointer-events: none;
-            position: relative;
-        }
-        
-        .processing::after {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: rgba(255, 255, 255, 0.5);
-            display: flex;
-            align-items: center;
-            justify-content: center;
         }
         
         #custom-popup { 
@@ -52,33 +41,6 @@
                 opacity: 1;
                 transform: translateY(0) scale(1); 
             }
-        }
-        
-        .fade-in {
-            animation: fadeInItem 0.4s ease-out forwards;
-        }
-        
-        @keyframes fadeInItem {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        
-        .skeleton {
-            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-            background-size: 200% 100%;
-            animation: shimmer 1.5s infinite;
-            border-radius: 1rem;
-        }
-        
-        @keyframes shimmer {
-            0% { background-position: 200% 0; }
-            100% { background-position: -200% 0; }
         }
         
         .image-preview {
@@ -128,6 +90,9 @@
             0%, 100% { transform: scale(1); }
             50% { transform: scale(1.05); }
         }
+        
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
 </head>
 <body class="bg-gradient-to-br from-slate-50 to-slate-100 p-4 pb-20">
@@ -387,27 +352,25 @@
             </div>
             
             <div id="admin-list" class="space-y-3">
-                <!-- Loading Skeletons -->
-                <div class="skeleton h-24"></div>
-                <div class="skeleton h-24"></div>
-                <div class="skeleton h-24"></div>
+                <div class="text-center py-12">
+                    <div class="inline-block animate-spin rounded-full h-12 w-12 border-4 border-gray-200 border-t-red-600 mb-4"></div>
+                    <p class="text-gray-500 font-bold">Soo dejinaya...</p>
+                </div>
             </div>
         </div>
     </div>
 
     <script>
-        // Configuration
-        const GOOGLE_URL = "https://script.google.com/macros/s/AKfycbwOXK0H3RicHlPQSCM_6zEPN8IxZhv-uoCQYyg1wok2S0SYPXyhA6h445VWk3X8ttjr_w/exec"; // Replace with your deployed URL
+        const GOOGLE_URL = "https://script.google.com/macros/s/AKfycbwOXK0H3RicHlPQSCM_6zEPN8IxZhv-uoCQYyg1wok2S0SYPXyhA6h445VWk3X8ttjr_w/exec";
         let menu = [];
         let currentFilter = 'all';
         let isProcessing = false;
+        let lastDataHash = '';
 
-        // Initialize
         document.addEventListener('DOMContentLoaded', () => {
             loadAdminMenu();
-            setInterval(loadAdminMenu, 500); // Auto-refresh every 0.5 seconds
+            setInterval(loadAdminMenu, 1000); // 1 second refresh
             
-            // Add character counter for description
             document.getElementById('foodDesc').addEventListener('input', (e) => {
                 const count = e.target.value.length;
                 document.getElementById('desc-count').textContent = count;
@@ -417,21 +380,20 @@
             });
         });
 
-        /**
-         * Upload Image and Convert to Base64
-         */
+        function hashData(data) {
+            return JSON.stringify(data);
+        }
+
         function uploadImage(input) {
             const file = input.files[0];
             if (!file) return;
             
-            // Check file size (2MB limit)
             if (file.size > 2 * 1024 * 1024) {
                 alert('Sawirku aad buu u weyn yahay! Fadlan dooro sawir ka yar 2MB');
                 input.value = '';
                 return;
             }
             
-            // Check file type
             if (!file.type.startsWith('image/')) {
                 alert('Fadlan dooro sawir keliya (JPG, PNG, GIF)');
                 input.value = '';
@@ -462,9 +424,6 @@
             reader.readAsDataURL(file);
         }
 
-        /**
-         * Preview Image
-         */
         function previewImage(url) {
             const preview = document.getElementById('image-preview');
             const container = document.getElementById('image-preview-container');
@@ -482,20 +441,21 @@
             }
         }
 
-        /**
-         * Load Menu Data
-         */
         async function loadAdminMenu() {
             if (isProcessing) return;
             
             try {
-                const res = await fetch(GOOGLE_URL);
+                isProcessing = true;
+                
+                const res = await fetch(GOOGLE_URL + '?t=' + Date.now());
                 if (!res.ok) throw new Error('Network error');
                 
                 const newData = await res.json();
+                const newHash = hashData(newData);
                 
-                if (JSON.stringify(menu) !== JSON.stringify(newData)) {
+                if (newHash !== lastDataHash) {
                     menu = newData;
+                    lastDataHash = newHash;
                     updateStatistics();
                     renderAdminList();
                 }
@@ -512,12 +472,11 @@
                         </div>
                     `;
                 }
+            } finally {
+                isProcessing = false;
             }
         }
 
-        /**
-         * Update Statistics
-         */
         function updateStatistics() {
             const total = menu.length;
             const visible = menu.filter(i => i.status !== 'hidden').length;
@@ -531,9 +490,6 @@
             document.getElementById('item-count').textContent = `${total} Items`;
         }
 
-        /**
-         * Render Admin List
-         */
         function renderAdminList() {
             const searchTerm = document.getElementById('adminSearch').value.toLowerCase();
             const searchBtn = document.getElementById('clear-admin-search');
@@ -543,14 +499,12 @@
             
             let filtered = menu;
             
-            // Filter by status
             if (currentFilter === 'visible') {
                 filtered = filtered.filter(i => i.status !== 'hidden');
             } else if (currentFilter === 'hidden') {
                 filtered = filtered.filter(i => i.status === 'hidden');
             }
             
-            // Filter by search
             if (searchTerm) {
                 filtered = filtered.filter(i => 
                     i.name.toLowerCase().includes(searchTerm) || 
@@ -571,8 +525,8 @@
                 return;
             }
 
-            list.innerHTML = filtered.map((item, index) => `
-                <div id="row-${item.id}" class="fade-in flex items-center justify-between p-4 ${item.status === 'hidden' ? 'bg-red-50 border-red-200' : 'bg-gray-50 border-gray-200'} rounded-2xl border-2 transition-all hover:shadow-md" style="animation-delay: ${index * 0.05}s">
+            list.innerHTML = filtered.map(item => `
+                <div id="row-${item.id}" class="flex items-center justify-between p-4 ${item.status === 'hidden' ? 'bg-red-50 border-red-200' : 'bg-gray-50 border-gray-200'} rounded-2xl border-2 transition-all hover:shadow-md">
                     <div class="flex items-center gap-4 flex-1 cursor-pointer hover:opacity-80 transition-opacity" onclick="prepareEdit('${item.id}')">
                         <div class="relative">
                             <img 
@@ -612,9 +566,6 @@
             `).join('');
         }
 
-        /**
-         * Save Food Item
-         */
         async function saveFood() {
             const btn = document.getElementById('saveBtn');
             const name = document.getElementById('foodName').value.trim();
@@ -641,7 +592,6 @@
                 status: document.getElementById('foodStatus').value
             };
             
-            isProcessing = true;
             btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> KAYDINTA...';
             btn.classList.add('processing');
             
@@ -658,19 +608,14 @@
                     loadAdminMenu();
                     btn.innerHTML = '<i class="fas fa-save mr-2"></i> KEYDI XOGTA';
                     btn.classList.remove('processing');
-                    isProcessing = false;
                 }, 800);
             } catch (error) {
                 alert('❌ Khalad ayaa dhacay! Isku day mar kale.');
                 btn.innerHTML = '<i class="fas fa-save mr-2"></i> KEYDI XOGTA';
                 btn.classList.remove('processing');
-                isProcessing = false;
             }
         }
 
-        /**
-         * Prepare Edit
-         */
         function prepareEdit(id) {
             const item = menu.find(i => String(i.id) === String(id));
             if (!item) return;
@@ -683,10 +628,7 @@
             document.getElementById('foodImg').value = item.img;
             document.getElementById('foodStatus').value = item.status || "visible";
             
-            // Update character count
             document.getElementById('desc-count').textContent = (item.description || "").length;
-            
-            // Preview image
             previewImage(item.img);
             
             document.getElementById('form-title').innerHTML = `
@@ -699,9 +641,6 @@
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        /**
-         * Reset Form
-         */
         function resetForm() {
             document.getElementById('foodId').value = "";
             document.getElementById('foodName').value = "";
@@ -721,9 +660,6 @@
             document.getElementById('saveBtn').innerHTML = '<i class="fas fa-save mr-2"></i> KEYDI XOGTA';
         }
 
-        /**
-         * Trigger Popup
-         */
         function triggerPopup(type, id) {
             const popup = document.getElementById('custom-popup');
             const confirmBtn = document.getElementById('popup-confirm-btn');
@@ -742,7 +678,7 @@
                 confirmBtn.onclick = async () => { 
                     closePopup();
                     const row = document.getElementById(`row-${id}`);
-                    row.classList.add('processing');
+                    if (row) row.classList.add('processing');
                     
                     await fetch(GOOGLE_URL, { 
                         method: 'POST', 
@@ -768,7 +704,7 @@
                 confirmBtn.onclick = async () => { 
                     closePopup();
                     const row = document.getElementById(`row-${id}`);
-                    row.classList.add('processing');
+                    if (row) row.classList.add('processing');
                     
                     await fetch(GOOGLE_URL, { 
                         method: 'POST', 
@@ -784,16 +720,10 @@
             }
         }
 
-        /**
-         * Close Popup
-         */
         function closePopup() { 
             document.getElementById('custom-popup').style.display = 'none'; 
         }
 
-        /**
-         * Filter by Status
-         */
         function filterStatus(status) {
             currentFilter = status;
             
@@ -808,17 +738,11 @@
             renderAdminList();
         }
 
-        /**
-         * Clear Admin Search
-         */
         function clearAdminSearch() {
             document.getElementById('adminSearch').value = '';
             renderAdminList();
         }
 
-        /**
-         * Show Success Toast
-         */
         function showSuccessToast() {
             const toast = document.getElementById('success-toast');
             toast.classList.remove('hidden');
@@ -830,21 +754,14 @@
             }, 3000);
         }
 
-        // Add CSS for filter buttons
         const style = document.createElement('style');
         style.textContent = `
             .filter-btn.active {
                 background: linear-gradient(135deg, #dc2626, #991b1b) !important;
                 color: white !important;
             }
-            .no-scrollbar::-webkit-scrollbar { display: none; }
-            .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         `;
         document.head.appendChild(style);
     </script>
 </body>
 </html>
-
-
-
-
